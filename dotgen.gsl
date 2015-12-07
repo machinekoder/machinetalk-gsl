@@ -1,0 +1,26 @@
+.###  This whole script runs in template mode.
+.#
+.template 1
+.output "$(class.name).dot"
+digraph $(class.name) {
+    rankdir=LR;
+    size="8"
+.for fsm
+.  for state
+.    if (defined(inherit) & (inherit = "defaults"))
+    node [shape = doublecircle]; $(Name);
+.    endif
+.  endfor
+.endfor
+    node [shape = circle];
+.for fsm
+.  for state
+.    for event
+    $(state.Name) -> $(Next) [ label = "$(Name)" ];
+.    endfor
+.  endfor
+.endfor
+}
+.-x = proc.new("dot -Tpng $(class.name).dot",".","","test.png")
+.-x.run()
+.endtemplate

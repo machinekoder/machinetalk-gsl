@@ -4,9 +4,13 @@
 .output "$(class.name).py"
 import zmq
 import threading
-from machinetalk.protobuf.types_pb2 import *
+from fysom import Fysom
 
-def $(class.name:)(object):
+from machinetalk.protobuf.types_pb2 import *
+from machinetalk.protobuf.message_pb2 import Container
+
+
+class $(class.name:)(object):
     def __init__(self, debuglevel=0, debugname='$(class.name)'):
         self.debuglevel = debuglevel
         self.debugname = debugname
@@ -20,17 +24,17 @@ def $(class.name:)(object):
         context.linger = 0
         self.context = context
 
+        # Socket
+        self.uri = ''
+        self.service = ''
 .for socket
-        # $(Name)
-        self.$(name)_uri = ''
-        self.$(name)_service = ''
-        self.$(name) = self.context.socket(zmq.$(TYPE))
-        self.$(name).setsockopt(zmq.LINGER, 0)
-        # more efficient to reuse a protobuf message
-        self.$(name)_rx = Container()
-        self.$(name)_tx = Container()
-
+        self.socket = self.context.socket(zmq.$(TYPE))
 .endfor
+        self.socket.setsockopt(zmq.LINGER, 0)
+        # more efficient to reuse a protobuf message
+        self.rx = Container()
+        self.tx = Container()
+
 .for heartbeat
         # $(Name)
         self.$(name)_period = $(period)
@@ -43,50 +47,83 @@ def $(class.name:)(object):
         self.state_changed_cb = None
         self.started = False
 
+.for fsm
         # fsm
-        self.state = DOWN
+        self.fsm = Fysom({'initial': '$(initial)',
+                          'events': [
+.  for state
+.    for event
+                            {'name': '$(name)', 'src': '$(state.name)', 'dst': '$(next)'},
+.    endfor
+.  endfor
+                          ]})
+
+.  for state
+.    for event
+.-     make sure we assign only once
+.      if (!defined(on_$(name:c)))
+.        on_$(name:c) = 1
+        self.fsm.on$(name:c) = self.on_fsm_$(name:c)
+.      endif
+.    endfor
+.  endfor
+.  for state
+.    for event
+.-     make sure we assign only once
+.      if (!defined(fsm_on_$(name:c)))
+.        fsm_on_$(name:c) = 1
+
+    def on_fsm_$(name:c)(self, e):
+        print('[%s]: $(name)' % self.debugname)
+.      for action
+        self.$(name:c)()
+.      endfor
+        return True
+.      endif
+.    endfor
+.  endfor
+.endfor
 
     def socket_worker(self):
         poll = zmq.Poller()
-.for socket
-        poll.register(self.$(name), zmq.POLLIN)
-.endfor
+        poll.register(self.socket, zmq.POLLIN)
 
         while not self.shutdown.is_set():
             s = dict(poll.poll(200))
-.for socket
-            if self.$(name) in s:
-                self.process_$(name)()
-.endfor
+            if self.socket in s:
+                self.process_socket()
 
-.for socket
-    def process_$(name)(self):
-        msg = self.$(name).recv()
-        self.$(name)_rx.ParseFromString(msg)
+    def process_socket(self):
+        msg = self.socket.recv()
+        self.rx.ParseFromString(msg)
         if self.debuglevel > 0:
             print('[%s] received message' % self.debugname)
             if self.debuglevel > 1:
-                print(self.$(name)_rx)
+                print(self.rx)
+.  for class.response
+.    for action
 
-.  for class.response where (response.socket = socket.name)
+        self.$(name:c)()
+.    endfor
 .    for event
-        self.fsm.$(name)()
+
+        if self.fsm.isstate('$(when)'):
+            self.fsm.$(name)()
 
 .    endfor
 .    if (defined(ignore) & ignore = "true")
-        if self.$(socket.name)_rx.type == MT_$(response.NAME:c): # $(response.name) is uninteresting
-            return
 
+        if self.rx.type == MT_$(response.NAME:c): # $(response.name) is uninteresting
+            return
 .    endif
 .  endfor
-        self.message_received_cb(self.$(socket.name)_rx)
-.endfor
+
+        self.message_received_cb(self.rx)
 
     def start(self):
         if self.started:
             return
         self.started = True
-        self.fsm.init()
         self.fsm.connect()  # todo
         self.shutdown.clear()
         self.thread = threading.Thread(target=self.socket_worker)
@@ -96,25 +133,23 @@ def $(class.name:)(object):
         if not self.started:
             return
         self.started = False
+        self.fsm.disconnect()
         self.shutdown.set()
         self.thread.join()
         self.thread = None
-        self.fsm.disconnect()
 
     def connect_sockets(self):
-.for socket
-        self.$(name)_service = self.$(name)uri  # make sure to save the uri we connected to
-        self.$(name).connect(self.$(name)_service)
+        self.service = self.uri  # make sure to save the uri we connected to
+        self.socket.connect(self.service)
         return True
-.endfor
 
     def disconnect_sockets(self):
-.for socket
-        self.$(name).disconnect(self.$(name)_service)
-.endfor
+        self.socket.disconnect(self.service)
 
 .for heartbeat
     def $(name)_tick(self):
+        if self.debuglevel > 0:
+            print('[%s] $(name) tick' % self.debugname)
 .  for tick
 .    for action
         self.$(name:c)()
@@ -125,15 +160,19 @@ def $(class.name:)(object):
         if self.$(name)_error_count > self.$(name)_error_threshold:
 .  for timeout
 .    for event
-            self.fsm.$(name)()
+            if self.fsm.isstate('$(when)'):
+                self.fsm.$(name)()
 .    endfor
 .  endfor
 
-        self.timer_lock.acquire()
-        self.$(name)_timer = threading.Timer(self.$(name)_period / 1000,
-                                             self.$(name)_tick)
-        self.$(name)_timer.start()  # rearm timer
-        self.timer_lock.release()
+        #self.timer_lock.acquire()
+        #self.$(name)_timer = threading.Timer(self.$(name)_period / 1000,
+        #                                     self.$(name)_tick)
+        #self.$(name)_timer.start()  # rearm timer
+        #self.timer_lock.release()
+
+    def reset_$(name)(self):
+        self.$(name)_error_count = 0
 
     def refresh_$(name)(self):
         self.timer_lock.acquire()
@@ -157,17 +196,32 @@ def $(class.name:)(object):
         self.timer_lock.release()
 .endfor
 
-.for socket
-    def send_$(name)_message(self, msg_type, tx):
-        tx.type = msg_type
-        if self.debuglevel > 0:
-            print('[%s] sending message: %s' % (self.debugname, msg_type))
-            if self.debuglevel > 1:
-                print(str(self.tx))
+    def send_message(self, msg_type, tx):
         with self.tx_lock:
+            tx.type = msg_type
+            if self.debuglevel > 0:
+                print('[%s] sending message: %s' % (self.debugname, msg_type))
+                if self.debuglevel > 1:
+                    print(str(tx))
+
             self.socket.send(tx.SerializeToString(), zmq.NOBLOCK)
-        tx.Clear()
-        if msg_type != MT_PING:
-            self.refresh_heartbeat()  # do not send pings when messages are sent
+            tx.Clear()
+.for message
+.  for action
+.    if (message.name = "*")
+
+        self.$(action.name:c)()
+.    else
+
+        if msg_type == MT_$(message.NAME:c):
+            self.$(action.name:c)()
+.    endif
+.  endfor
 .endfor
+.for message where (name <> "*")
+
+    def send_$(name:c)(self):
+        self.send_message(MT_$(NAME:c), self.tx)
+.endfor
+
 .endtemplate

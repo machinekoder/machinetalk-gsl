@@ -1,8 +1,12 @@
 import zmq
 import threading
-from machinetalk.protobuf.types_pb2 import *
+from fysom import Fysom
 
-def RpcClient(object):
+from machinetalk.protobuf.types_pb2 import *
+from machinetalk.protobuf.message_pb2 import Container
+
+
+class RpcClient(object):
     def __init__(self, debuglevel=0, debugname='rpcclient'):
         self.debuglevel = debuglevel
         self.debugname = debugname
@@ -17,13 +21,13 @@ def RpcClient(object):
         self.context = context
 
         # Socket
-        self.socket_uri = ''
-        self.socket_service = ''
+        self.uri = ''
+        self.service = ''
         self.socket = self.context.socket(zmq.DEALER)
         self.socket.setsockopt(zmq.LINGER, 0)
         # more efficient to reuse a protobuf message
-        self.socket_rx = Container()
-        self.socket_tx = Container()
+        self.rx = Container()
+        self.tx = Container()
 
         # Heartbeat
         self.heartbeat_period = 2500
@@ -36,7 +40,41 @@ def RpcClient(object):
         self.started = False
 
         # fsm
-        self.state = DOWN
+        self.fsm = Fysom({'initial': 'down',
+                          'events': [
+                            {'name': 'connect', 'src': 'down', 'dst': 'trying'},
+                            {'name': 'connected', 'src': 'trying', 'dst': 'up'},
+                            {'name': 'disconnect', 'src': 'trying', 'dst': 'down'},
+                            {'name': 'timeout', 'src': 'up', 'dst': 'trying'},
+                            {'name': 'disconnect', 'src': 'up', 'dst': 'down'},
+                          ]})
+
+        self.fsm.onconnect = self.on_fsm_connect
+        self.fsm.onconnected = self.on_fsm_connected
+        self.fsm.ondisconnect = self.on_fsm_disconnect
+        self.fsm.ontimeout = self.on_fsm_timeout
+
+    def on_fsm_connect(self, e):
+        print('[%s]: connect' % self.debugname)
+        self.connect_sockets()
+        self.refresh_heartbeat()
+        self.send_ping()
+        return True
+
+    def on_fsm_connected(self, e):
+        print('[%s]: connected' % self.debugname)
+        self.refresh_heartbeat()
+        return True
+
+    def on_fsm_disconnect(self, e):
+        print('[%s]: disconnect' % self.debugname)
+        self.stop_heartbeat()
+        self.disconnect_sockets()
+        return True
+
+    def on_fsm_timeout(self, e):
+        print('[%s]: timeout' % self.debugname)
+        return True
 
     def socket_worker(self):
         poll = zmq.Poller()
@@ -49,24 +87,27 @@ def RpcClient(object):
 
     def process_socket(self):
         msg = self.socket.recv()
-        self.socket_rx.ParseFromString(msg)
+        self.rx.ParseFromString(msg)
         if self.debuglevel > 0:
             print('[%s] received message' % self.debugname)
             if self.debuglevel > 1:
-                print(self.socket_rx)
+                print(self.rx)
 
-        self.fsm.connected()
+        self.reset_heartbeat()
 
-        if self.socket_rx.type == MT_PING_ACKNOWLEDGE: # ping acknowledge is uninteresting
+        if self.fsm.isstate('trying'):
+            self.fsm.connected()
+
+
+        if self.rx.type == MT_PING_ACKNOWLEDGE: # ping acknowledge is uninteresting
             return
 
-        self.message_received_cb(self.socket_rx)
+        self.message_received_cb(self.rx)
 
     def start(self):
         if self.started:
             return
         self.started = True
-        self.fsm.init()
         self.fsm.connect()  # todo
         self.shutdown.clear()
         self.thread = threading.Thread(target=self.socket_worker)
@@ -76,31 +117,37 @@ def RpcClient(object):
         if not self.started:
             return
         self.started = False
+        self.fsm.disconnect()
         self.shutdown.set()
         self.thread.join()
         self.thread = None
-        self.fsm.disconnect()
 
     def connect_sockets(self):
-        self.socket_service = self.socketuri    # make sure to save the uri we connected to
-        self.socket.connect(self.socket_service)
+        self.service = self.uri  # make sure to save the uri we connected to
+        self.socket.connect(self.service)
         return True
 
     def disconnect_sockets(self):
-        self.socket.disconnect(self.socket_service)
+        self.socket.disconnect(self.service)
 
     def heartbeat_tick(self):
-        self.send_ping
+        if self.debuglevel > 0:
+            print('[%s] heartbeat tick' % self.debugname)
+        self.send_ping()
         self.heartbeat_error_count += 1
 
         if self.heartbeat_error_count > self.heartbeat_error_threshold:
-            self.fsm.timeout()
+            if self.fsm.isstate('up'):
+                self.fsm.timeout()
 
-        self.timer_lock.acquire()
-        self.heartbeat_timer = threading.Timer(self.heartbeat_period / 1000,
-                                             self.heartbeat_tick)
-        self.heartbeat_timer.start()  # rearm timer
-        self.timer_lock.release()
+        #self.timer_lock.acquire()
+        #self.heartbeat_timer = threading.Timer(self.heartbeat_period / 1000,
+        #                                     self.heartbeat_tick)
+        #self.heartbeat_timer.start()  # rearm timer
+        #self.timer_lock.release()
+
+    def reset_heartbeat(self):
+        self.heartbeat_error_count = 0
 
     def refresh_heartbeat(self):
         self.timer_lock.acquire()
@@ -122,4 +169,20 @@ def RpcClient(object):
             self.heartbeat_timer.cancel()
             self.heartbeat_timer = None
         self.timer_lock.release()
+
+    def send_message(self, msg_type, tx):
+        with self.tx_lock:
+            tx.type = msg_type
+            if self.debuglevel > 0:
+                print('[%s] sending message: %s' % (self.debugname, msg_type))
+                if self.debuglevel > 1:
+                    print(str(tx))
+
+            self.socket.send(tx.SerializeToString(), zmq.NOBLOCK)
+            tx.Clear()
+
+        self.refresh_heartbeat()
+
+    def send_ping(self):
+        self.send_message(MT_PING, self.tx)
 
