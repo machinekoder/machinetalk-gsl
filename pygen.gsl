@@ -1,0 +1,173 @@
+.###  This whole script runs in template mode.
+.#
+.template 1
+.output "$(class.name).py"
+import zmq
+import threading
+from machinetalk.protobuf.types_pb2 import *
+
+def $(class.name:)(object):
+    def __init__(self, debuglevel=0, debugname='$(class.name)'):
+        self.debuglevel = debuglevel
+        self.debugname = debugname
+        self.thread = None
+        self.shutdown = threading.Event()
+        self.tx_lock = threading.Lock()
+        self.timer_lock = threading.Lock()
+
+        # ZeroMQ
+        context = zmq.Context()
+        context.linger = 0
+        self.context = context
+
+.for socket
+        # $(Name)
+        self.$(name)_uri = ''
+        self.$(name)_service = ''
+        self.$(name) = self.context.socket(zmq.$(TYPE))
+        self.$(name).setsockopt(zmq.LINGER, 0)
+        # more efficient to reuse a protobuf message
+        self.$(name)_rx = Container()
+        self.$(name)_tx = Container()
+
+.endfor
+.for heartbeat
+        # $(Name)
+        self.$(name)_period = $(period)
+        self.$(name)_error_count = 0
+        self.$(name)_error_threshold = $(error_threshold)
+        self.$(name)_timer = None
+
+.endfor
+        self.message_received_cb = None
+        self.state_changed_cb = None
+        self.started = False
+
+        # fsm
+        self.state = DOWN
+
+    def socket_worker(self):
+        poll = zmq.Poller()
+.for socket
+        poll.register(self.$(name), zmq.POLLIN)
+.endfor
+
+        while not self.shutdown.is_set():
+            s = dict(poll.poll(200))
+.for socket
+            if self.$(name) in s:
+                self.process_$(name)()
+.endfor
+
+.for socket
+    def process_$(name)(self):
+        msg = self.$(name).recv()
+        self.$(name)_rx.ParseFromString(msg)
+        if self.debuglevel > 0:
+            print('[%s] received message' % self.debugname)
+            if self.debuglevel > 1:
+                print(self.$(name)_rx)
+
+.  for class.response where (response.socket = socket.name)
+.    for event
+        self.fsm.$(name)()
+
+.    endfor
+.    if (defined(ignore) & ignore = "true")
+        if self.$(socket.name)_rx.type == MT_$(response.NAME:c): # $(response.name) is uninteresting
+            return
+
+.    endif
+.  endfor
+        self.message_received_cb(self.$(socket.name)_rx)
+.endfor
+
+    def start(self):
+        if self.started:
+            return
+        self.started = True
+        self.fsm.init()
+        self.fsm.connect()  # todo
+        self.shutdown.clear()
+        self.thread = threading.Thread(target=self.socket_worker)
+        self.thread.start()
+
+    def stop(self):
+        if not self.started:
+            return
+        self.started = False
+        self.shutdown.set()
+        self.thread.join()
+        self.thread = None
+        self.fsm.disconnect()
+
+    def connect_sockets(self):
+.for socket
+        self.$(name)_service = self.$(name)uri  # make sure to save the uri we connected to
+        self.$(name).connect(self.$(name)_service)
+        return True
+.endfor
+
+    def disconnect_sockets(self):
+.for socket
+        self.$(name).disconnect(self.$(name)_service)
+.endfor
+
+.for heartbeat
+    def $(name)_tick(self):
+.  for tick
+.    for action
+        self.$(name:c)()
+.    endfor
+.  endfor
+        self.$(name)_error_count += 1
+
+        if self.$(name)_error_count > self.$(name)_error_threshold:
+.  for timeout
+.    for event
+            self.fsm.$(name)()
+.    endfor
+.  endfor
+
+        self.timer_lock.acquire()
+        self.$(name)_timer = threading.Timer(self.$(name)_period / 1000,
+                                             self.$(name)_tick)
+        self.$(name)_timer.start()  # rearm timer
+        self.timer_lock.release()
+
+    def refresh_$(name)(self):
+        self.timer_lock.acquire()
+        if self.$(name)_timer:
+            self.$(name)_timer.cancel()
+            self.$(name)_timer = None
+
+        if self.$(name)_period > 0:
+            self.$(name)_timer = threading.Timer(self.$(name)_period / 1000,
+                                                 self.$(name)_tick)
+            self.$(name)_timer.start()
+        self.timer_lock.release()
+        if self.debuglevel > 0:
+            print('[%s] $(name) updated' % self.debugname)
+
+    def stop_$(name)(self):
+        self.timer_lock.acquire()
+        if self.$(name)_timer:
+            self.$(name)_timer.cancel()
+            self.$(name)_timer = None
+        self.timer_lock.release()
+.endfor
+
+.for socket
+    def send_$(name)_message(self, msg_type, tx):
+        tx.type = msg_type
+        if self.debuglevel > 0:
+            print('[%s] sending message: %s' % (self.debugname, msg_type))
+            if self.debuglevel > 1:
+                print(str(self.tx))
+        with self.tx_lock:
+            self.socket.send(tx.SerializeToString(), zmq.NOBLOCK)
+        tx.Clear()
+        if msg_type != MT_PING:
+            self.refresh_heartbeat()  # do not send pings when messages are sent
+.endfor
+.endtemplate

@@ -1,0 +1,65 @@
+<?xml version = "1.0" ?>
+<class name = "RpcClient" script = "pygen.gsl">
+    RPC/Client
+    <socket name = "socket" type = "DEALER" >
+      Alle messages are passed over this socket.
+    </socket>
+
+    <message name = "*" socket = "socket">
+      Any messge to server
+      <action name = "refresh heartbeat" />
+    </message>
+
+    <message name = "ping" socket = "socket">
+      Ping to server
+    </message>
+
+    <response name = "*" socket = "socket">
+      Any response from the server
+      <event name = "connected" />
+    </response>
+
+    <response name = "ping acknowledge" socket = "socket" ignore = "true">
+      Response to ping from server
+    </response>
+
+    <heartbeat
+        name = "heartbeat"
+        period = "2500"
+        error_threshold = "2" >
+      For monitoring if the connection is alive.
+      <tick>
+        <action name = "send ping" />
+      </tick>
+      <timeout>
+        <event name = "timeout" />
+      </timeout>
+    </heartbeat>
+
+    <fsm name="fsm">
+      <state name = "down" inherit = "defaults">
+        <event name = "connect" next = "trying">
+          <action name = "connect sockets" />
+          <action name = "refresh heartbeat" />
+          <action name = "send ping" />
+        </event>
+      </state>
+      <state name = "trying">
+        <event name = "connected" next = "connected">
+          <action name = "refresh heartbeat" />
+        </event>
+        <event name = "disconnect" next = "down">
+          <action name = "stop heartbeat" />
+          <action name = "disconnect sockets" />
+        </event>
+      </state>
+      <state name = "up">
+        <event name = "timeout" next = "trying">
+        </event>
+        <event name = "disconnect" next = "down">
+          <action name = "stop heartbeat" />
+          <action name = "disconnect sockets" />
+        </event>
+      </state>
+    </fsm>
+</class>

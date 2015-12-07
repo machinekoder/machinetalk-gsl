@@ -1,0 +1,6 @@
+<class name = "rpc_service">
+    RPC/Service
+    <message name = "ping_acknowledge">
+      Reply from server
+    </message>
+</class>
