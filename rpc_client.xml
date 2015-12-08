@@ -43,11 +43,11 @@
           <action name = "connect sockets" />
           <action name = "reset heartbeat error" />
           <action name = "send ping" />
+          <action name = "start heartbeat timer" />
         </event>
       </state>
       <state name = "trying">
         <event name = "connected" next = "up">
-          <action name = "reset heartbeat timer" />
         </event>
         <event name = "disconnect" next = "down">
           <action name = "stop heartbeat timer" />

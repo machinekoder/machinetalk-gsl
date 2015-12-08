@@ -15,7 +15,6 @@ class $(class.name:)(object):
         self.debuglevel = debuglevel
         self.debugname = debugname
         self.thread = None
-        self.shutdown = threading.Event()
         self.tx_lock = threading.Lock()
         self.timer_lock = threading.Lock()
 
@@ -23,16 +22,13 @@ class $(class.name:)(object):
         context = zmq.Context()
         context.linger = 0
         self.context = context
+        self.shutdown = context.socket(zmq.PUSH)
+        self.shutdown.bind(b'inproc://shutdown')
+        self.pipe = context.socket(zmq.PUSH)
+        self.pipe.bind(b'inproc://pipe')
 
         # Socket
         self.uri = ''
-.for socket
-.if (nature = "client")
-        self.service = ''
-.endif
-        self.socket = self.context.socket(zmq.$(TYPE))
-.endfor
-        self.socket.setsockopt(zmq.LINGER, 0)
         # more efficient to reuse a protobuf message
         self.rx = Container()
         self.tx = Container()
@@ -43,6 +39,7 @@ class $(class.name:)(object):
         self.$(name)_error_count = 0
         self.$(name)_error_threshold = $(error_threshold)
         self.$(name)_timer = None
+        self.$(name)_active = False
 
 .endfor
         self.message_received_cb = None
@@ -76,7 +73,8 @@ class $(class.name:)(object):
 .        fsm_on_$(name:c) = 1
 
     def on_fsm_$(name:c)(self, e):
-        print('[%s]: $(name)' % self.debugname)
+        if self.debuglevel > 0:
+            print('[%s]: event $(NAME)' % self.debugname)
 .      for action
         self.$(name:c)()
 .      endfor
@@ -86,17 +84,37 @@ class $(class.name:)(object):
 .  endfor
 .endfor
 
-    def socket_worker(self):
+    def socket_worker(self, context, uri):
+.for socket
+        socket = context.socket(zmq.$(TYPE))
+        socket.setsockopt(zmq.LINGER, 0)
+.  if (nature = "client")
+        socket.connect(uri)
+.  else
+        socket.bind(uri)
+.  endif
+.endfor
+        shutdown = context.socket(zmq.PULL)
+        shutdown.connect(b'inproc://shutdown')
+        pipe = context.socket(zmq.PULL)
+        pipe.connect(b'inproc://pipe')
         poll = zmq.Poller()
-        poll.register(self.socket, zmq.POLLIN)
+        poll.register(socket, zmq.POLLIN)
+        poll.register(shutdown, zmq.POLLIN)
+        poll.register(pipe, zmq.POLLIN)
 
-        while not self.shutdown.is_set():
-            s = dict(poll.poll(200))
-            if self.socket in s:
-                self.process_socket()
+        while True:
+            s = dict(poll.poll())
+            if shutdown in s:
+                shutdown.recv()
+                return  # shutdown signal
+            if pipe in s:
+                socket.send(pipe.recv(), zmq.NOBLOCK)
+            if socket in s:
+                msg = socket.recv()
+                self.process_socket(msg)
 
-    def process_socket(self):
-        msg = self.socket.recv()
+    def process_socket(self, msg):
         self.rx.ParseFromString(msg)
         if self.debuglevel > 0:
             print('[%s] received message' % self.debugname)
@@ -129,42 +147,34 @@ class $(class.name:)(object):
     def start(self):
         if self.started:
             return
-        self.started = True
         self.fsm.connect()  # todo
-        self.shutdown.clear()
-        self.thread = threading.Thread(target=self.socket_worker)
-        self.thread.start()
+        self.started = True
 
     def stop(self):
         if not self.started:
             return
-        self.started = False
         self.fsm.disconnect()
-        self.shutdown.set()
-        self.thread.join()
-        self.thread = None
+        self.started = False
 
 .for socket
     def connect_sockets(self):
-.  if (nature = "client")
-        self.service = self.uri  # make sure to save the uri we connected to
-        self.socket.connect(self.service)
-.  else
-        self.socket.bind(self.uri)
-.  endif
+        self.thread = threading.Thread(target=self.socket_worker,
+                                       args=(self.context, self.uri,))
+        self.thread.start()
 
     def disconnect_sockets(self):
-.  if (nature = "client")
-        self.socket.disconnect(self.service)
-.  else
-        self.socket.unbind()
-.  endif
+        self.shutdown.send('')  # trigger socket thread shutdown
+        self.thread.join()
+        self.thread = None
 .endfor
 .for heartbeat
 
     def $(name)_timer_tick(self):
+        with self.timer_lock:
+            self.$(name)_timer = None  # timer is dead on tick
+
         if self.debuglevel > 0:
-            print('[%s] $(name) tick' % self.debugname)
+            print('[%s] $(name) timer tick' % self.debugname)
 .  for tick
 .    for action
         self.$(name:c)()
@@ -184,6 +194,9 @@ class $(class.name:)(object):
         self.$(name)_error_count = 0
 
     def reset_$(name)_timer(self):
+        if not self.$(name)_active:
+            return
+
         self.timer_lock.acquire()
         if self.$(name)_timer:
             self.$(name)_timer.cancel()
@@ -195,9 +208,14 @@ class $(class.name:)(object):
             self.$(name)_timer.start()
         self.timer_lock.release()
         if self.debuglevel > 0:
-            print('[%s] $(name) updated' % self.debugname)
+            print('[%s] $(name) timer reset' % self.debugname)
+
+    def start_$(name)_timer(self):
+        self.$(name)_active = True
+        self.reset_$(name)_timer()
 
     def stop_$(name)_timer(self):
+        self.$(name)_active = False
         self.timer_lock.acquire()
         if self.$(name)_timer:
             self.$(name)_timer.cancel()
@@ -213,7 +231,7 @@ class $(class.name:)(object):
                 if self.debuglevel > 1:
                     print(str(tx))
 
-            self.socket.send(tx.SerializeToString(), zmq.NOBLOCK)
+            self.pipe.send(tx.SerializeToString())
             tx.Clear()
 .for outgoing
 .  for action
