@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "RpcService">
+<class name = "Machinetalk RPC Service">
   RPC/Service
   <socket type = "ROUTER" nature = "server">
     Alle messages are passed over this socket.

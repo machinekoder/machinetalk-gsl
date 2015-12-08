@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "RpcClient">
+<class name = "Machinetalk RPC Client">
     RPC/Client
     <socket type = "DEALER" nature = "client" >
       Alle messages are passed over this socket.

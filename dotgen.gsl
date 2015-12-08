@@ -1,8 +1,8 @@
 .###  This whole script runs in template mode.
 .#
 .template 1
-.output "generated/$(class.name).dot"
-digraph $(class.name) {
+.output "generated/$(class.name:c).dot"
+digraph $(class.name:c) {
     rankdir=LR;
     size="8"
 .for fsm
@@ -21,6 +21,6 @@ digraph $(class.name) {
 .  endfor
 .endfor
 }
-.-x = proc.new("dot -Tpng $(class.name).dot",".","","test.png")
+.-x = proc.new("dot -Tpng $(class.name:c).dot",".","","test.png")
 .-x.run()
 .endtemplate

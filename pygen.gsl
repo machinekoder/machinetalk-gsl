@@ -1,7 +1,7 @@
 .###  This whole script runs in template mode.
 .#
 .template 1
-.output "generated/$(class.name).py"
+.output "generated/$(class.name:c).py"
 import zmq
 import threading
 from fysom import Fysom
