@@ -1,7 +1,7 @@
 .###  This whole script runs in template mode.
 .#
 .template 1
-.output "$(class.name).py"
+.output "generated/$(class.name).py"
 import zmq
 import threading
 from fysom import Fysom
@@ -26,8 +26,10 @@ class $(class.name:)(object):
 
         # Socket
         self.uri = ''
-        self.service = ''
 .for socket
+.if (nature = "client")
+        self.service = ''
+.endif
         self.socket = self.context.socket(zmq.$(TYPE))
 .endfor
         self.socket.setsockopt(zmq.LINGER, 0)
@@ -100,7 +102,12 @@ class $(class.name:)(object):
             print('[%s] received message' % self.debugname)
             if self.debuglevel > 1:
                 print(self.rx)
-.  for class.response
+.  for class.incoming
+.    if (defined(response))
+
+        if self.rx.type == MT_$(NAME:c):
+            self.send_$(response:c)()
+.    endif
 .    for action
 
         self.$(name:c)()
@@ -109,11 +116,10 @@ class $(class.name:)(object):
 
         if self.fsm.isstate('$(when)'):
             self.fsm.$(name)()
-
 .    endfor
 .    if (defined(ignore) & ignore = "true")
 
-        if self.rx.type == MT_$(response.NAME:c): # $(response.name) is uninteresting
+        if self.rx.type == MT_$(incoming.NAME:c): # $(incoming.name) is uninteresting
             return
 .    endif
 .  endfor
@@ -138,16 +144,25 @@ class $(class.name:)(object):
         self.thread.join()
         self.thread = None
 
+.for socket
     def connect_sockets(self):
+.  if (nature = "client")
         self.service = self.uri  # make sure to save the uri we connected to
         self.socket.connect(self.service)
-        return True
+.  else
+        self.socket.bind(self.uri)
+.  endif
 
     def disconnect_sockets(self):
+.  if (nature = "client")
         self.socket.disconnect(self.service)
-
+.  else
+        self.socket.unbind()
+.  endif
+.endfor
 .for heartbeat
-    def $(name)_tick(self):
+
+    def $(name)_timer_tick(self):
         if self.debuglevel > 0:
             print('[%s] $(name) tick' % self.debugname)
 .  for tick
@@ -165,16 +180,10 @@ class $(class.name:)(object):
 .    endfor
 .  endfor
 
-        #self.timer_lock.acquire()
-        #self.$(name)_timer = threading.Timer(self.$(name)_period / 1000,
-        #                                     self.$(name)_tick)
-        #self.$(name)_timer.start()  # rearm timer
-        #self.timer_lock.release()
-
-    def reset_$(name)(self):
+    def reset_$(name)_error(self):
         self.$(name)_error_count = 0
 
-    def refresh_$(name)(self):
+    def reset_$(name)_timer(self):
         self.timer_lock.acquire()
         if self.$(name)_timer:
             self.$(name)_timer.cancel()
@@ -182,13 +191,13 @@ class $(class.name:)(object):
 
         if self.$(name)_period > 0:
             self.$(name)_timer = threading.Timer(self.$(name)_period / 1000,
-                                                 self.$(name)_tick)
+                                                 self.$(name)_timer_tick)
             self.$(name)_timer.start()
         self.timer_lock.release()
         if self.debuglevel > 0:
             print('[%s] $(name) updated' % self.debugname)
 
-    def stop_$(name)(self):
+    def stop_$(name)_timer(self):
         self.timer_lock.acquire()
         if self.$(name)_timer:
             self.$(name)_timer.cancel()
@@ -206,19 +215,19 @@ class $(class.name:)(object):
 
             self.socket.send(tx.SerializeToString(), zmq.NOBLOCK)
             tx.Clear()
-.for message
+.for outgoing
 .  for action
-.    if (message.name = "*")
+.    if (outgoing.name = "*")
 
         self.$(action.name:c)()
 .    else
 
-        if msg_type == MT_$(message.NAME:c):
+        if msg_type == MT_$(outgoing.NAME:c):
             self.$(action.name:c)()
 .    endif
 .  endfor
 .endfor
-.for message where (name <> "*")
+.for outgoing where (name <> "*")
 
     def send_$(name:c)(self):
         self.send_message(MT_$(NAME:c), self.tx)

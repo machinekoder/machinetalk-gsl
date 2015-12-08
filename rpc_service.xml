@@ -1,6 +1,36 @@
-<class name = "rpc_service">
-    RPC/Service
-    <message name = "ping_acknowledge">
-      Reply from server
-    </message>
+<?xml version = "1.0" ?>
+<class name = "RpcService">
+  RPC/Service
+  <socket type = "ROUTER" nature = "server">
+    Alle messages are passed over this socket.
+  </socket>
+
+  <outgoing name = "*" response = "*">
+    Any messge to client
+  </outgoing>
+
+  <outgoing name = "ping acknowledge">
+    Ping achnowledge to client.
+  </outgoing>
+
+  <incoming name = "ping" response = "ping acknowledge" ignore = "true">
+    Ping from client.
+  </incoming>
+
+  <incoming name = "*">
+    Any message from client.
+  </incoming>
+
+  <fsm name = "fsm" initial = "down">
+    <state name = "down" inherit = "defaults">
+        <event name = "connect" next = "up">
+          <action name = "connect sockets" />
+        </event>
+    </state>
+    <state name = "up">
+      <event name = "disconnect" next = "down">
+        <action name = "disconnect sockets" />
+      </event>
+    </state>
+  </fsm>
 </class>

@@ -1,7 +1,7 @@
 .###  This whole script runs in template mode.
 .#
 .template 1
-.output "$(class.name).dot"
+.output "generated/$(class.name).dot"
 digraph $(class.name) {
     rankdir=LR;
     size="8"
