@@ -127,7 +127,9 @@ public slots:
         }
     }
 
+.if (count(outgoing) > 0)
     void sendMessage(pb::ContainerType type, pb::Container *tx);
+.endif
 
 private:
     bool m_ready;
@@ -435,6 +437,8 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     emit messageReceived(&m_rx);
 }
 .endfor
+.
+.if (count(outgoing) > 0)
 
 void $(class.name:lower,Pascal)::sendMessage(pb::ContainerType type, pb::Container *tx)
 {
@@ -458,28 +462,22 @@ void $(class.name:lower,Pascal)::sendMessage(pb::ContainerType type, pb::Contain
         //updateState(SocketError, errorString);
     }
 .
-.for outgoing
-.  for action
-.    if (outgoing.name = "*")
+.  for outgoing
+.    for action
+.      if (outgoing.name = "*")
 
     $(action.name:Camel)();
-.    else
+.      else
 
     if (type == pb::MT_$(outgoing.NAME:c))
     {
         $(action.name:Camel)();
     }
-.    endif
+.      endif
+.    endfor
 .  endfor
-.endfor
 }
-
-void $(class.name:lower,Pascal)::socketError(int errorNum, const QString &errorMsg)
-{
-    QString errorString;
-    errorString = QString("Error %1: ").arg(errorNum) + errorMsg;
-    //updateState(SocketError, errorString);
-}
+.endif
 .
 .for outgoing where (name <> "*")
 
@@ -488,6 +486,13 @@ void $(class.name:lower,Pascal)::send$(name:Pascal)()
     sendMessage(pb::MT_$(NAME:c), &m_tx);
 }
 .endfor
+
+void $(class.name:lower,Pascal)::socketError(int errorNum, const QString &errorMsg)
+{
+    QString errorString;
+    errorString = QString("Error %1: ").arg(errorNum) + errorMsg;
+    //updateState(SocketError, errorString);
+}
 .
 .for fsm
 .  for state

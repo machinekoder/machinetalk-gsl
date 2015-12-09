@@ -222,6 +222,8 @@ class $(class.name:)(object):
             self.$(name)_timer = None
         self.timer_lock.release()
 .endfor
+.
+.if (count(outgoing) > 0)
 
     def send_message(self, msg_type, tx):
         with self.tx_lock:
@@ -233,18 +235,19 @@ class $(class.name:)(object):
 
             self.pipe.send(tx.SerializeToString())
             tx.Clear()
-.for outgoing
-.  for action
-.    if (outgoing.name = "*")
+.  for outgoing
+.    for action
+.      if (outgoing.name = "*")
 
         self.$(action.name:c)()
-.    else
+.      else
 
         if msg_type == MT_$(outgoing.NAME:c):
             self.$(action.name:c)()
-.    endif
+.      endif
+.    endfor
 .  endfor
-.endfor
+.endif
 .for outgoing where (name <> "*")
 
     def send_$(name:c)(self):
