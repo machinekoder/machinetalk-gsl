@@ -1,0 +1,69 @@
+<?xml version = "1.0" ?>
+<class name = "Machinetalk Subscribe">
+  Subscribe
+  <socket type = "SUB" nature = "client">
+    Alle messages are passed over this socket.
+  </socket>
+
+  <incoming name = "*">
+    Any message from publiser.
+    <action name = "reset heartbeat timer" />
+  </incoming>
+
+  <incoming name = "ping" ignore = "true">
+    The server sends pings every once in a while.
+  </incoming>
+
+  <incoming name = "full update">
+    A full update message from the publisher.
+    <event name = "connected" when = "trying" />
+    <pparams />
+  </incoming>
+
+  <incoming name = "incremental update">
+    A incremental update message from the publisher.
+  </incoming>
+
+  <heartbeat
+      name = "heartbeat"
+      period = "0"
+      error_threshold = "2" >
+    For monitoring if the connection is alive.
+    <tick>
+    </tick>
+    <timeout>
+      <event name = "timeout" when = "up" />
+    </timeout>
+    </heartbeat>
+
+    <fsm name = "fsm" initial = "down">
+      <state name = "down" inherit = "defaults">
+        <event name = "connect" next = "trying">
+          <action name = "connect sockets" />
+          <action name = "subscribe" />
+        </event>
+      </state>
+      <state name = "trying">
+        <event name = "connected" next = "up">
+          <action name = "reset heartbeat error" />
+          <action name = "start heartbeat timer" />
+        </event>
+        <event name = "disconnect" next = "down">
+          <action name = "stop heartbeat timer" />
+          <action name = "disconnect sockets" />
+        </event>
+      </state>
+      <state name = "up">
+        <event name = "timeout" next = "trying">
+          <action name = "stop heartbeat timer" />
+          <action name = "disconnect sockets" />
+          <action name = "connect sockets" />
+          <action name = "subscribe" />
+        </event>
+        <event name = "disconnect" next = "down">
+          <action name = "stop heartbeat timer" />
+          <action name = "disconnect sockets" />
+        </event>
+      </state>
+    </fsm>
+</class>

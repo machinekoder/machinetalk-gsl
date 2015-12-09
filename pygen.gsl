@@ -10,7 +10,7 @@ from machinetalk.protobuf.types_pb2 import *
 from machinetalk.protobuf.message_pb2 import Container
 
 
-class $(class.name:)(object):
+class $(class.name:Pascal)(object):
     def __init__(self, debuglevel=0, debugname='$(class.name)'):
         self.debuglevel = debuglevel
         self.debugname = debugname
@@ -24,8 +24,10 @@ class $(class.name:)(object):
         self.context = context
         self.shutdown = context.socket(zmq.PUSH)
         self.shutdown.bind(b'inproc://shutdown')
+.if (count(outgoing) > 0)
         self.pipe = context.socket(zmq.PUSH)
         self.pipe.bind(b'inproc://pipe')
+.endif
 
         # Socket
         self.uri = ''
@@ -85,6 +87,7 @@ class $(class.name:)(object):
 .endfor
 
     def socket_worker(self, context, uri):
+        poll = zmq.Poller()
 .for socket
         socket = context.socket(zmq.$(TYPE))
         socket.setsockopt(zmq.LINGER, 0)
@@ -94,55 +97,66 @@ class $(class.name:)(object):
         socket.bind(uri)
 .  endif
 .endfor
+        poll.register(socket, zmq.POLLIN)
         shutdown = context.socket(zmq.PULL)
         shutdown.connect(b'inproc://shutdown')
+        poll.register(shutdown, zmq.POLLIN)
+.if (count(outgoing) > 0)
         pipe = context.socket(zmq.PULL)
         pipe.connect(b'inproc://pipe')
-        poll = zmq.Poller()
-        poll.register(socket, zmq.POLLIN)
-        poll.register(shutdown, zmq.POLLIN)
         poll.register(pipe, zmq.POLLIN)
+.endif
 
         while True:
             s = dict(poll.poll())
             if shutdown in s:
                 shutdown.recv()
                 return  # shutdown signal
+.if (count(outgoing) > 0)
             if pipe in s:
                 socket.send(pipe.recv(), zmq.NOBLOCK)
+.endif
             if socket in s:
-                msg = socket.recv()
-                self.process_socket(msg)
+                self.socket_message_received(socket)
 
-    def process_socket(self, msg):
+    def socket_message_received(self, socket):
+.if (class->socket.type = "SUB")
+        (topic, msg) = socket.recv_multipart()
+.else
+        msg = socket.recv()
+.endif
         self.rx.ParseFromString(msg)
         if self.debuglevel > 0:
             print('[%s] received message' % self.debugname)
             if self.debuglevel > 1:
                 print(self.rx)
-.  for class.incoming
-.    if (defined(response))
+.for incoming
+.  if (defined(response))
 
         if self.rx.type == MT_$(NAME:c):
             self.send_$(response:c)()
-.    endif
-.    for action
+.  endif
+.  for action
 
         self.$(name:c)()
-.    endfor
-.    for event
+.  endfor
+.  for event
 
         if self.fsm.isstate('$(when)'):
             self.fsm.$(name)()
-.    endfor
-.    if (defined(ignore) & ignore = "true")
+.  endfor
+.  if (defined(ignore) & ignore = "true")
 
         if self.rx.type == MT_$(incoming.NAME:c): # $(incoming.name) is uninteresting
             return
-.    endif
-.  endfor
+.  endif
+.endfor
 
+.if (class->socket.type = "SUB")
+        self.message_received_cb(topic, self.rx)
+.else
         self.message_received_cb(self.rx)
+.endif
 
     def start(self):
         if self.started:

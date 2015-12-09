@@ -9,7 +9,6 @@
 #include <nzmqt/nzmqt.hpp>
 #include <machinetalk/protobuf/message.pb.h>
 #include <google/protobuf/text_format.h>
-//#include "machinetalk.h"
 
 #if defined(Q_OS_IOS)
 namespace gpb = google_public::protobuf;
@@ -126,15 +125,25 @@ public slots:
             stop();
         }
     }
-
+.
 .if (count(outgoing) > 0)
+
     void sendMessage(pb::ContainerType type, pb::Container *tx);
+.endif
+.
+.if (class->socket.type = "SUB")
+    void addTopic(const QString &name);
+    void removeTopic(const QString &name);
+    void clearTopics();
 .endif
 
 private:
     bool m_ready;
     QString m_uri;
     QString m_debugName;
+.if (class->socket.type = "SUB")
+    QSet<QString> m_topics;  // the topics we are interested in
+.endif
 
     SocketNotifierZMQContext *m_context;
     ZMQSocket  *m_socket;
@@ -168,6 +177,9 @@ private slots:
 
     bool connectSockets();
     void disconnectSockets();
+.if (class->socket.type = "SUB")
+    void subscribe();
+.endif
 
 .for outgoing where (name <> "*")
     void send$(name:Pascal)();
@@ -180,7 +192,11 @@ private slots:
 .endfor
 
 signals:
+.if (class->socket.type = "SUB")
+    void messageReceived(QByteArray topic, pb::Container *rx);
+.else
     void messageReceived(pb::Container *rx);
+.endif
     void uriChanged(QString uri);
     void debugNameChanged(QString debugName);
     void socketStateChanged($(class.name:lower,Pascal)::SocketState socketState);
@@ -282,6 +298,27 @@ $(class.name:lower,Pascal)::~$(class.name:lower,Pascal)()
         m_context = NULL;
     }
 }
+.
+.if (class->socket.type = "SUB")
+
+/** Add a topic that should be subscribed **/
+void $(class.name:lower,Pascal)::addTopic(const QString &name)
+{
+    m_topics.insert(name);
+}
+
+/** Removes a topic from the list of topics that should be subscribed **/
+void $(class.name:lower,Pascal)::removeTopic(const QString &name)
+{
+    m_topics.remove(name);
+}
+
+/** Clears the the topics that should be subscribed **/
+void $(class.name:lower,Pascal)::clearTopics()
+{
+    m_topics.clear();
+}
+.endif
 
 /** Connects the 0MQ sockets */
 bool $(class.name:lower,Pascal)::connectSockets()
@@ -321,6 +358,17 @@ void $(class.name:lower,Pascal)::disconnectSockets()
         m_socket = NULL;
     }
 }
+.
+.if (class->socket.type = "SUB")
+
+void $(class.name:lower,Pascal)::subscribe()
+{
+    foreach(QString topic, m_topics)
+    {
+        m_socket->subscribeTo(topic.toLocal8Bit());
+    }
+}
+.endif
 
 void $(class.name:lower,Pascal)::start()
 {
@@ -395,48 +443,76 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
 }
 .endfor
 
-.for socket
 /** Processes all message received on the 0MQ socket */
 void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> messageList)
 {
+.if (class->socket.type = "SUB")
+    QByteArray topic;
+
+    if (messageList.length() < 2)  // in case we received insufficient data
+    {
+        return;
+    }
+
+    // we only handle the first two messges
+    topic = messageList.at(0);  // TODO: we never check the topic
+    m_rx.ParseFromArray(messageList.at(1).data(), messageList.at(1).size());
+.else
     m_rx.ParseFromArray(messageList.at(0).data(), messageList.at(0).size());
+.endif
 
 #ifdef QT_DEBUG
     std::string s;
     gpb::TextFormat::PrintToString(m_rx, &s);
     DEBUG_TAG(3, m_debugName, "server message" << QString::fromStdString(s));
 #endif
-.  for class.incoming
-.    if (defined(response))
-
-    if (m_rx.type() == pb::MT_$(NAME:c))
-    {
-        send$(response:Pascal)();
-    }
-.    endif
-.    for action
-
+.
+.for incoming where (name = "*")
+.  if (defined(response))
+    send$(response:Pascal)();
+.  endif
+.  for action
     $(name:Camel)();
-.    endfor
-.    for event
+.  endfor
+.  for event
 
     if (m_socketState == Socket$(When))
     {
         emit fsm$(Name)();
     }
+.  endfor
+.endfor
+.
+.for incoming where (name <> "*")
+.  if (defined(response) | (count(.) > 0))
+
+    if (m_rx.type() == pb::MT_$(NAME:c))
+    {
+.    if (defined(response))
+        send$(response:Pascal)();
+.    endif
+.    for action
+         $(name:Camel)();
+.    endfor
+.    for event
+         if (m_socketState == Socket$(When))
+         {
+             emit fsm$(Name)();
+         }
 .    endfor
 .    if (defined(ignore) & ignore = "true")
-
-    if (m_rx.type() == pb::MT_$(incoming.NAME:c))  // $(incoming.name) is uninteresting
-    {
-        return;
-    }
+         return;
 .    endif
-.  endfor
-
-    emit messageReceived(&m_rx);
-}
+    }
+.  endif
 .endfor
+
+.if (class->socket.type = "SUB")
+    emit messageReceived(topic, &m_rx);
+.else
+    emit messageReceived(&m_rx);
+.endif
+}
 .
 .if (count(outgoing) > 0)
 
