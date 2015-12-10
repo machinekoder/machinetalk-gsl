@@ -34,11 +34,14 @@ class $(class.name:Pascal)(object):
 .if (class->socket.type = "SUB")
         self.topics = set()
 .endif
-        # more efficient to reuse a protobuf message
+        # more efficient to reuse protobuf messages
+.if (count(incoming) > 0)
         self.rx = Container()
+.endif
         self.tx = Container()
-
+.
 .for heartbeat
+
         # $(Name)
         self.$(name)_period = $(period)
         self.$(name)_error_count = 0
@@ -80,6 +83,7 @@ class $(class.name:Pascal)(object):
 .        fsm_on_$(name:c) = 1
 
     def on_fsm_$(name:c)(self, e):
+        del e
         if self.debuglevel > 0:
             print('[%s]: event $(NAME)' % self.debugname)
 .      for action
@@ -158,13 +162,15 @@ class $(class.name:Pascal)(object):
                 print(self.rx)
 .
 .  for incoming
-.    if (defined(response) | (count(action) > 0) | (count(event) > 0))
+.    if (defined(ignore) | (count(action) > 0) | (count(event) > 0))
 
 .      if (name <> "*")
 .        ws = "    "
+        # react to $(name) message
         if self.rx.type == MT_$(NAME:c):
 .      else
 .        ws = ""
+        # react to any incoming message
 .      endif
 .
 .      if (defined(response))
@@ -330,7 +336,7 @@ class $(class.name:Pascal)(object):
 
 .  if (class->socket.type = "PUB")
     def send_$(name:c)(self, topic):
-        self.send_message(MT_$(NAME:c), topic, self.tx)
+        self.send_message(topic, MT_$(NAME:c), self.tx)
 .  else
     def send_$(name:c)(self):
         self.send_message(MT_$(NAME:c), self.tx)

@@ -155,13 +155,17 @@ private:
     QStateMachine *m_fsm;
     QString     m_errorString;
 .for heartbeat
+
     QTimer     *m_$(name)Timer;
     int         m_$(name)Period;
     int         m_$(name)ErrorCount;
     int         m_$(name)ErrorThreshold;
 .endfor
-    pb::Container m_rx;  // more efficient to reuse a protobuf Message
-    pb::Container m_tx;  // more efficient to reuse a protobuf Message
+    // more efficient to reuse a protobuf Messages
+.if (count(incoming) > 0)
+    pb::Container m_rx;
+.endif
+    pb::Container m_tx;
 
     void start();
     void stop();
@@ -467,7 +471,7 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     }
 
     // we only handle the first two messges
-    topic = messageList.at(0);  // TODO: we never check the topic
+    topic = messageList.at(0);
     m_rx.ParseFromArray(messageList.at(1).data(), messageList.at(1).size());
 .  else
     m_rx.ParseFromArray(messageList.at(0).data(), messageList.at(0).size());
@@ -480,14 +484,16 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
 #endif
 .
 .  for incoming
-.    if (defined(response) | (count(action) > 0) | (count(event) > 0))
+.    if (defined(ignore) | (count(action) > 0) | (count(event) > 0))
 
 .      if (name <> "*")
 .        ws = "    "
+    // react to $(name) message
     if (m_rx.type() == pb::MT_$(NAME:c))
     {
 .      else
 .        ws = ""
+    // react to any incoming message
 .      endif
 .
 .      if (defined(response))
@@ -509,7 +515,7 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
 .      for event
     $(ws)if (m_socketState == Socket$(When))
     $(ws){
-    $(ws)    emit fsm$(Name)();
+        $(ws)emit fsm$(Name)();
     $(ws)}
 .      endfor
 .
