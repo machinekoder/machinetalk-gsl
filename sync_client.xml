@@ -1,0 +1,105 @@
+<?xml version = "1.0" ?>
+<class name = "Machinetalk Sync Client">
+  Sync Client
+
+  <channel name = "sync" type = "Machinetalk RPC Client">
+    The sync channel is used to issue sync commands to the server.
+    <state name = "trying">
+      <event name = "sync trying" when = "syncing" />
+      <event name = "sync trying" when = "synced" />
+    </state>
+    <state name = "up">
+      <event name = "sync up" when = "trying" />
+    </state>
+
+    <outgoing name = "*" response = "*">
+      Any message to the remote service.
+    </outgoing>
+
+    <outgoing name = "sync">
+      Sync message to remote service.
+    </outgoing>
+
+    <incoming name = "*">
+      Any incoming message from the remote service.
+    </incoming>
+
+  </channel>
+
+  <channel name = "sub" type = "Machinetalk Subscribe">
+    The sub channel is used to received status updates from the server.
+    <state name = "trying">
+      <event name = "sub trying" when = "synced" />
+    </state>
+    <state name = "up">
+      <event name = "sub up" when = "syncing" />
+    </state>
+
+    <incoming name = "*">
+      Any message from the remote end point.
+    </incoming>
+
+    <incoming name = "full update">
+      Full status update from remote end point.
+    </incoming>
+
+    <incoming name = "incremental update">
+      Incremental status update from remote end point.
+    </incoming>
+
+  </channel>
+
+  <channel name = "pub" type = "Machinetalk Publish">
+    The pub channel is used to publish status updates to to the server.
+
+    <outgoing name = "*">
+      Any message to the remote end point.
+    </outgoing>
+
+    <outgoing name = "incremental update" public = "true">
+      Incremental update to the remote end point.
+    </outgoing>
+
+  </channel>
+
+  <fsm name = "fsm" initial = "down">
+      <state name = "down" inherit = "defaults">
+        <event name = "connect" next = "trying">
+          <action name = "start sync channel" />
+          <action name = "start pub channel" />
+        </event>
+      </state>
+      <state name = "trying">
+        <event name = "sync up" next = "syncing">
+          <action name = "send sync" />
+          <action name = "start sub channel" />
+        </event>
+        <event name = "disconnect" next = "down">
+          <action name = "stop sync channel" />
+          <action name = "stop sub channel" />
+          <action name = "stop pub channel" />
+        </event>
+      </state>
+      <state name = "syncing">
+        <event name = "sync trying" next = "trying">
+          <action name = "stop sub channel" />
+        </event>
+        <event name = "sub up" next = "synced">
+          <action name = "synced" />
+        </event>
+        <event name = "disconnect" next = "down">
+        </event>
+      </state>
+      <state name = "synced">
+        <event name = "sub trying" next = "syncing">
+          <action name = "send sync" />
+        </event>
+        <event name = "sync trying" next = "trying">
+          <action name = "stop sub channel" />
+        </event>
+        <event name = "disconnect" next = "down">
+        </event>
+      </state>
+    </fsm>
+</class>
+
