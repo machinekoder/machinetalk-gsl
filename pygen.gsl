@@ -45,9 +45,11 @@ class $(class.name:Pascal)(object):
         self.$(name)_error_threshold = $(error_threshold)
         self.$(name)_timer = None
         self.$(name)_active = False
-
 .endfor
+
+.if (count(incoming) > 0)
         self.message_received_cb = None
+.endif
         self.state_changed_cb = None
         self.started = False
 
@@ -112,7 +114,10 @@ class $(class.name:Pascal)(object):
         socket.bind(uri)
 .  endif
 .endfor
+.
+.if (count(incoming) > 0)
         poll.register(socket, zmq.POLLIN)
+.endif
         shutdown = context.socket(zmq.PULL)
         shutdown.connect(b'inproc://shutdown')
         poll.register(shutdown, zmq.POLLIN)
@@ -129,62 +134,69 @@ class $(class.name:Pascal)(object):
                 return  # shutdown signal
 .if (count(outgoing) > 0)
             if pipe in s:
+.  if (class->socket.type = "PUB")
+                socket.send_multipart(pipe.recv_multipart(), zmq.NOBLOCK)
+.  else
                 socket.send(pipe.recv(), zmq.NOBLOCK)
+.  endif
 .endif
+.
+.if (count(incoming) > 0)
             if socket in s:
                 self.socket_message_received(socket)
 
     def socket_message_received(self, socket):
-.if (class->socket.type = "SUB")
+.  if (class->socket.type = "SUB")
         (topic, msg) = socket.recv_multipart()
-.else
+.  else
         msg = socket.recv()
-.endif
+.  endif
         self.rx.ParseFromString(msg)
         if self.debuglevel > 0:
             print('[%s] received message' % self.debugname)
             if self.debuglevel > 1:
                 print(self.rx)
 .
-.for incoming
-.  if (defined(response) | (count(action) > 0) | (count(event) > 0))
+.  for incoming
+.    if (defined(response) | (count(action) > 0) | (count(event) > 0))
 
-.    if (name <> "*")
-.      ws = "    "
+.      if (name <> "*")
+.        ws = "    "
         if self.rx.type == MT_$(NAME:c):
-.    else
-.      ws = ""
-.    endif
+.      else
+.        ws = ""
+.      endif
 .
-.    if (defined(response))
+.      if (defined(response))
         $(ws)self.send_$(response:c)()
-.    endif
+.      endif
 .
-.    for action
+.      for action
         $(ws)self.$(name:c)()
-.    endfor
+.      endfor
 .
-.    for pparams
+.      for pparams
         $(ws)if self.rx.HasField('pparams'):
             $(ws)interval = self.rx.pparams.keepalive_timer
             $(ws)self.heartbeat_period = interval
-.    endfor
+.      endfor
 .
-.    for event
+.      for event
         $(ws)if self.fsm.isstate('$(when)'):
             $(ws)self.fsm.$(name)()
-.    endfor
+.      endfor
 .
-.    if (defined(ignore) & ignore = "true")
+.      if (defined(ignore) & ignore = "true")
      $(ws)return  # $(incoming.name) is uninteresting
+.      endif
 .    endif
-.  endif
-.endfor
+.  endfor
 
-.if (class->socket.type = "SUB")
+.  if (class->socket.type = "SUB")
         self.message_received_cb(topic, self.rx)
-.else
+.  else
         self.message_received_cb(self.rx)
+.  endif
 .endif
 
     def start(self):
@@ -274,7 +286,11 @@ class $(class.name:Pascal)(object):
 .
 .if (count(outgoing) > 0)
 
+.  if (class->socket.type = "PUB")
+    def send_message(self, topic, msg_type, tx):
+.  else
     def send_message(self, msg_type, tx):
+.  endif
         with self.tx_lock:
             tx.type = msg_type
             if self.debuglevel > 0:
@@ -282,7 +298,11 @@ class $(class.name:Pascal)(object):
                 if self.debuglevel > 1:
                     print(str(tx))
 
+.  if (class->socket.type = "PUB")
+            self.pipe.send_multipart([topic, tx.SerializeToString()])
+.  else
             self.pipe.send(tx.SerializeToString())
+.  endif
             tx.Clear()
 .
 .  for outgoing
@@ -308,8 +328,13 @@ class $(class.name:Pascal)(object):
 .
 .for outgoing where (name <> "*")
 
+.  if (class->socket.type = "PUB")
+    def send_$(name:c)(self, topic):
+        self.send_message(MT_$(NAME:c), topic, self.tx)
+.  else
     def send_$(name:c)(self):
         self.send_message(MT_$(NAME:c), self.tx)
+.  endif
 .endfor
 
 .endtemplate
