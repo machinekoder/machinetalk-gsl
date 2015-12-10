@@ -12,3 +12,4 @@ rm generated/*
 process rpc_client
 process rpc_service
 process subscribe
+process publish
