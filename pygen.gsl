@@ -31,6 +31,9 @@ class $(class.name:Pascal)(object):
 
         # Socket
         self.uri = ''
+.if (class->socket.type = "SUB")
+        self.topics = set()
+.endif
         # more efficient to reuse a protobuf message
         self.rx = Container()
         self.tx = Container()
@@ -85,6 +88,18 @@ class $(class.name:Pascal)(object):
 .    endfor
 .  endfor
 .endfor
+.
+.if (class->socket.type = "SUB")
+
+    def add_topic(self, name):
+        self.topics.add(name)
+
+    def removce_topic(self, name):
+        self.topics.remove(name)
+
+    def clear_topics(self):
+        self.topics.clear()
+.endif
 
     def socket_worker(self, context, uri):
         poll = zmq.Poller()
@@ -130,25 +145,33 @@ class $(class.name:Pascal)(object):
             print('[%s] received message' % self.debugname)
             if self.debuglevel > 1:
                 print(self.rx)
+.
 .for incoming
-.  if (defined(response))
+.  if (defined(response) | (count(action) > 0) | (count(event) > 0))
 
+.    if (name <> "*")
+.      ws = "    "
         if self.rx.type == MT_$(NAME:c):
-            self.send_$(response:c)()
-.  endif
-.  for action
-
-        self.$(name:c)()
-.  endfor
-.  for event
-
-        if self.fsm.isstate('$(when)'):
-            self.fsm.$(name)()
-.  endfor
-.  if (defined(ignore) & ignore = "true")
-
-        if self.rx.type == MT_$(incoming.NAME:c): # $(incoming.name) is uninteresting
-            return
+.    else
+.      ws = ""
+.    endif
+.
+.    if (defined(response))
+        $(ws)self.send_$(response:c)()
+.    endif
+.
+.    for action
+        $(ws)self.$(name:c)()
+.    endfor
+.
+.    for event
+        $(ws)if self.fsm.isstate('$(when)'):
+            $(ws)self.fsm.$(name)()
+.    endfor
+.
+.    if (defined(ignore) & ignore = "true")
+     $(ws)return  # $(incoming.name) is uninteresting
+.    endif
 .  endif
 .endfor
 
@@ -170,7 +193,6 @@ class $(class.name:Pascal)(object):
         self.fsm.disconnect()
         self.started = False
 
-.for socket
     def connect_sockets(self):
         self.thread = threading.Thread(target=self.socket_worker,
                                        args=(self.context, self.uri,))
@@ -180,7 +202,14 @@ class $(class.name:Pascal)(object):
         self.shutdown.send('')  # trigger socket thread shutdown
         self.thread.join()
         self.thread = None
-.endfor
+.
+.if (class->socket.type = "SUB")
+
+    def subscribe(self):
+        for topic in self.topics:
+            self.socket.setsockopt(zmq.SUBSCRIBE, topic)
+.endif
+.
 .for heartbeat
 
     def $(name)_timer_tick(self):
@@ -249,19 +278,28 @@ class $(class.name:Pascal)(object):
 
             self.pipe.send(tx.SerializeToString())
             tx.Clear()
+.
 .  for outgoing
+.  if ((count(action) > 0) | (count(event) > 0))
+
+.    if (name <> "*")
+.      ws = "    "
+        if msg_type == MT_$(NAME:c):
+.    else
+.      ws = ""
+.    endif
+.
 .    for action
-.      if (outgoing.name = "*")
-
-        self.$(action.name:c)()
-.      else
-
-        if msg_type == MT_$(outgoing.NAME:c):
-            self.$(action.name:c)()
-.      endif
+        $(ws)self.$(name:c)()
 .    endfor
+.
+.    for event
+        $(ws)self.fsm.$(name)()
+.    endfor
+.  endif
 .  endfor
 .endif
+.
 .for outgoing where (name <> "*")
 
     def send_$(name:c)(self):

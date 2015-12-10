@@ -467,45 +467,41 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     DEBUG_TAG(3, m_debugName, "server message" << QString::fromStdString(s));
 #endif
 .
-.for incoming where (name = "*")
-.  if (defined(response))
-    send$(response:Pascal)();
-.  endif
-.  for action
-    $(name:Camel)();
-.  endfor
-.  for event
+.for incoming
+.  if (defined(response) | (count(action) > 0) | (count(event) > 0))
 
-    if (m_socketState == Socket$(When))
-    {
-        emit fsm$(Name)();
-    }
-.  endfor
-.endfor
-.
-.for incoming where (name <> "*")
-.  if (defined(response) | (count(.) > 0))
-
+.    if (name <> "*")
+.      ws = "    "
     if (m_rx.type() == pb::MT_$(NAME:c))
     {
+.    else
+.      ws = ""
+.    endif
+.
 .    if (defined(response))
-        send$(response:Pascal)();
+    $(ws)send$(response:Pascal)();
 .    endif
+.
 .    for action
-         $(name:Camel)();
+    $(ws)$(name:Camel)();
 .    endfor
+.
 .    for event
-         if (m_socketState == Socket$(When))
-         {
-             emit fsm$(Name)();
-         }
+    $(ws)if (m_socketState == Socket$(When))
+    $(ws){
+    $(ws)    emit fsm$(Name)();
+    $(ws)}
 .    endfor
+.
 .    if (defined(ignore) & ignore = "true")
-         return;
+    $(ws)return;
 .    endif
+.    if (name <> "*")
     }
+.    endif
 .  endif
 .endfor
+.
 
 .if (class->socket.type = "SUB")
     emit messageReceived(topic, &m_rx);
@@ -539,18 +535,27 @@ void $(class.name:lower,Pascal)::sendMessage(pb::ContainerType type, pb::Contain
     }
 .
 .  for outgoing
-.    for action
-.      if (outgoing.name = "*")
+.  if ((count(action) > 0) | (count(event) > 0))
 
-    $(action.name:Camel)();
-.      else
-
-    if (type == pb::MT_$(outgoing.NAME:c))
+.    if (name <> "*")
+.      ws = "    "
+    if (type == pb::MT_$(NAME:c))
     {
-        $(action.name:Camel)();
-    }
-.      endif
+.    else
+.      ws = ""
+.    endif
+.
+.    for action
+    $(ws)$(name:Camel)();
 .    endfor
+.
+.    for event
+    $(ws)emit fsm$(Name)();
+.    endfor
+.    if (name <> "*")
+    }
+.    endif
+.  endif
 .  endfor
 }
 .endif
