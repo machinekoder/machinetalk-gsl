@@ -1,28 +1,28 @@
 <?xml version = "1.0" ?>
 <class name = "Machinetalk RPC Client">
     RPC/Client
-    <socket type = "DEALER" nature = "client" >
-      Alle messages are passed over this socket.
+    <socket type = "DEALER" nature = "client" name = "socket">
+      All messages are passed over this socket.
+
+      <outgoing name = "*" response = "*">
+        Any messge to server
+        <action name = "reset heartbeat timer" />
+      </outgoing>
+
+      <outgoing name = "ping" response = "ping acknowledge">
+        Ping to server
+      </outgoing>
+
+      <incoming name = "*">
+        Any response from the server
+        <event name = "connected" when = "trying" />
+        <action name = "reset heartbeat error" />
+      </incoming>
+
+      <incoming name = "ping acknowledge" ignore = "true">
+        Response to ping from server
+      </incoming>
     </socket>
-
-    <outgoing name = "*" response = "*">
-      Any messge to server
-      <action name = "reset heartbeat timer" />
-    </outgoing>
-
-    <outgoing name = "ping" response = "ping acknowledge">
-      Ping to server
-    </outgoing>
-
-    <incoming name = "*">
-      Any response from the server
-      <event name = "connected" when = "trying" />
-      <action name = "reset heartbeat error" />
-    </incoming>
-
-    <incoming name = "ping acknowledge" ignore = "true">
-      Response to ping from server
-    </incoming>
 
     <heartbeat
         name = "heartbeat"

@@ -1,17 +1,18 @@
 <?xml version = "1.0" ?>
 <class name = "Machinetalk Publish">
   Publish
-  <socket type = "PUB" nature = "server">
+  <socket type = "PUB" nature = "server" name = "socket">
     Alle messages are passed over this socket.
+
+    <outgoing name = "*" response = "*">
+      Any messge to client
+    </outgoing>
+
+    <outgoing name = "ping">
+      Ping to client.
+    </outgoing>
+
   </socket>
-
-  <outgoing name = "*" response = "*">
-    Any messge to client
-  </outgoing>
-
-  <outgoing name = "ping">
-    Ping to client.
-  </outgoing>
 
   <fsm name = "fsm" initial = "down">
     <state name = "down" inherit = "defaults">

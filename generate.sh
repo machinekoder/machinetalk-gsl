@@ -20,4 +20,4 @@ process rpc_client
 process rpc_service
 process subscribe
 process publish
-process_hi sync_client
+process sync_client

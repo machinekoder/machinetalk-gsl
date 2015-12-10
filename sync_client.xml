@@ -2,7 +2,7 @@
 <class name = "Machinetalk Sync Client">
   Sync Client
 
-  <channel name = "sync" type = "Machinetalk RPC Client">
+  <socket name = "sync" kind = "Machinetalk RPC Client" type = "DEALER">
     The sync channel is used to issue sync commands to the server.
     <state name = "trying">
       <event name = "sync trying" when = "syncing" />
@@ -24,9 +24,9 @@
       Any incoming message from the remote service.
     </incoming>
 
-  </channel>
+  </socket>
 
-  <channel name = "sub" type = "Machinetalk Subscribe">
+  <socket name = "sub" kind = "Machinetalk Subscribe" type = "SUB">
     The sub channel is used to received status updates from the server.
     <state name = "trying">
       <event name = "sub trying" when = "synced" />
@@ -47,9 +47,9 @@
       Incremental status update from remote end point.
     </incoming>
 
-  </channel>
+  </socket>
 
-  <channel name = "pub" type = "Machinetalk Publish">
+  <socket name = "pub" kind = "Machinetalk Publish" type = "PUB">
     The pub channel is used to publish status updates to to the server.
 
     <outgoing name = "*">
@@ -60,7 +60,7 @@
       Incremental update to the remote end point.
     </outgoing>
 
-  </channel>
+  </socket>
 
   <fsm name = "fsm" initial = "down">
       <state name = "down" inherit = "defaults">
