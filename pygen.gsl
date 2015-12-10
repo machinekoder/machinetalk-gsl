@@ -164,6 +164,12 @@ class $(class.name:Pascal)(object):
         $(ws)self.$(name:c)()
 .    endfor
 .
+.    for pparams
+        $(ws)if self.rx.HasField('pparams'):
+            $(ws)interval = self.rx.pparams.keepalive_timer
+            $(ws)self.heartbeat_period = interval
+.    endfor
+.
 .    for event
         $(ws)if self.fsm.isstate('$(when)'):
             $(ws)self.fsm.$(name)()

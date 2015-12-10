@@ -486,6 +486,14 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     $(ws)$(name:Camel)();
 .    endfor
 .
+.    for pparams
+    $(ws)if (m_rx.has_pparams())
+    $(ws){
+        $(ws)pb::ProtocolParameters pparams = m_rx.pparams();
+        $(ws)m_heartbeatPeriod = pparams.keepalive_timer();
+    $(ws)}
+.    endfor
+.
 .    for event
     $(ws)if (m_socketState == Socket$(When))
     $(ws){
