@@ -4,7 +4,7 @@
 .output "generated/$(class.name:c).dot"
 digraph $(class.name:c) {
     rankdir=LR;
-    size="8"
+    size="20"
 .for fsm
 .  for state
 .    if (defined(inherit) & (inherit = "defaults"))
@@ -21,6 +21,7 @@ digraph $(class.name:c) {
 .  endfor
 .endfor
 }
-.-x = proc.new("dot -Tpng $(class.name:c).dot",".","","test.png")
-.-x.run()
+.close
+.x = proc.new("dot -Tpng -O generated/$(class.name:c).dot", ".")
+.x.run()
 .endtemplate
