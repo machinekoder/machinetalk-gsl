@@ -280,12 +280,12 @@ signals:
     void $(name)UriChanged(QString uri);
 .endfor
 .
-.for socket where (!defined(kind))
+.for socket
 .  if (count(incoming) > 0)
 .    if (type = "SUB")
-    void messageReceived(QByteArray topic, pb::Container *rx);
+    void $(name)MessageReceived(QByteArray topic, pb::Container *rx);
 .    else
-    void messageReceived(pb::Container *rx);
+    void $(name)MessageReceived(pb::Container *rx);
 .    endif
 .  endif
 .endfor
@@ -361,6 +361,15 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
 .  if (count(state) > 0)
     connect(m_$(name)Channel, SIGNAL(stateChanged($(kind:lower,Pascal)::State)),
             this, SLOT($(name)ChannelStateChanged($(kind:lower,Pascal)::State)));
+.  endif
+.  if (count(incoming) > 0)
+.    if (socket.type = "SUB")
+    connect(m_$(name)Channel, SIGNAL(socketMessageReceived(QByteArray, pb::Container)),
+            this, SLOT($(name)ChannelMessageReceived(QByteArray, pb::Container)));
+.    else
+    connect(m_$(name)Channel, SIGNAL(socketMessageReceived(pb::Container)),
+            this, SLOT($(name)ChannelMessageReceived(pb::Container)));
+.    endif
 .  endif
 .endfor
 .
@@ -612,9 +621,8 @@ void $(class.name:lower,Pascal)::$(name)ChannelMessageReceived(pb::Container *rx
 .    else
 void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> messageList)
 {
-    pb::Container *rx = &m_rx;
-.    endif
-.    if (type = "SUB")
+    pb::Container *rx = &m_$(name)Rx;
+.      if (type = "SUB")
     QByteArray topic;
 
     if (messageList.length() < 2)  // in case we received insufficient data
@@ -625,15 +633,16 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     // we only handle the first two messges
     topic = messageList.at(0);
     rx->ParseFromArray(messageList.at(1).data(), messageList.at(1).size());
-.    else
+.      else
     rx->ParseFromArray(messageList.at(0).data(), messageList.at(0).size());
-.    endif
+.      endif
 
 #ifdef QT_DEBUG
     std::string s;
     gpb::TextFormat::PrintToString(*rx, &s);
     DEBUG_TAG(3, m_debugName, "server message" << QString::fromStdString(s));
 #endif
+.    endif
 .
 .    for incoming
 .      if (defined(ignore) | (count(action) > 0) | (count(event) > 0))
@@ -682,9 +691,9 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
 .
 
 .    if (type = "SUB")
-    emit messageReceived(topic, rx);
+    emit $(name)MessageReceived(topic, rx);
 .    else
-    emit messageReceived(rx);
+    emit $(name)MessageReceived(rx);
 .    endif
 }
 .  endif
@@ -692,35 +701,46 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
 .  if (count(outgoing) > 0)
 
 .    if (type = "PUB")
-void $(class.name:lower,Pascal)::sendMessage(const QByteArray &topic, pb::ContainerType type, pb::Container *tx)
+void $(class.name:lower,Pascal)::send$(Name)Message(const QByteArray &topic, pb::ContainerType type, pb::Container *tx)
 .    else
-void $(class.name:lower,Pascal)::sendMessage(pb::ContainerType type, pb::Container *tx)
+void $(class.name:lower,Pascal)::send$(Name)Message(pb::ContainerType type, pb::Container *tx)
 .    endif
 {
+.    if !defined(kind)
     if (m_socket == NULL) {  // disallow sending messages when not connected
         return;
     }
 
-    try {
-        tx->set_type(type);
+.    endif
+.    if defined(kind)
+.      if (type = "PUB")
+    m_$(name)Channel->sendSocketMessage(topic, type, tx);
+.      else
+    m_$(name)Channel->sendSocketMessage(type, tx);
+.      endif
+.    else
+    tx->set_type(type);
 #ifdef QT_DEBUG
     std::string s;
     gpb::TextFormat::PrintToString(*tx, &s);
     DEBUG_TAG(3, m_debugName, "sent message" << QString::fromStdString(s));
 #endif
-.    if (type = "PUB")
+    try {
+.      if (type = "PUB")
         // TODO
         m_socket->sendMessage(QByteArray(tx->SerializeAsString().c_str(), tx->ByteSize()));
-.    else
+.      else
         m_socket->sendMessage(QByteArray(tx->SerializeAsString().c_str(), tx->ByteSize()));
-.    endif
-        tx->Clear();
+.      endif
     }
     catch (const zmq::error_t &e) {
         QString errorString;
         errorString = QString("Error %1: ").arg(e.num()) + QString(e.what());
         //updateState(SocketError, errorString);
+        return;
     }
+    tx->Clear();
+.    endif
 .
 .    for outgoing
 .    if ((count(action) > 0) | (count(event) > 0))
@@ -751,17 +771,31 @@ void $(class.name:lower,Pascal)::sendMessage(pb::ContainerType type, pb::Contain
 .  for outgoing where (name <> "*")
 
 .    if (socket.type = "PUB")
+.      if defined(public)
+void $(class.name:lower,Pascal)::send$(name:Pascal)(const QByteArray &topic, pb::Container *tx)
+{
+.      else
 void $(class.name:lower,Pascal)::send$(name:Pascal)(const QByteArray &topic)
 {
-    sendMessage(topic, pb::MT_$(NAME:c), &m_tx);
+    pb::Container *tx = &m_$(socket.name)Tx;
+.      endif
+    send$(socket.Name)Message(topic, pb::MT_$(NAME:c), tx);
 }
 .    else
+.      if defined(public)
+void $(class.name:lower,Pascal)::send$(name:Pascal)(pb::Container *tx)
+{
+.      else
 void $(class.name:lower,Pascal)::send$(name:Pascal)()
 {
-    sendMessage(pb::MT_$(NAME:c), &m_tx);
+    pb::Container *tx = &m_$(socket.name)Tx;
+.      endif
+    send$(Name)Message(pb::MT_$(NAME:c), tx);
 }
 .    endif
 .  endfor
+.
+.  if !defined(kind)
 
 void $(class.name:lower,Pascal)::socketError(int errorNum, const QString &errorMsg)
 {
@@ -769,6 +803,7 @@ void $(class.name:lower,Pascal)::socketError(int errorNum, const QString &errorM
     errorString = QString("Error %1: ").arg(errorNum) + errorMsg;
     //updateState(SocketError, errorString);
 }
+.  endif
 .endfor
 .
 .for fsm
@@ -785,14 +820,14 @@ void $(class.name:lower,Pascal)::fsm$(Name)Entered()
 .  endfor
 .endfor
 .
-.for channel
+.for socket where defined(kind)
 .  if (count(state) > 0)
 
 void $(class.name:lower,Pascal)::$(name)ChannelStateChanged($(type:lower,Pascal)::State state)
 {
 .    for state
 
-    if (state == $(channel.type:lower,Pascal)::$(name:Pascal))
+    if (state == $(socket.kind:lower,Pascal)::$(name:Pascal))
     {
 .       for event
         if (m_state == $(when:Pascal))
@@ -804,21 +839,5 @@ void $(class.name:lower,Pascal)::$(name)ChannelStateChanged($(type:lower,Pascal)
 .    endfor
 }
 .  endif
-.endfor
-.
-.for channel
-.  for outgoing where (name <> "*")
-
-.    if defined(public)
-void $(class.name:lower,Pascal)::send$(name:Pascal)(pb::Container *tx)
-{
-.    else
-void $(class.name:lower,Pascal)::send$(name:Pascal)()
-{
-    pb::Container *tx = &m_tx;
-.    endif
-    m_$(channel.name)Channel->sendMessage(pb::MT_$(NAME:c), tx);
-}
-.  endfor
 .endfor
 .endtemplate
