@@ -16,7 +16,15 @@ digraph $(class.name:c) {
 .for fsm
 .  for state
 .    for event
-    $(state.Name) -> $(Next) [ label = "$(Name)" ];
+.    label = ""
+.    if (count(action) > 0)
+.      label += "<font color=\"red\">"
+.      for action
+.      label += "$(Name)" + "<br></br>"
+.      endfor
+.      label += "</font>"
+.    endif
+    $(state.Name) -> $(Next) [ label = <$(Name)<br></br>$(label:)> ];
 .    endfor
 .  endfor
 .endfor
