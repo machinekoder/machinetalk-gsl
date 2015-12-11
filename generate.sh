@@ -21,3 +21,4 @@ process rpc_service
 process subscribe
 process publish
 process sync_client
+process halrcomp
