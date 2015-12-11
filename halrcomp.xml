@@ -129,6 +129,9 @@
       </state>
       <state name = "error">
         <event name = "disconnect" next = "down">
+          <action name = "stop halrcmd channel" />
+          <action name = "stop halrcomp channel" />
+          <action name = "remove pins" />
         </event>
       </state>
     </fsm>
