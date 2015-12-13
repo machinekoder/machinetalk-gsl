@@ -3,8 +3,9 @@
 .template 1
 .output "generated/$(class.name:c).dot"
 digraph $(class.name:c) {
-    rankdir=LR;
+    rankdir=LR
     size="20"
+    label="$(class.name:)"
 .for fsm
 .  for state
 .    if (defined(inherit) & (inherit = "defaults"))
@@ -16,15 +17,53 @@ digraph $(class.name:c) {
 .for fsm
 .  for state
 .    for event
-.    label = ""
-.    if (count(action) > 0)
-.      label += "<font color=\"red\">"
-.      for action
-.      label += "$(Name)" + "<br></br>"
+.
+.      triggers = ""
+.      for class.socket
+.        for incoming
+.          for event as ev where ((state.name = when) & (name = event.name))
+.             triggers += "message " + incoming.name + "<br></br>"
+.          endfor
+.        endfor
+.        for state as st
+.          for event as ev where ((state.name = when) & (name = event.name))
+.            triggers += socket.name + " state " + st.name + "<br></br>"
+.          endfor
+.        endfor
 .      endfor
-.      label += "</font>"
-.    endif
-    $(state.Name) -> $(Next) [ label = <$(Name)<br></br>$(label:)> ];
+.      if (name = "connect")
+.        triggers += "start" + "<br></br>"
+.      endif
+.      if (name = "disconnect")
+.        triggers += "stop" + "<br></br>"
+.      endif
+.
+.- Heartbeat events
+.      for class.heartbeat
+.        for tick
+.          for event as ev where ((state.name = when) & (name = event.name))
+.            triggers += heartbeat.name + " tick<br></br>"
+.          endfor
+.        endfor
+.        for timeout
+.          for event as ev where ((state.name = when) & (name = event.name))
+.            triggers += heartbeat.name + " timeout<br></br>"
+.          endfor
+.        endfor
+.      endfor
+.      if (triggers <> "")
+.        triggers = "<font color=\"red\">$(triggers)</font>"
+.      endif
+.
+.      label = ""
+.      for action
+.        label += name + "<br></br>"
+.      endfor
+.      if (label <> "")
+.        label = "<font color=\"blue\">$(label)</font>"
+.      endif
+.
+    $(state.Name) -> $(Next) [ label = <$(Name)<br></br>$(Triggers)$(Label)> ];
 .    endfor
 .  endfor
 .endfor
