@@ -7,22 +7,27 @@
     <state name = "trying">
       <event name = "halrcmd trying" when = "syncing" />
       <event name = "halrcmd trying" when = "synced" />
+      <event name = "halrcmd trying" when = "binding" />
     </state>
     <state name = "up">
       <event name = "halrcmd up" when = "trying" />
     </state>
 
-    <outgoing name = "*" response = "*">
+    <outgoing name = "*">
       Any message to the remote service.
+      <response name = "*" />
     </outgoing>
 
     <outgoing name = "halrcomp bind" public = "true">
       Bind the HAL remote component.
+      <response name = "halrcomp bind confirm" />
+      <response name = "halrcomp bind rejected" />
     </outgoing>
 
     <outgoing name = "halrcomp set" public = "true">
       Update a HAL pin.
-    </outgoing>
+      <response name = "halrcomp set rejected" />
+    </outgoing> 
 
     <incoming name = "*">
       Any incoming message from the remote service.
@@ -35,10 +40,14 @@
 
     <incoming name = "halrcomp bind rejected">
       Bind rejected by Haltalk.
+      <event name = "bind rejected" when = "binding" />
+      <note />
     </incoming>
 
     <incoming name = "halrcomp set rejected">
       Pin set rejected by Haltalk.
+      <event name = "set rejected" when = "synced" />
+      <note />
     </incoming>
   </socket>
 
@@ -74,7 +83,7 @@
       <state name = "down" inherit = "defaults">
         <event name = "connect" next = "trying">
           <action name = "add pins" />
-          <action name = "start halrcmd channel" />
+          <action name = "start halrcmd channel" />;
         </event>
       </state>
       <state name = "trying">
@@ -92,7 +101,9 @@
           <action name = "start halrcomp channel" />
         </event>
         <event name = "bind rejected" next = "error">
-          <action name = "stop halrcomp channel" />
+          <action name = "stop halrcmd channel" />
+        </event>
+        <event name = "halrcmd trying" next = "trying">
         </event>
         <event name = "disconnect" next = "down">
           <action name = "stop halrcmd channel" />
@@ -120,6 +131,10 @@
         <event name = "halrcmd trying" next = "trying">
           <action name = "stop halrcomp channel" />
           <action name = "unsync pins" />
+        </event>
+        <event name = "set rejected" next = "error">
+          <action name = "stop halrcomp channel" />
+          <action name = "stop halrcmd channel" />
         </event>
         <event name = "disconnect" next = "down">
           <action name = "stop halrcmd channel" />

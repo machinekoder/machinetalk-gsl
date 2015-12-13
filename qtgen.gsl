@@ -485,7 +485,7 @@ bool $(class.name:lower,Pascal)::connectSockets()
     catch (const zmq::error_t &e) {
         QString errorString;
         errorString = QString("Error %1: ").arg(e.num()) + QString(e.what());
-        //updateState(SocketError, errorString);
+        //updateState(SocketError, errorString); TODO
         return false;
     }
 .    if (count(incoming) > 0)
@@ -677,7 +677,19 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     $(ws)}
 .        endfor
 .
+.        for note
+
+    $(ws)// update error string with note
+    $(ws)m_errorString = "";
+    $(ws)for (int i = 0; i < rx->note_size(); ++i)
+    $(ws){
+        $(ws)m_errorString.append(QString::fromStdString(rx->note(i)) + "\n");
+    $(ws)}
+    $(ws)emit errorStringChanged(m_errorString);
+.        endfor
+.
 .        for event
+
     $(ws)if (m_state == $(when:Pascal))
     $(ws){
         $(ws)emit fsm$(name:Pascal)();
@@ -742,7 +754,7 @@ void $(class.name:lower,Pascal)::send$(Name)Message(pb::ContainerType type, pb::
     catch (const zmq::error_t &e) {
         QString errorString;
         errorString = QString("Error %1: ").arg(e.num()) + QString(e.what());
-        //updateState(SocketError, errorString);
+        //updateState(SocketError, errorString);  TODO
         return;
     }
     tx->Clear();
@@ -807,7 +819,7 @@ void $(class.name:lower,Pascal)::socketError(int errorNum, const QString &errorM
 {
     QString errorString;
     errorString = QString("Error %1: ").arg(errorNum) + errorMsg;
-    //updateState(SocketError, errorString);
+    //updateState(SocketError, errorString);  TODO
 }
 .  endif
 .endfor
