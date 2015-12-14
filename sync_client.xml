@@ -4,16 +4,19 @@
 
   <socket name = "sync" kind = "Machinetalk RPC Client" type = "DEALER">
     The sync channel is used to issue sync commands to the server.
+
     <state name = "trying">
       <event name = "sync trying" when = "syncing" />
       <event name = "sync trying" when = "synced" />
     </state>
+
     <state name = "up">
       <event name = "sync up" when = "trying" />
     </state>
 
-    <outgoing name = "*" response = "*">
+    <outgoing name = "*">
       Any message to the remote service.
+      <response name = "*" />
     </outgoing>
 
     <outgoing name = "sync">
@@ -28,6 +31,7 @@
 
   <socket name = "sub" kind = "Machinetalk Subscribe" type = "SUB">
     The sub channel is used to received status updates from the server.
+
     <state name = "trying">
       <event name = "sub trying" when = "synced" />
     </state>

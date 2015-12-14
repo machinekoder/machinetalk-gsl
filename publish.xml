@@ -4,7 +4,7 @@
   <socket type = "PUB" nature = "server" name = "socket">
     Alle messages are passed over this socket.
 
-    <outgoing name = "*" response = "*">
+    <outgoing name = "*">
       Any messge to client
     </outgoing>
 

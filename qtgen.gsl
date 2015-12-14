@@ -661,9 +661,9 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     // react to any incoming message
 .        endif
 .
-.        if (defined(response))
-    $(ws)send$(response:Pascal)();
-.        endif
+.        for response
+    $(ws)send$(name:Pascal)();
+.        endfor
 .
 .        for action
     $(ws)$(name:Camel)();

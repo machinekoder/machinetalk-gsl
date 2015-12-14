@@ -4,16 +4,18 @@
   <socket type = "ROUTER" nature = "server" name="socket">
     Alle messages are passed over this socket.
 
-    <outgoing name = "*" response = "*">
-    Any messge to client
+    <outgoing name = "*">
+      Any messge to client
+      <response name = "*" />
     </outgoing>
 
     <outgoing name = "ping acknowledge">
       Ping achnowledge to client.
     </outgoing>
 
-    <incoming name = "ping" response = "ping acknowledge" ignore = "true">
+    <incoming name = "ping" ignore = "true">
       Ping from client.
+      <response name = "ping acknowledge" />
     </incoming>
 
     <incoming name = "*">

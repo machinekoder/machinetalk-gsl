@@ -1,9 +1,18 @@
 <?xml version = "1.0" ?>
 <class name = "HAL Remote Component Base">
-  Sync Client
+  HAL Remote Component Client
+
+  HALRCOMP = bind *use
+
+  bind = C: MT_HALRCOMP_BIND (S: MT_HALRCOMP_BIND_CONFIRMED / MT_HALRCOMP_BIND_REJECTED)
+
+  use  = C: MT_SYNC ( S: MT_FULL_UPDATE )
+       / S: MT_INCREMENTAL_UPDATE
+       / C: MT_HALRCOMP_SET ( S: MT_HALRCOMP_SET_REJECTED )
 
   <socket name = "halrcmd" kind = "Machinetalk RPC Client" type = "DEALER">
     The sync channel is used to issue sync commands to the server.
+
     <state name = "trying">
       <event name = "halrcmd trying" when = "syncing" />
       <event name = "halrcmd trying" when = "synced" />
@@ -27,7 +36,7 @@
     <outgoing name = "halrcomp set" public = "true">
       Update a HAL pin.
       <response name = "halrcomp set rejected" />
-    </outgoing> 
+    </outgoing>
 
     <incoming name = "*">
       Any incoming message from the remote service.

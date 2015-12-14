@@ -4,13 +4,15 @@
     <socket type = "DEALER" nature = "client" name = "socket">
       All messages are passed over this socket.
 
-      <outgoing name = "*" response = "*">
+      <outgoing name = "*">
         Any messge to server
         <action name = "reset heartbeat timer" />
+        <response name = "*" />
       </outgoing>
 
-      <outgoing name = "ping" response = "ping acknowledge">
+      <outgoing name = "ping">
         Ping to server
+        <response name = "ping acknowledge" />
       </outgoing>
 
       <incoming name = "*">
