@@ -353,7 +353,7 @@ class $(class.name:lower,Pascal)(object):
 .      endif
 .
 .      for response
-        $(ws)self.send_$(response:c)()
+        $(ws)self.send_$(name:c)()
 .      endfor
 .
 .      for action
