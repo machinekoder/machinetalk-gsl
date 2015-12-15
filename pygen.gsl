@@ -379,7 +379,7 @@ class $(class.name:lower,Pascal)(object):
 .      endfor
 .
 .      if (defined(ignore) & ignore = "true")
-     $(ws)return  # $(incoming.name:) is uninteresting
+        $(ws)return  # $(incoming.name:) is uninteresting
 .      endif
 .    endif
 .  endfor
