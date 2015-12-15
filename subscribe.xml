@@ -42,7 +42,6 @@
       <state name = "down" inherit = "defaults">
         <event name = "connect" next = "trying">
           <action name = "connect sockets" />
-          <action name = "subscribe" />
         </event>
       </state>
       <state name = "trying">
@@ -60,7 +59,6 @@
           <action name = "stop heartbeat timer" />
           <action name = "disconnect sockets" />
           <action name = "connect sockets" />
-          <action name = "subscribe" />
         </event>
         <event name = "disconnect" next = "down">
           <action name = "stop heartbeat timer" />

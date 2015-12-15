@@ -47,13 +47,13 @@
       <event name = "bind confirmed" when = "binding" />
     </incoming>
 
-    <incoming name = "halrcomp bind rejected">
+    <incoming name = "halrcomp bind reject">
       Bind rejected by Haltalk.
       <event name = "bind rejected" when = "binding" />
       <note />
     </incoming>
 
-    <incoming name = "halrcomp set rejected">
+    <incoming name = "halrcomp set reject">
       Pin set rejected by Haltalk.
       <event name = "set rejected" when = "synced" />
       <note />
