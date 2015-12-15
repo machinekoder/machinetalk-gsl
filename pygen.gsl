@@ -7,22 +7,20 @@ import threading
 import uuid
 from fysom import Fysom
 .for socket where (defined(kind))
-import from $(kind:Pascal,lower) import $(kind:lower,Pascal)
+from $(kind:Pascal,lower) import $(kind:lower,Pascal)
 .endfor
 
-
-from machinetalk.protobuf.types_pb2 import *
+import machinetalk.protobuf.types_pb2 as pb
 from machinetalk.protobuf.message_pb2 import Container
 
 
-class $(class.name:Pascal)(object):
-    def __init__(self, debuglevel=0, debugname='$(class.name)'):
+class $(class.name:lower,Pascal)(object):
+    def __init__(self, debuglevel=0, debugname='$(class.name:)'):
         self.debuglevel = debuglevel
         self.debugname = debugname
-        self.thread = None
+        self.error_string = ''
 .
 .for socket where (!defined(kind))
-
         # ZeroMQ
         context = zmq.Context()
         context.linger = 0
@@ -37,18 +35,27 @@ class $(class.name:Pascal)(object):
         self.pipe_uri = b'inproc://pipe-%s' % uuid.uuid4()
         self.pipe.bind(self.pipe_uri)
 .  endif
+        self.thread = None  # socket worker tread
         self.tx_lock = threading.Lock()  # lock for outgoing messages
 .endfor
 .
 .for socket
 
         # $(Name)
-        self.$(name)_uri = ''
-.  if (class->socket.type = "SUB")
-        self.$(name)_topics = set()
-.  endif
 .  if defined(kind)
         self.$(name)_channel = $(kind:lower,Pascal)()
+        self.$(name)_channel.debugname = '%s - %s' % (self.debugname, '$(name:)')
+.    if (count(state) > 0)
+        self.$(name)_channel.state_changed_cb = self.$(name)_channel_state_changed
+.    endif
+.    if (count(incoming) > 0)
+        self.$(name)_channel.socket_message_received_cb = self.$(name)_channel_message_received
+.    endif
+.  else
+        self.$(name)_uri = ''
+.    if (type = "SUB")
+        self.$(name)_topics = set()
+.    endif
 .  endif
         # more efficient to reuse protobuf messages
 .  if (count(incoming) > 0)
@@ -70,6 +77,7 @@ class $(class.name:Pascal)(object):
         self.$(name)_active = False
 .endfor
 
+        # callbacks
 .for socket
 .  if (count(incoming) > 0)
         self.$(name)_message_received_cb = None
@@ -103,8 +111,10 @@ class $(class.name:Pascal)(object):
 
     def on_fsm_$(name:c)(self, e):
         del e
-        if self.on_state_changed_cb:
-            self.on_state_changed_cb('$(name:c)')
+        if self.debuglevel > 0:
+            print('[%s]: state $(NAME)' % self.debugname)
+        if self.state_changed_cb:
+            self.state_changed_cb('$(name:c)')
         return True
 .    for event
 .-     make sure we assign only once
@@ -124,115 +134,110 @@ class $(class.name:Pascal)(object):
 .  endfor
 .endfor
 .
-.if (class->socket.type = "SUB")
+.for socket where (defined(kind))
 
-    def add_topic(self, name):
-        self.topics.add(name)
+    @property
+    def $(name)_uri(self):
+        return self.$(name)_channel.socket_uri
 
-    def removce_topic(self, name):
-        self.topics.remove(name)
+    @$(name)_uri.setter
+    def $(name)_uri(self, value):
+        self.$(name)_channel.socket_uri = value
+.endfor
+.
+.for slot
 
-    def clear_topics(self):
-        self.topics.clear()
-.endif
+    def $(name:c)(self):
+        print('WARNING: slot $(name) unimplemented')
+.endfor
+.
+.for socket
+.  if (type = "SUB")
+
+    def add_$(name)_topic(self, name):
+.    if defined(kind)
+        self.$(name)_channel.add_socket_topic(name)
+.    else
+        self.$(name)_topics.add(name)
+.    endif
+
+    def remove_$(name)_topic(self, name):
+.    if defined(kind)
+        self.$(name)_channel.remove_socket_topic(name)
+.    else
+        self.$(name)_topics.remove(name)
+.    endif
+
+    def clear_$(name)_topics(self):
+.    if defined(kind)
+        self.$(name)_channel.clear_socket_topics()
+.    else
+        self.$(name)_topics.clear()
+.    endif
+.  endif
+.
+.  if !defined(kind)
 
     def socket_worker(self, context, uri):
         poll = zmq.Poller()
-.for socket
         socket = context.socket(zmq.$(TYPE))
         socket.setsockopt(zmq.LINGER, 0)
-.  if (nature = "client")
+.    if (nature = "client")
         socket.connect(uri)
-.  else
+.    else
         socket.bind(uri)
-.  endif
-.endfor
+.    endif
 .
-.if (count(incoming) > 0)
+.    if (count(incoming) > 0)
         poll.register(socket, zmq.POLLIN)
-.endif
+.    endif
+.
+.    if (type = "SUB")
+        # subscribe is always connected to socket creation
+        for topic in self.$(name)_topics:
+            socket.setsockopt(zmq.SUBSCRIBE, topic)
+.    endif
+
         shutdown = context.socket(zmq.PULL)
         shutdown.connect(self.shutdown_uri)
         poll.register(shutdown, zmq.POLLIN)
-.if (count(outgoing) > 0)
+.    if (count(outgoing) > 0)
         pipe = context.socket(zmq.PULL)
         pipe.connect(self.pipe_uri)
         poll.register(pipe, zmq.POLLIN)
-.endif
+.    endif
 
         while True:
             s = dict(poll.poll())
             if shutdown in s:
                 shutdown.recv()
                 return  # shutdown signal
-.if (count(outgoing) > 0)
+.    if (count(outgoing) > 0)
             if pipe in s:
-.  if (class->socket.type = "PUB")
+.      if (type = "PUB")
                 socket.send_multipart(pipe.recv_multipart(), zmq.NOBLOCK)
-.  else
-                socket.send(pipe.recv(), zmq.NOBLOCK)
-.  endif
-.endif
-.
-.if (count(incoming) > 0)
-            if socket in s:
-                self.socket_message_received(socket)
-
-    def socket_message_received(self, socket):
-.  if (class->socket.type = "SUB")
-        (topic, msg) = socket.recv_multipart()
-.  else
-        msg = socket.recv()
-.  endif
-        self.rx.ParseFromString(msg)
-        if self.debuglevel > 0:
-            print('[%s] received message' % self.debugname)
-            if self.debuglevel > 1:
-                print(self.rx)
-.
-.  for incoming
-.    if (defined(ignore) | (count(action) > 0) | (count(event) > 0))
-
-.      if (name <> "*")
-.        ws = "    "
-        # react to $(name) message
-        if self.rx.type == MT_$(NAME:c):
 .      else
-.        ws = ""
-        # react to any incoming message
-.      endif
-.
-.      if (defined(response))
-        $(ws)self.send_$(response:c)()
-.      endif
-.
-.      for action
-        $(ws)self.$(name:c)()
-.      endfor
-.
-.      for pparams
-        $(ws)if self.rx.HasField('pparams'):
-            $(ws)interval = self.rx.pparams.keepalive_timer
-            $(ws)self.heartbeat_period = interval
-.      endfor
-.
-.      for event
-        $(ws)if self.fsm.isstate('$(when)'):
-            $(ws)self.fsm.$(name)()
-.      endfor
-.
-.      if (defined(ignore) & ignore = "true")
-     $(ws)return  # $(incoming.name) is uninteresting
+                socket.send(pipe.recv(), zmq.NOBLOCK)
 .      endif
 .    endif
-.  endfor
+.
+.    if (count(incoming) > 0)
+            if socket in s:
+                self.socket_message_received(socket)
+.    endif
 
-.  if (class->socket.type = "SUB")
-        self.message_received_cb(topic, self.rx)
-.  else
-        self.message_received_cb(self.rx)
+    def connect_sockets(self):
+        self.thread = threading.Thread(target=self.socket_worker,
+                                       args=(self.context, self.$(name)_uri,))
+        self.thread.start()
+
+    def disconnect_sockets(self):
+        self.shutdown.send('')  # trigger socket thread shutdown
+        self.thread.join()
+        self.thread = None
+.
 .  endif
-.endif
+.endfor
 
     def start(self):
         if self.started:
@@ -245,23 +250,15 @@ class $(class.name:Pascal)(object):
             return
         self.fsm.disconnect()
         self.started = False
-
-    def connect_sockets(self):
-        self.thread = threading.Thread(target=self.socket_worker,
-                                       args=(self.context, self.uri,))
-        self.thread.start()
-
-    def disconnect_sockets(self):
-        self.shutdown.send('')  # trigger socket thread shutdown
-        self.thread.join()
-        self.thread = None
 .
-.if (class->socket.type = "SUB")
+.for socket where defined(kind)
 
-    def subscribe(self):
-        for topic in self.topics:
-            self.socket.setsockopt(zmq.SUBSCRIBE, topic)
-.endif
+    def start_$(name)_channel(self):
+        self.$(name)_channel.start()
+
+    def stop_$(name)_channel(self):
+        self.$(name)_channel.stop()
+.endfor
 .
 .for heartbeat
 
@@ -319,13 +316,96 @@ class $(class.name:Pascal)(object):
         self.$(name)_lock.release()
 .endfor
 .
-.if (count(outgoing) > 0)
+.for socket where (count(incoming) > 0)
 
-.  if (class->socket.type = "PUB")
-    def send_message(self, topic, msg_type, tx):
+    # process all messages received on $(name:)
+.  if defined(kind)
+.    if (type = "SUB")
+    def $(name)_channel_message_received(self, topic, rx):
+.    else
+    def $(name)_channel_message_received(self, rx):
+.    endif
 .  else
-    def send_message(self, msg_type, tx):
+    def socket_message_received(self, socket):
+.    if (type = "SUB")
+        (topic, msg) = socket.recv_multipart()
+.    else
+        msg = socket.recv()
+.    endif
+        self.$(name)_rx.ParseFromString(msg)
+        if self.debuglevel > 0:
+            print('[%s] received message' % self.debugname)
+            if self.debuglevel > 1:
+                print(self.$(name)_rx)
+        rx = self.$(name)_rx
 .  endif
+.
+.  for incoming
+.    if (defined(ignore) | (count(action) > 0) | (count(event) > 0))
+
+.      if (name <> "*")
+.        ws = "    "
+        # react to $(name) message
+        if rx.type == pb.MT_$(NAME:c):
+.      else
+.        ws = ""
+        # react to any incoming message
+.      endif
+.
+.      for response
+        $(ws)self.send_$(response:c)()
+.      endfor
+.
+.      for action
+        $(ws)self.$(name:c)()
+.      endfor
+.
+.      for pparams
+        $(ws)if rx.HasField('pparams'):
+            $(ws)interval = rx.pparams.keepalive_timer
+            $(ws)self.heartbeat_period = interval
+.      endfor
+.
+.      for note
+        $(ws)# update error string with note
+        $(ws)self.error_string = ''
+        $(ws)for note in rx.note:
+            $(ws)self.error_string += note + '\\n'
+.      endfor
+.
+.      for event
+        $(ws)if self.fsm.isstate('$(when:c)'):
+            $(ws)self.fsm.$(name:c)()
+.      endfor
+.
+.      if (defined(ignore) & ignore = "true")
+     $(ws)return  # $(incoming.name:) is uninteresting
+.      endif
+.    endif
+.  endfor
+
+        if self.$(name)_message_received_cb:
+.  if (type = "SUB")
+            self.$(name)_message_received_cb(topic, rx)
+.  else
+            self.$(name)_message_received_cb(rx)
+.  endif
+.endfor
+.
+.for socket where (count(outgoing) > 0)
+
+.  if (type = "PUB")
+    def send_$(name)_message(self, topic, msg_type, tx):
+.  else
+    def send_$(name)_message(self, msg_type, tx):
+.  endif
+.  if defined(kind)
+.    if (type = "PUB")
+        self.$(name)_channel.send_socket_message(topic, msg_type, tx)
+.    else
+        self.$(name)_channel.send_socket_message(msg_type, tx)
+.    endif
+.  else
         with self.tx_lock:
             tx.type = msg_type
             if self.debuglevel > 0:
@@ -333,19 +413,18 @@ class $(class.name:Pascal)(object):
                 if self.debuglevel > 1:
                     print(str(tx))
 
-.  if (class->socket.type = "PUB")
+.    if (type = "PUB")
             self.pipe.send_multipart([topic, tx.SerializeToString()])
-.  else
+.    else
             self.pipe.send(tx.SerializeToString())
-.  endif
+.    endif
             tx.Clear()
+.  endif
 .
-.  for outgoing
-.  if ((count(action) > 0) | (count(event) > 0))
-
+.  for outgoing where ((count(action) > 0) | (count(event) > 0))
 .    if (name <> "*")
 .      ws = "    "
-        if msg_type == MT_$(NAME:c):
+        if msg_type == pb.MT_$(NAME:c):
 .    else
 .      ws = ""
 .    endif
@@ -357,19 +436,43 @@ class $(class.name:Pascal)(object):
 .    for event
         $(ws)self.fsm.$(name)()
 .    endfor
-.  endif
 .  endfor
-.endif
+.endfor
 .
-.for outgoing where (name <> "*")
+.for socket
+.  for outgoing where (name <> "*")
 
-.  if (class->socket.type = "PUB")
+.    if (socket.type = "PUB")
+.      if defined(public)
+    def send_$(name:c)(self, topic, tx):
+.      else
     def send_$(name:c)(self, topic):
-        self.send_message(topic, MT_$(NAME:c), self.tx)
-.  else
+        tx = self.$(socket.name)_tx
+.      endif
+        self.send_$(socket.name)_message(topic, pb.MT_$(NAME:c), tx)
+.    else
+.      if defined(public)
+    def send_$(name:c)(self, tx):
+.      else
     def send_$(name:c)(self):
-        self.send_message(MT_$(NAME:c), self.tx)
-.  endif
+        tx = self.$(socket.name)_tx
+.      endif
+        self.send_$(socket.name)_message(pb.MT_$(NAME:c), tx)
+.    endif
+.  endfor
+.endfor
+.
+.for socket where (defined(kind) & (count(state) > 0))
+
+    def $(name)_channel_state_changed(self, state):
+.  for state where (count(event) > 0)
+
+        if (state == '$(name:c)'):
+.     for event
+            if self.fsm.isstate('$(when:c)'):
+                self.fsm.$(name:c)()
+.     endfor
+.  endfor
 .endfor
 
 .endtemplate
