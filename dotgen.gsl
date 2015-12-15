@@ -1,7 +1,7 @@
 .###  This whole script runs in template mode.
 .#
 .template 1
-.output "generated/$(class.name:c).dot"
+.output "generated/$(class.name:Pascal,lower).dot"
 digraph $(class.name:c) {
     rankdir=LR
     size="20"
@@ -69,6 +69,6 @@ digraph $(class.name:c) {
 .endfor
 }
 .close
-.x = proc.new("dot -Tpng -O generated/$(class.name:c).dot", ".")
+.x = proc.new("dot -Tpng -O generated/$(class.name:Pascal,lower).dot", ".")
 .x.run()
 .endtemplate
