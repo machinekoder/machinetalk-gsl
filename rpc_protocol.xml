@@ -1,0 +1,23 @@
+<?xml version = "1.0" ?>
+<class name = "Machinetalk RPC Protocol">
+  <message name = "ping">
+    Ping to server
+    <response name = "ping acknowledge" />
+    <field name = "emc_status_config" message = "EmcStatusConfig" requirement = "MUST" quantity = "1">
+      <field name = "axes" requirement = "MUST" />
+    </field>
+    <field name = "uuid" requirement = "MAY" />
+    <field name = "ticket" requirement = "MAY" />
+    <field name = "credit" requirement = "MAY" />
+  </message>
+
+  <message name = "ping acknowledge" ignore = "true">
+    Response to ping from server
+    <field name = "uuid" requirement = "MAY" />
+  </message>
+
+  <include filename = "rpc_client.xml" />
+  <include filename = "rpc_service.xml" />
+  <include filename = "license.xml" />
+<!-- include filename = "rpc_client.xml" -->
+</class>
