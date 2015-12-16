@@ -6,30 +6,21 @@
 
       <outgoing name = "*">
         Any messge to server
-        <action name = "reset heartbeat timer" />
-        <response name = "*" />
+        <event name = "msg sent" when = "up" />
       </outgoing>
 
       <outgoing name = "ping">
         Ping to server
-        <response name = "ping acknowledge" />
-        <field name = "emc_status_config" message = "EmcStatusConfig" requirement = "MUST" quantity = "1">
-          <field name = "axes" requirement = "MUST" />
-        </field>
-        <field name = "uuid" requirement = "MAY" />
-        <field name = "ticket" requirement = "MAY" />
-        <field name = "credit" requirement = "MAY" />
       </outgoing>
 
       <incoming name = "*">
         Any response from the server
         <event name = "connected" when = "trying" />
-        <action name = "reset heartbeat error" />
+        <event name = "refresh" when = "up" />
       </incoming>
 
       <incoming name = "ping acknowledge" ignore = "true">
         Response to ping from server
-        <field name = "uuid" requirement = "MAY" />
       </incoming>
     </socket>
 
@@ -39,7 +30,7 @@
         error_threshold = "2" >
       For monitoring if the connection is alive.
       <tick>
-        <action name = "send ping" />
+        <event name = "tick" when = "up" />
       </tick>
       <timeout>
         <event name = "timeout" when = "up" />
@@ -47,7 +38,7 @@
     </heartbeat>
 
     <fsm name = "fsm" initial = "down">
-      <state name = "down" inherit = "defaults">
+      <state name = "down">
         <event name = "connect" next = "trying">
           <action name = "connect sockets" />
           <action name = "reset heartbeat error" />
@@ -55,20 +46,32 @@
           <action name = "start heartbeat timer" />
         </event>
       </state>
-      <state name = "trying">
+
+      <state name = "trying" inherit = "defaults">
         <event name = "connected" next = "up">
-        </event>
-        <event name = "disconnect" next = "down">
-          <action name = "stop heartbeat timer" />
-          <action name = "disconnect sockets" />
+          <action name = "reset heartbeat error" />
+          <action name = "reset heartbeat timer" />
         </event>
       </state>
-      <state name = "up">
+
+      <state name = "up" inherit = "defaults">
         <event name = "timeout" next = "trying">
           <action name = "disconnect sockets" />
           <action name = "connect sockets" />
           <action name = "send ping" />
         </event>
+        <event name = "refresh" next = "up">
+          <action name = "reset heartbeat error" />
+        </event>
+        <event name = "tick" next = "up">
+          <action name = "send ping" />
+        </event>
+        <event name = "msg sent" next = "up" >
+          <action name = "reset heartbeat timer" />
+        </event>
+      </state>
+
+      <state name = "defaults">
         <event name = "disconnect" next = "down">
           <action name = "stop heartbeat timer" />
           <action name = "disconnect sockets" />

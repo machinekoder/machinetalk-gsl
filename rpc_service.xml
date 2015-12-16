@@ -6,16 +6,15 @@
 
     <outgoing name = "*">
       Any messge to client
-      <response name = "*" />
     </outgoing>
 
     <outgoing name = "ping acknowledge">
-      Ping achnowledge to client.
+      Ping acknowledge to client.
     </outgoing>
 
     <incoming name = "ping" ignore = "true">
       Ping from client.
-      <response name = "ping acknowledge" />
+      <event name = "ping received" when = "up"/>
     </incoming>
 
     <incoming name = "*">
@@ -31,6 +30,9 @@
         </event>
     </state>
     <state name = "up">
+      <event name = "ping received" next = "up">
+        <action name = "send ping acknowledge" />
+      </event>
       <event name = "disconnect" next = "down">
         <action name = "disconnect sockets" />
       </event>

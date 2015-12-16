@@ -3,12 +3,14 @@
   <message name = "ping">
     Ping to server
     <response name = "ping acknowledge" />
+
     <field name = "emc_status_config" message = "EmcStatusConfig" requirement = "MUST" quantity = "1">
       <field name = "axes" requirement = "MUST" />
     </field>
     <field name = "uuid" requirement = "MAY" />
     <field name = "ticket" requirement = "MAY" />
     <field name = "credit" requirement = "MAY" />
+
   </message>
 
   <message name = "ping acknowledge" ignore = "true">
