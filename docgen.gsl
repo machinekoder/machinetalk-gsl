@@ -2,26 +2,39 @@
 .#
 .template 1
 .output "generated/$(class.name:Pascal,lower).md"
+.
 .mtname = "machinetalk-protobuf.md"
+.
 .macro recurse_field (scp, msg)
 .  for my.scp.field
 .    if (defined(field.message))
 This message $(REQUIREMENT) carry a [$(message:)]($(mtname)#pb.$(message:)) message. <br />
 .       recurse_field(field, message)
 .    else
-Each $(my.msg:) message $(REQUIREMENT) carry the [$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) field. <br />
+Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry the [$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) field. <br />
 .    endif
 .  endfor
 <br />
 .endmacro
 .
-# Messages
-.for socket
-.  for outgoing where (name <> "*")
-## $(Name)
-. recurse_field(outgoing, "Container")
+.for include
+.  class.load_file(filename)
+.endfor
+.
+# $(name:)
+.
+## Messages
+.for message where (name <> "*")
+### $(Name)
+.  recurse_field(message, "Container")
+.endfor
+.
+.for class
+.  for socket
+## $(class.name:)
+## State Machine
+![State Machine]($(class.name:Pascal,lower).dot.png)
 .  endfor
 .endfor
-# State Machine
-![State Machine]($(class.name:Pascal,lower).dot.png)
+.
 .endtemplate

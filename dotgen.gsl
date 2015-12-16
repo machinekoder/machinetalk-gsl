@@ -1,14 +1,16 @@
 .###  This whole script runs in template mode.
 .#
 .template 1
+.gsl from "prepare_fsm.gsl"
 .output "generated/$(class.name:Pascal,lower).dot"
+.
 digraph $(class.name:c) {
     rankdir=LR
     size="20"
     label="$(class.name:)"
 .for fsm
 .  for state
-.    if (defined(inherit) & (inherit = "defaults"))
+.    if (name = fsm.initial)
     node [shape = doublecircle]; $(Name);
 .    endif
 .  endfor
@@ -63,7 +65,7 @@ digraph $(class.name:c) {
 .        label = "<font color=\"blue\">$(label)</font>"
 .      endif
 .
-    $(state.Name) -> $(Next) [ label = <$(Name)<br></br>$(Triggers)$(Label)> ];
+    $(state.Name) -> $(Next) [ label = <$(Name)<br></br>$(Triggers)$(Label)>; labeltooltip = "Tooltip" ];
 .    endfor
 .  endfor
 .endfor
@@ -71,4 +73,6 @@ digraph $(class.name:c) {
 .close
 .x = proc.new("dot -Tpng -O generated/$(class.name:Pascal,lower).dot", ".")
 .x.run()
+.-x = proc.new("dot -Tsvg -O generated/$(class.name:Pascal,lower).dot", ".")
+.-x.run()
 .endtemplate

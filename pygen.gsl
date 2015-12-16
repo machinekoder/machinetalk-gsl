@@ -1,6 +1,7 @@
 .###  This whole script runs in template mode.
 .#
 .template 1
+.gsl from "prepare_fsm.gsl"
 .output "generated/$(class.name:Pascal,lower).py"
 import zmq
 import threading
@@ -268,15 +269,20 @@ class $(class.name:lower,Pascal)(object):
 
         if self.debuglevel > 0:
             print('[%s] $(name) timer tick' % self.debugname)
-.  for tick
-.    for action
-        self.$(name:c)()
-.    endfor
-.  endfor
-        self.$(name)_error_count += 1
 
+        self.$(name)_error_count += 1
         if self.$(name)_error_count > self.$(name)_error_threshold:
 .  for timeout
+.    for event
+            if self.fsm.isstate('$(when)'):
+                self.fsm.$(name)()
+.    endfor
+.  endfor
+        else:
+.  for tick
+.    for action
+            self.$(name:c)()
+.    endfor
 .    for event
             if self.fsm.isstate('$(when)'):
                 self.fsm.$(name)()

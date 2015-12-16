@@ -1,0 +1,17 @@
+.for fsm
+.  for state where (defined(inherit)) as dest
+.  for fsm.state where (name = dest.inherit) as src
+.    for event
+.    copy event to dest
+.    endfor
+.    new fsm.parents
+.      define parents.name = src.name
+.    endnew
+.  endfor
+.  endfor
+.  for parents
+.    for fsm.state where (name = parents.name)
+.      delete state
+.    endfor
+.  endfor
+.endfor

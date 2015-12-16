@@ -3,6 +3,7 @@
 .# Generates a low level Qt/C++ Machinetalk channel
 .#
 .template 1
+.gsl from "prepare_fsm.gsl"
 .output "generated/$(class.name:Pascal,lower).h"
 /****************************************************************************
 **
@@ -585,17 +586,27 @@ void $(class.name:lower,Pascal)::stop$(Name)Timer()
 
 void $(class.name:lower,Pascal)::$(name)TimerTick()
 {
-.  for tick
-.    for action
-    $(name:Camel)();
-.    endfor
-.  endfor
-
     m_$(name)ErrorCount += 1;
-
     if (m_$(name)ErrorCount > m_$(name)ErrorThreshold)
     {
 .  for timeout
+.    for action
+         $(name:Camel)();
+.    endfor
+.    for event
+         if (m_state == $(when:Pascal))
+         {
+             emit fsm$(name:Pascal)();
+         }
+.    endfor
+.  endfor
+    }
+    else
+    {
+.  for tick
+.    for action
+         $(name:Camel)();
+.    endfor
 .    for event
          if (m_state == $(when:Pascal))
          {
@@ -769,7 +780,11 @@ void $(class.name:lower,Pascal)::send$(Name)Message(pb::ContainerType type, pb::
 .    endfor
 .
 .    for event
-    $(ws)emit fsm$(Name)();
+
+    $(ws)if (m_state == $(when:Pascal))
+    $(ws){
+        $(ws)emit fsm$(Name:Pascal)();
+    $(ws)}
 .    endfor
 .    if (name <> "*")
     }
@@ -822,11 +837,14 @@ void $(class.name:lower,Pascal)::socketError(int errorNum, const QString &errorM
 
 void $(class.name:lower,Pascal)::fsm$(Name)Entered()
 {
+    if (m_state != $(name:Pascal))
+    {
 #ifdef QT_DEBUG
     DEBUG_TAG(1, m_debugName, "$(NAME)");
 #endif
-    m_state = $(name:Pascal);
-    emit stateChanged(m_state);
+        m_state = $(name:Pascal);
+        emit stateChanged(m_state);
+    }
 }
 .  endfor
 .endfor
