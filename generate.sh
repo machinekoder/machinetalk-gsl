@@ -4,7 +4,7 @@ name=$1
 gsl -script:pygen.gsl $name.xml
 gsl -script:qtgen.gsl $name.xml
 gsl -script:dotgen.gsl $name.xml
-gsl -script:docgen.gsl $name.xml
+#gsl -script:docgen.gsl $name.xml
 #dot -Tpng generated/machinetalk_$name.dot > generated/machinetalk_$name.png
 }
 
@@ -17,3 +17,4 @@ process subscribe
 process publish
 process sync_client
 process halrcomp
+gsl -script:docgen.gsl rpc_protocol.xml
