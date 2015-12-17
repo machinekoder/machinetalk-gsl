@@ -7,7 +7,7 @@
 digraph $(class.name:c) {
     rankdir=LR
     size="20"
-    label="$(class.name:)"
+.-    label="$(class.name:)"
 .for fsm
 .  for state
 .    if (name = fsm.initial)

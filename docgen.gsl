@@ -8,10 +8,10 @@
 .macro recurse_field (scp, msg)
 .  for my.scp.field
 .    if (defined(field.message))
-This message $(REQUIREMENT) carry a [$(message:)]($(mtname)#pb.$(message:)) message. <br />
-.       recurse_field(field, message)
+The [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry a [$(field.message:)]($(mtname)#pb.$(field.message:)) message. <br />
+.       recurse_field(field, field.message)
 .    else
-Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry the [$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) field. <br />
+Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry a [$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) field. <br />
 .    endif
 .  endfor
 <br />
@@ -22,19 +22,49 @@ Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry the [$(n
 .endfor
 .
 # $(name:)
+$(class:no,left)
 .
 ## Messages
 .for message where (name <> "*")
-### $(Name)
-.  recurse_field(message, "Container")
+<a name="msg_$(name:c)" />
+### $(NAME)
+$(message:no,left)
+.
+.- output all response messages
+.  if (count(response) > 0)
+#### Possible Responses
+.    for response
+[$(NAME)](#msg_$(name:c)) <br />
+.    endfor
+.  endif
+.
+.- find which messages this responds to
+.  for class.message as msg
+.    for response
+.       if (name = message.name)
+.         copy msg to message as responseto
+.       endif
+.    endfor
+.  endfor
+.
+.  if (count(responseto) > 0)
+#### Response to
+.    for responseto
+[$(NAME)](#msg_$(name:c)) <br />
+.    endfor
+.  endif
+.
+.  if (count(field) > 0)
+#### Data Fields
+.    recurse_field(message, "Container")
+.  endif
 .endfor
 .
 .for class
-.  for socket
 ## $(class.name:)
+$(class:no,left)
 ## State Machine
 ![State Machine]($(class.name:Pascal,lower).dot.png)
-.  endfor
 .endfor
 .
 .endtemplate
