@@ -1,0 +1,16 @@
+<?xml version = "1.0" ?>
+<class name = "Machinetalk Subscribe Protocol">
+  The 
+
+  <message name = "full update">
+    A full value update from the service
+
+  </message>
+
+  <message name = "incremental update">
+    Service response to ping from client.
+
+  </message>
+
+  <include filename = "subscribe.xml" />
+</class>

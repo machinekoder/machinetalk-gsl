@@ -1,0 +1,111 @@
+<?xml version = "1.0" ?>
+<class name = "HAL Remote Protocol">
+  This is the HAL Remote Protocol
+
+  <message name = "halrcomp bind">
+    Bind the HAL remote component.
+
+    <response name = "halrcomp bind confirm" />
+    <response name = "halrcomp bind reject" />
+
+    <field name = "component" message = "Component" requirement = "MUST" quantity = "1">
+      <field name = "name" requirement = "MUST" />
+      <field name = "no_create" requirement = "MAY" />
+      <field name = "pin" message = "Pin" requirement = "MUST" quantity = "1+">
+        <field name = "name" requirement = "MUST" />
+        <field name = "type" requirement = "MUST" />
+        <field name = "dir" requirement = "MUST" />
+        <field name = "halfloat" requirement = "MAY" />
+        <field name = "halbit" requirement = "MAY" />
+        <field name = "hals32" requirement = "MAY" />
+        <field name = "halu32" requirement = "MAY" />
+      </field>
+    </field>
+
+  </message>
+
+  <message name = "halrcomp set">
+    Update a HAL pin.
+
+    <response name = "halrcomp set reject" />
+
+    <field name = "pin" message = "Pin" requirement = "MUST" quantity = "1+">
+      <field name = "handle" requirement = "MUST" />
+      <field name = "name" requirement = "MAY" />
+      <field name = "type" requirement = "MUST" />
+      <field name = "halfloat" requirement = "MAY" />
+      <field name = "halbit" requirement = "MAY" />
+      <field name = "hals32" requirement = "MAY" />
+      <field name = "halu32" requirement = "MAY" />
+    </field>
+
+  </message>
+
+  <message name = "halrcomp bind confirm">
+    Bind confirmed by Haltalk.
+
+  </message>
+
+  <message name = "halrcomp bind reject">
+    Bind rejected by Haltalk.
+
+    <field name = "note" message = "Note" requirement = "MUST" quantity = "1+" />
+
+  </message>
+
+  <message name = "halrcomp set reject">
+    Pin set rejected by Haltalk.
+
+    <field name = "note" message = "Note" requirement = "MUST" quantity = "1+" />
+
+  </message>
+
+  <message name = "halrcomp full update">
+    Full status update from remote end point.
+
+    <field name = "component" message = "Component" requirement = "MUST" quantity = "1">
+      <field name = "name" requirement = "MUST" />
+      <field name = "pin" message = "Pin" requirement = "MUST" quantity = "1+">
+        <field name = "name" requirement = "MUST" />
+        <field name = "handle" requirement = "MUST" />
+        <field name = "type" requirement = "MUST" />
+        <field name = "dir" requirement = "MUST" />
+        <field name = "halfloat" requirement = "MAY" />
+        <field name = "halbit" requirement = "MAY" />
+        <field name = "hals32" requirement = "MAY" />
+        <field name = "halu32" requirement = "MAY" />
+      </field>
+    </field>
+
+    <field name = "serial" requirement = "MAY" />
+    <field name = "uuid" requirement = "MAY" />
+
+  </message>
+
+  <message name = "halrcomp incremental update">
+    Incremental status update from remote end point.
+
+    <field name = "pin" message = "Pin" requirement = "MUST" quantity = "1+">
+      <field name = "handle" requirement = "MUST" />
+      <field name = "name" requirement = "MAY" />
+      <field name = "type" requirement = "MAY" />
+      <field name = "halfloat" requirement = "MAY" />
+      <field name = "halbit" requirement = "MAY" />
+      <field name = "hals32" requirement = "MAY" />
+      <field name = "halu32" requirement = "MAY" />
+    </field>
+
+    <field name = "serial" requirement = "MAY" />
+    <field name = "uuid" requirement = "MAY" />
+
+  </message>
+
+  <message name = "halrcommand error">
+    A error occured on the halrcmd channel.
+
+    <field name = "note" message = "Note" requirement = "MUST" quantity = "1+" />
+
+  </message>
+
+  <include filename = "halrcomp.xml" />
+</class>

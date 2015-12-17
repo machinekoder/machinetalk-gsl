@@ -1,0 +1,32 @@
+<?xml version = "1.0" ?>
+<class name = "Machinetalk Pub-Sub Protocol">
+  The Machintalk Pub-Sub Protocol provides a realiable channel for
+  Publish-Subscribe based interfaces.
+
+  The Pub-Sub channel is unidirectional and therefore no realiable way
+  to send message from subscriber to publisher exist. However, some
+  transports provide notification about new subscribers starting to
+  listen. Depending on the implementation a second channel might be
+  necessary to request new full updates from the service.
+
+  <message name = "full update">
+    A full value update from the service. The full update synchronizes
+    all values and therefore marks the values as synced. Any further
+    updates to values are pushed using the incremental update.
+
+    <field name = "pparams" message = "ProtcolParameters" requirement = "MAY" quantity = "1">
+      <field name = "keepalive_timer" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "incremental update">
+    The incremental update message contains incremental value
+    updates. If a incremental update is missed a new full update needs
+    to be requested in order to get a consistent state.
+
+  </message>
+
+  <include filename = "subscribe.xml" />
+  <include filename = "publish.xml" />
+</class>

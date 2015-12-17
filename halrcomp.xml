@@ -2,6 +2,7 @@
 <class name = "HAL Remote Component Base">
   HAL Remote Component Client
 
+  <abnf>
   HALRCOMP = bind *use
 
   bind = C: MT_HALRCOMP_BIND (S: MT_HALRCOMP_BIND_CONFIRMED / MT_HALRCOMP_BIND_REJECTED)
@@ -9,6 +10,7 @@
   use  = C: MT_SYNC ( S: MT_FULL_UPDATE )
        / S: MT_INCREMENTAL_UPDATE
        / C: MT_HALRCOMP_SET ( S: MT_HALRCOMP_SET_REJECTED )
+  </abnf>
 
   <socket name = "halrcmd" kind = "Machinetalk RPC Client" type = "DEALER">
     The sync channel is used to issue sync commands to the server.
