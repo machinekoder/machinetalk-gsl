@@ -75,13 +75,18 @@
       Any message from the remote end point.
     </incoming>
 
-    <incoming name = "full update">
+    <incoming name = "halrcomp full update" public = "true">
       Full status update from remote end point.
     </incoming>
 
-    <incoming name = "incremental update">
+    <incoming name = "halrcomp incremental update" public = "true">
       Incremental status update from remote end point.
     </incoming>
+
+    <incoming name = "halrcommand error" public = "true">
+      Error on HALrmcd channel.
+    </incoming>
+
   </socket>
 
   <slot name = "bind" />

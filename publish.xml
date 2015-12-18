@@ -9,7 +9,16 @@
     </outgoing>
 
     <outgoing name = "ping">
-      Ping to client.
+      Ping to subscribers.
+    </outgoing>
+
+    <outgoing name = "full update" public = "true">
+      Full update to subscribers.
+      <pparams />
+    </outgoing>
+
+    <outgoing name = "incremental update" public = "true">
+      Incremental update to subscribers.
     </outgoing>
 
   </socket>
