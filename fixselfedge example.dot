@@ -1,0 +1,19 @@
+digraph machinetalk_rpc_client {
+    rankdir=LR;
+    size="20";
+    overlap = false;
+    splines = true;
+   // concentrate = true;
+    node [shape = doublecircle]; Down;
+    node [shape = circle];
+    1 [style=invis; shape = point]
+    Down -> Trying [ label = <Connect<br></br><Font Color="Red">Start<Br></Br></Font><Font Color="Blue">Connect Sockets<Br></Br>Reset Heartbeat Error<Br></Br>Send Ping<Br></Br>Start Heartbeat Timer<Br></Br></Font>>; labeltooltip = "Tooltip" ];
+    Trying -> Up [ label = <Connected<br></br><Font Color="Red">Message *<Br></Br></Font><Font Color="Blue">Reset Heartbeat Error<Br></Br>Reset Heartbeat Timer<Br></Br></Font>>; labeltooltip = "Tooltip" ];
+    Trying -> Down [ label = <Disconnect<br></br><Font Color="Red">Stop<Br></Br></Font><Font Color="Blue">Stop Heartbeat Timer<Br></Br>Disconnect Sockets<Br></Br></Font>>; labeltooltip = "Tooltip" ];
+    Up -> Trying [ label = <Timeout<br></br><Font Color="Red">Heartbeat Timeout<Br></Br></Font><Font Color="Blue">Disconnect Sockets<Br></Br>Connect Sockets<Br></Br>Send Ping<Br></Br></Font>>; labeltooltip = "Tooltip" ];
+    Up -> 1 [arrowhead=none];
+    1 -> Up [ label = <Refresh<br></br><Font Color="Red">Message *<Br></Br></Font><Font Color="Blue">Reset Heartbeat Error<Br></Br></Font>>; labeltooltip = "Tooltip" ];
+    Up -> 2 -> Up [ label = <Tick<br></br><Font Color="Red">Heartbeat Tick<Br></Br></Font><Font Color="Blue">Send Ping<Br></Br></Font>>; labeltooltip = "Tooltip" ];
+    Up -> 3 -> Up [ label = <Msg Sent<br></br><Font Color="Blue">Reset Heartbeat Timer<Br></Br></Font>>; labeltooltip = "Tooltip" ];
+    Up -> Down [ label = <Disconnect<br></br><Font Color="Red">Stop<Br></Br></Font><Font Color="Blue">Stop Heartbeat Timer<Br></Br>Disconnect Sockets<Br></Br></Font>>; labeltooltip = "Tooltip" ];
+}

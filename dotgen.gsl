@@ -5,8 +5,11 @@
 .output "generated/$(class.name:Pascal,lower).dot"
 .
 digraph $(class.name:c) {
-    rankdir=LR
-    size="20"
+    rankdir=LR;
+    size="20";
+    overlap = false;
+    splines = true;
+    // concentrate = true;
 .-    label="$(class.name:)"
 .for fsm
 .  for state
