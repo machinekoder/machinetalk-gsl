@@ -271,9 +271,19 @@ private slots:
     void fsm$(Name)Entered();
 .  endfor
 .endfor
+
+.for socket
+.  for incoming where (defined(public) & (public = "true"))
+.    if (socket.type = "SUB")
+    virtual void $(name:Camel)Received(const QByteArray &topic, pb::Container *rx) { Q_UNUSED(topic); Q_UNUSED(rx); qWarning() << "SLOT $(name:) unimplemented"; }
+.    else
+    virtual $(name:Camel)Received(pb::Container *rx) { Q_UNUSED(rx); qWarning() << "SLOT $(name:) unimplemented"; }
+.    endif
+.  endfor
+.endfor
 .
 .for slot
-    virtual void $(name:Camel)() { qWarning() << "SLOT $(name) unimplemented"; }
+    virtual void $(name:Camel)() { qWarning() << "SLOT $(name:) unimplemented"; }
 .endfor
 
 signals:
@@ -655,7 +665,7 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
 .  endif
 .
 .  for incoming
-.    if (defined(ignore) | (count(action) > 0) | (count(event) > 0))
+.    if (defined(ignore) | (count(action) > 0) | (count(event) > 0) | defined(public))
 
 .      if (name <> "*")
 .        ws = "    "
@@ -702,9 +712,17 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     $(ws)}
 .      endfor
 .
+.      if (defined(public) & public = "true")
+.        if (socket.type = "SUB")
+    $(ws)$(name:Camel)Received(topic, rx);
+.        else
+    $(ws)$(name:Camel)Received(rx);
+.        endif
+.      endif
+.
 .      if (defined(ignore) & ignore = "true")
     $(ws)return; // $(incoming.name:) is uninteresting
-.        endif
+.       endif
 .      if (name <> "*")
     }
 .      endif

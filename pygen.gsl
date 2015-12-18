@@ -273,19 +273,22 @@ class $(class.name:lower,Pascal)(object):
         self.$(name)_error_count += 1
         if self.$(name)_error_count > self.$(name)_error_threshold:
 .  for timeout
-.    for event
-            if self.fsm.isstate('$(when)'):
-                self.fsm.$(name)()
-.    endfor
-.  endfor
-        else:
-.  for tick
 .    for action
             self.$(name:c)()
 .    endfor
 .    for event
             if self.fsm.isstate('$(when)'):
                 self.fsm.$(name)()
+.    endfor
+.  endfor
+            return
+.  for tick
+.    for action
+        self.$(name:c)()
+.    endfor
+.    for event
+        if self.fsm.isstate('$(when)'):
+            self.fsm.$(name)()
 .    endfor
 .  endfor
 
@@ -347,7 +350,7 @@ class $(class.name:lower,Pascal)(object):
 .  endif
 .
 .  for incoming
-.    if (defined(ignore) | (count(action) > 0) | (count(event) > 0))
+.    if (defined(ignore) | (count(action) > 0) | (count(event) > 0) | defined(public))
 
 .      if (name <> "*")
 .        ws = "    "
@@ -384,6 +387,14 @@ class $(class.name:lower,Pascal)(object):
             $(ws)self.fsm.$(name:c)()
 .      endfor
 .
+.      if (defined(public) & public = "true")
+.        if (socket.type = "SUB")
+        $(ws)self.$(name:c)_received(topic, rx)
+.        else
+        $(ws)self.$(name:c)_received(rx)
+.        endif
+.      endif
+.
 .      if (defined(ignore) & ignore = "true")
         $(ws)return  # $(incoming.name:) is uninteresting
 .      endif
@@ -396,6 +407,18 @@ class $(class.name:lower,Pascal)(object):
 .  else
             self.$(name)_message_received_cb(rx)
 .  endif
+.
+.
+.  for incoming where (defined(public) & (public = "true"))
+
+.    if (socket.type = "SUB")
+    def $(name:c)_received(self, topic, rx):
+.    else
+    def $(name:c)_received(self, rx):
+.    endif
+        print('SLOT $(name:) unimplemented')
+.  endfor
+.
 .endfor
 .
 .for socket where (count(outgoing) > 0)
@@ -440,7 +463,8 @@ class $(class.name:lower,Pascal)(object):
 .    endfor
 .
 .    for event
-        $(ws)self.fsm.$(name)()
+        $(ws)if self.fsm.isstate('$(name:c)'):
+            $(ws)self.fsm.$(name:c)()
 .    endfor
 .  endfor
 .endfor
