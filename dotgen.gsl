@@ -5,8 +5,8 @@
 .output "generated/$(class.name:Pascal,lower).dot"
 .
 digraph $(class.name:c) {
-    rankdir=LR;
-    size="20";
+    rankdir = LR;
+    size = 20;
     overlap = false;
     splines = true;
     // concentrate = true;
@@ -68,7 +68,22 @@ digraph $(class.name:c) {
 .        label = "<font color=\"blue\">$(label)</font>"
 .      endif
 .
-    $(state.Name) -> $(Next) [ label = <$(Name)<br></br>$(Triggers)$(Label)>; labeltooltip = "Tooltip" ];
+.      if (state.name = next)
+.      invisname = state.name + name + next
+       $(invisname:c) [shape = point;
+                       label = "";
+                       margin = 0;
+                       width = 0;
+                       height = 0;
+                       penwidth = 0;
+                       fixedsize = true];
+       $(state.Name) -> $(invisname:c):n [arrowhead=none];
+       $(invisname:c):s -> $(Next) [label = <$(Name)<br></br>$(Triggers)$(Label)>;
+                                    labeltooltip = "Tooltip" ];
+.      else
+       $(state.Name) -> $(Next) [label = <$(Name)<br></br>$(Triggers)$(Label)>;
+                                 labeltooltip = "Tooltip" ];
+.      endif
 .    endfor
 .  endfor
 .endfor
