@@ -600,9 +600,6 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
     if (m_$(name)ErrorCount > m_$(name)ErrorThreshold)
     {
 .  for timeout
-.    for action
-         $(name:Camel)();
-.    endfor
 .    for event
          if (m_state == $(when:Pascal))
          {
@@ -614,9 +611,6 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
     else
     {
 .  for tick
-.    for action
-         $(name:Camel)();
-.    endfor
 .    for event
          if (m_state == $(when:Pascal))
          {
@@ -665,7 +659,7 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
 .  endif
 .
 .  for incoming
-.    if (defined(ignore) | (count(action) > 0) | (count(event) > 0) | defined(public))
+.    if (defined(ignore) | (count(event) > 0) | defined(public))
 
 .      if (name <> "*")
 .        ws = "    "
@@ -679,10 +673,6 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
 .
 .      for response
     $(ws)send$(name:Pascal)();
-.      endfor
-.
-.      for action
-    $(ws)$(name:Camel)();
 .      endfor
 .
 .      for pparams
@@ -784,7 +774,7 @@ void $(class.name:lower,Pascal)::send$(Name)Message(pb::ContainerType type, pb::
     tx->Clear();
 .  endif
 .
-.  for outgoing where ((count(action) > 0) | (count(event) > 0))
+.  for outgoing where ((count(event) > 0))
 .    if (name <> "*")
 .      ws = "    "
     if (type == pb::MT_$(NAME:c))
@@ -792,10 +782,6 @@ void $(class.name:lower,Pascal)::send$(Name)Message(pb::ContainerType type, pb::
 .    else
 .      ws = ""
 .    endif
-.
-.    for action
-    $(ws)$(name:Camel)();
-.    endfor
 .
 .    for event
 

@@ -273,9 +273,6 @@ class $(class.name:lower,Pascal)(object):
         self.$(name)_error_count += 1
         if self.$(name)_error_count > self.$(name)_error_threshold:
 .  for timeout
-.    for action
-            self.$(name:c)()
-.    endfor
 .    for event
             if self.fsm.isstate('$(when)'):
                 self.fsm.$(name)()
@@ -283,9 +280,6 @@ class $(class.name:lower,Pascal)(object):
 .  endfor
             return
 .  for tick
-.    for action
-        self.$(name:c)()
-.    endfor
 .    for event
         if self.fsm.isstate('$(when)'):
             self.fsm.$(name)()
@@ -350,7 +344,7 @@ class $(class.name:lower,Pascal)(object):
 .  endif
 .
 .  for incoming
-.    if (defined(ignore) | (count(action) > 0) | (count(event) > 0) | defined(public))
+.    if (defined(ignore) | (count(event) > 0) | defined(public))
 
 .      if (name <> "*")
 .        ws = "    "
@@ -363,10 +357,6 @@ class $(class.name:lower,Pascal)(object):
 .
 .      for response
         $(ws)self.send_$(name:c)()
-.      endfor
-.
-.      for action
-        $(ws)self.$(name:c)()
 .      endfor
 .
 .      for pparams
@@ -450,17 +440,13 @@ class $(class.name:lower,Pascal)(object):
             tx.Clear()
 .  endif
 .
-.  for outgoing where ((count(action) > 0) | (count(event) > 0))
+.  for outgoing where ((count(event) > 0))
 .    if (name <> "*")
 .      ws = "    "
         if msg_type == pb.MT_$(NAME:c):
 .    else
 .      ws = ""
 .    endif
-.
-.    for action
-        $(ws)self.$(name:c)()
-.    endfor
 .
 .    for event
         $(ws)if self.fsm.isstate('$(name:c)'):
