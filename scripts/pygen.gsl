@@ -2,13 +2,13 @@
 .#
 .template 1
 .gsl from "scripts/prepare_fsm.gsl"
-.output "generated/$(class.name:Pascal,lower).py"
+.output "generated/$(class.module:Pascal,lower)/$(class.name:Pascal,lower).py"
 import zmq
 import threading
 import uuid
 from fysom import Fysom
 .for socket where (defined(kind))
-from $(kind:Pascal,lower) import $(kind:lower,Pascal)
+from $(module:Pascal,lower).$(kind:Pascal,lower) import $(kind:lower,Pascal)
 .endfor
 
 import machinetalk.protobuf.types_pb2 as pb

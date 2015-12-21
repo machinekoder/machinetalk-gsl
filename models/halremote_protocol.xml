@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "HAL Remote Protocol">
+<class name = "Protocol" module = "HAL Remote">
   This is the HAL Remote Protocol
 
   <message name = "halrcomp bind">

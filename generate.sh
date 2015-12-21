@@ -6,7 +6,8 @@ gsl -script:scripts/qtgen.gsl models/$name.xml
 gsl -script:scripts/dotgen.gsl models/$name.xml
 }
 
-mkdir -p generated
+mkdir -p generated/machinetalk
+mkdir -p generated/halremote
 rm generated/*
 process rpc_client
 process rpc_service

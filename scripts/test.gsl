@@ -1,8 +1,0 @@
-.###  This whole script runs in template mode.
-.#
-.template 1
-.-output "$(class.name).py"
-.for socket
-.echo "$(type)"
-.endfor
-.endtemplate

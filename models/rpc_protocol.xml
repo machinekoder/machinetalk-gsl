@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Machinetalk RPC Protocol">
+<class name = "RPC Protocol" module = "Machinetalk">
   The Machinetalk RPC Protocol provides a realiable RPC interface for Machinetalk.
   It is designed with as RESTful interface.
 
