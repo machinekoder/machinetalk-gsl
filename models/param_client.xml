@@ -1,0 +1,96 @@
+<?xml version = "1.0" ?>
+<class name = "Param Client" module = "Param">
+  Paramter Service Consumer
+
+  <socket name = "paramcmd" class = "RPC Client" module = "Machinetalk" type = "DEALER">
+    The paramcmd channel is used to update key values.
+
+    <state name = "trying">
+      <event name = "paramcmd trying" when = "syncing" />
+      <event name = "paramcmd trying" when = "up" />
+    </state>
+    <state name = "up">
+      <event name = "paramcmd up" when = "trying" />
+      <event name = "paramcmd up" when = "connecting" />
+    </state>
+
+    <outgoing name = "incremental update" public = "true">
+      Update keys.
+    </outgoing>
+
+  </socket>
+
+  <socket name = "param" class = "Subscribe" module = "Machinetalk" type = "SUB">
+    The param channel is used to received status updates from the server.
+
+    <state name = "trying">
+      <event name = "param trying" when = "trying" />
+      <event name = "param trying" when = "up" />
+    </state>
+    <state name = "up">
+      <event name = "param up" when = "syncing" />
+      <event name = "param up" when = "connecting" />
+    </state>
+
+    <incoming name = "full update" public = "true">
+      Full status update from remote end point.
+    </incoming>
+
+    <incoming name = "incremental update" public = "true">
+      Incremental status update from remote end point.
+    </incoming>
+  </socket>
+
+  <slot name = "remove keys" />
+  <slot name = "unsync keys" />
+
+  <fsm name = "fsm" initial = "down">
+    Both channels down.
+      <state name = "down">
+        <event name = "connect" next = "connecting">
+          <action name = "start paramcmd channel" />
+          <action name = "start param channel" />
+        </event>
+      </state>
+
+      <state name = "connecting" inherit = "defaults">
+        No channel up.
+        <event name = "paramcmd up" next = "syncing" />
+        <event name = "param up" next = "trying" />
+      </state>
+
+      <state name = "syncing" inherit = "defaults">
+        Paramcmd channel up, Param trying.
+        <event name = "param up" next = "up">
+          <action name = "synced" />
+        </event>
+        <event name = "paramcmd trying" next = "connecting" />
+      </state>
+
+      <state name = "trying" inherit = "defaults">
+        Param channel up, Paramcmd trying.
+        <event name = "paramcmd up" next = "up">
+          <action name = "synced" />
+        </event>
+        <event name = "param trying" next = "connecting" />
+      </state>
+
+      <state name = "up" inherit = "defaults">
+        Both channels up.
+        <event name = "paramcmd trying" next = "trying">
+          <action name = "unsync keys" />
+        </event>
+        <event name = "param trying" next = "syncing">
+          <action name = "unsync keys" />
+        </event>
+      </state>
+
+      <state name = "defaults">
+        <event name = "disconnect" next = "down">
+          <action name = "stop paramcmd channel" />
+          <action name = "stop param channel" />
+          <action name = "remove keys" />
+        </event>
+      </state>
+    </fsm>
+</class>

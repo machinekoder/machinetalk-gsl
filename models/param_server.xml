@@ -1,0 +1,41 @@
+<?xml version = "1.0" ?>
+<class name = "Param Server" module = "Param">
+  Paramter Service Provider
+
+  <socket name = "paramcmd" class = "RPC Server" module = "Machinetalk" type = "ROUTER">
+    The paramcmd channel is used to update key values.
+
+    <incoming name = "incremental update" public = "true">
+      Update keys.
+    </incoming>
+
+  </socket>
+
+  <socket name = "param" class = "Publish" module = "Machinetalk" type = "PUB">
+    The param channel is used to received status updates from the server.
+
+    <outgoing name = "full update" public = "true">
+      Full status update from remote end point.
+    </outgoing>
+
+    <outgoing name = "incremental update" public = "true">
+      Incremental status update from remote end point.
+    </outgoing>
+  </socket>
+
+  <fsm name = "fsm" initial = "down">
+    <state name = "down">
+      <event name = "connect" next = "up">
+        <action name = "start paramcmd channel" />
+        <action name = "start param channel" />
+      </event>
+    </state>
+
+    <state name = "up">
+      <event name = "disconnect" next = "down">
+        <action name = "stop paramcmd channel" />
+        <action name = "stop param channel" />
+      </event>
+    </state>
+  </fsm>
+</class>

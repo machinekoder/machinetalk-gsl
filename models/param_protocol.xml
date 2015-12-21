@@ -1,0 +1,41 @@
+<?xml version = "1.0" ?>
+<class name = "Param Protocol" module = "Param">
+  The Parameter Protocol can be used to synchronize two key value storage databases.
+
+  <message name = "full update">
+    Full update from service provider to service consumer.
+
+    <field name = "key" message = "Key" requirement = "MUST" quantity = "1+">
+      <field name = "name" requirement = "MUST" />
+      <field name = "type" requirement = "MUST" />
+      <oneof requirement = "MUST">
+        <field name = "paramstring" />
+        <field name = "parambinary" />
+        <field name = "paramint" />
+        <field name = "parambool" />
+        <field name = "paramlist" />
+      </oneof>
+    </field>
+
+  </message>
+
+  <message name = "incremental update">
+    Incremental update from service provider or service consumer.
+
+    <field name = "key" message = "Key" requirement = "MUST" quantity = "1+">
+      <field name = "name" requirement = "MUST" />
+      <field name = "type" requirement = "MUST" />
+      <oneof requirement = "MUST">
+        <field name = "paramstring" />
+        <field name = "parambinary" />
+        <field name = "paramint" />
+        <field name = "parambool" />
+        <field name = "paramlist" />
+      </oneof>
+    </field>
+
+  </message>
+
+  <include filename = "param_client.xml" />
+  <include filename = "param_server.xml" />
+</class>
