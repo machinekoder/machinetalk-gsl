@@ -5,16 +5,21 @@
 .
 .mtname = "machinetalk-protobuf.md"
 .
-.macro recurse_field (scp, msg)
+.macro recurse_field (scp, msg, indent)
 .  for my.scp.field
 .    if (defined(field.message))
-The [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry a [$(field.message:)]($(mtname)#pb.$(field.message:)) message. <br />
-.       recurse_field(field, field.message)
+$(my.indent) The [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry a [$(field.message:)]($(mtname)#pb.$(field.message:)) message. <br />
+.       recurse_field(field, field.message, "&nbsp;&nbsp;" + my.indent)
 .    else
-Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry a [$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) field. <br />
+$(my.indent) Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry a [$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) field. <br />
 .    endif
 .  endfor
-<br />
+.  for my.scp.oneof
+$(my.indent) Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry one of the following fields <br />
+.    for field
+$(my.indent) &nbsp;&nbsp;[$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) <br />
+.    endfor
+.  endfor
 .endmacro
 .
 .for include
@@ -56,7 +61,7 @@ $(message:no,left)
 .
 .  if (count(field) > 0)
 #### Data Fields
-.    recurse_field(message, "Container")
+.    recurse_field(message, "Container", "")
 .  endif
 .endfor
 .

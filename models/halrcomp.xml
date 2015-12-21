@@ -85,7 +85,7 @@
       <state name = "down">
         <event name = "connect" next = "trying">
           <action name = "add pins" />
-          <action name = "start halrcmd channel" />;
+          <action name = "start halrcmd channel" />
         </event>
       </state>
 
