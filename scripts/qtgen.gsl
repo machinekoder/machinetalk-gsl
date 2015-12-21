@@ -18,8 +18,8 @@
 #include <nzmqt/nzmqt.hpp>
 #include <machinetalk/protobuf/message.pb.h>
 #include <google/protobuf/text_format.h>
-.for socket where (defined(kind))
-#include "$(module:Pascal,lower)/$(kind:Pascal,lower).h"
+.for socket where (defined(socket.class))
+#include "$(module:Pascal,lower)/$(socket.class:Pascal,lower).h"
 .endfor
 
 #if defined(Q_OS_IOS)
@@ -61,7 +61,7 @@ public:
 
     QString $(name)Uri() const
     {
-.  if defined(kind)
+.  if defined(socket.class)
         return m_$(name)Channel->socketUri();
 .  else
         return m_$(name)Uri;
@@ -101,7 +101,7 @@ public slots:
 
     void set$(Name)Uri(QString uri)
     {
-.  if defined(kind)
+.  if defined(socket.class)
         m_$(name)Channel->setSocketUri(uri);
 .  else
         if (m_$(name)Uri == uri)
@@ -187,8 +187,8 @@ private:
 .  if (type = "SUB")
     QSet<QString> m_$(name)Topics;  // the topics we are interested in
 .  endif
-.  if defined(kind)
-    $(kind:lower,Pascal) *m_$(name)Channel;
+.  if defined(socket.class)
+    $(socket.class:lower,Pascal) *m_$(name)Channel;
 .  else
     SocketNotifierZMQContext *m_context;
     ZMQSocket  *m_socket;
@@ -232,11 +232,11 @@ private slots:
 .
 .for socket
 
-.  if defined(kind)
+.  if defined(socket.class)
     void start$(Name)Channel();
     void stop$(Name)Channel();
 .    if (count(state) > 0)
-    void $(name)ChannelStateChanged($(kind:lower,Pascal)::State state);
+    void $(name)ChannelStateChanged($(socket.class:lower,Pascal)::State state);
 .    endif
 .    if (count(incoming) > 0)
 .      if (type = "SUB")
@@ -348,7 +348,7 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
     m_socketUri(""),
     m_debugName("$(class.name:)"),
 .for socket
-.  if defined(kind)
+.  if defined(socket.class)
     m_$(name)Channel(NULL),
 .  else
     m_context(NULL),
@@ -365,15 +365,15 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
     m_$(name)ErrorThreshold($(error_threshold))
 .endfor
 {
-.for socket where defined(kind)
+.for socket where defined(socket.class)
     // initialize $(name) channel
-    m_$(name)Channel = new $(kind:lower,Pascal)(this);
+    m_$(name)Channel = new $(socket.class:lower,Pascal)(this);
     m_$(name)Channel->setDebugName(m_debugName + " - $(name:)");
     connect(m_$(name)Channel, SIGNAL(socketUriChanged(QString)),
             this, SIGNAL($(name)UriChanged(QString)));
 .  if (count(state) > 0)
-    connect(m_$(name)Channel, SIGNAL(stateChanged($(kind:lower,Pascal)::State)),
-            this, SLOT($(name)ChannelStateChanged($(kind:lower,Pascal)::State)));
+    connect(m_$(name)Channel, SIGNAL(stateChanged($(socket.class:lower,Pascal)::State)),
+            this, SLOT($(name)ChannelStateChanged($(socket.class:lower,Pascal)::State)));
 .  endif
 .  if (count(incoming) > 0)
 .    if (socket.type = "SUB")
@@ -420,7 +420,7 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
 .  endfor
 .endfor
 .
-.for socket where !defined(kind)
+.for socket where !defined(socket.class)
 
     m_context = new SocketNotifierZMQContext(this, 1);
     connect(m_context, SIGNAL(notifierError(int,QString)),
@@ -435,7 +435,7 @@ $(class.name:lower,Pascal)::~$(class.name:lower,Pascal)()
     {
         stop();
     }
-.for socket where !defined(kind)
+.for socket where !defined(socket.class)
 
     if (m_context != NULL)
     {
@@ -452,7 +452,7 @@ $(class.name:lower,Pascal)::~$(class.name:lower,Pascal)()
 /** Add a topic that should be subscribed **/
 void $(class.name:lower,Pascal)::add$(Name)Topic(const QString &name)
 {
-.    if defined(kind)
+.    if defined(socket.class)
     m_$(name)Channel->addSocketTopic(name);
 .    else
     m_$(name)Topics.insert(name);
@@ -462,7 +462,7 @@ void $(class.name:lower,Pascal)::add$(Name)Topic(const QString &name)
 /** Removes a topic from the list of topics that should be subscribed **/
 void $(class.name:lower,Pascal)::remove$(Name)Topic(const QString &name)
 {
-.    if defined(kind)
+.    if defined(socket.class)
     m_$(name)Channel->removeSocketTopic(name);
 .    else
     m_$(name)Topics.remove(name);
@@ -472,7 +472,7 @@ void $(class.name:lower,Pascal)::remove$(Name)Topic(const QString &name)
 /** Clears the the topics that should be subscribed **/
 void $(class.name:lower,Pascal)::clear$(Name)Topics()
 {
-.    if defined(kind)
+.    if defined(socket.class)
     m_$(name)Channel->clearSocketTopics();
 .    else
     m_$(name)Topics.clear();
@@ -480,7 +480,7 @@ void $(class.name:lower,Pascal)::clear$(Name)Topics()
 }
 .  endif
 .
-.  if !defined(kind)
+.  if !defined(socket.class)
 
 /** Connects the 0MQ sockets */
 bool $(class.name:lower,Pascal)::connectSockets()
@@ -550,7 +550,7 @@ void $(class.name:lower,Pascal)::stop()
     emit fsmDisconnect();
 }
 .
-.for socket where defined(kind)
+.for socket where defined(socket.class)
 
 void $(class.name:lower,Pascal)::start$(Name)Channel()
 {
@@ -625,7 +625,7 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
 .for socket where (count(incoming) > 0)
 
 /** Processes all message received on $(name:) */
-.  if defined(kind)
+.  if defined(socket.class)
 .    if (type = "SUB")
 void $(class.name:lower,Pascal)::$(name)ChannelMessageReceived(const QByteArray &topic, pb::Container *rx)
 .    else
@@ -736,13 +736,13 @@ void $(class.name:lower,Pascal)::send$(Name)Message(const QByteArray &topic, pb:
 void $(class.name:lower,Pascal)::send$(Name)Message(pb::ContainerType type, pb::Container *tx)
 .  endif
 {
-.  if !defined(kind)
+.  if !defined(socket.class)
     if (m_socket == NULL) {  // disallow sending messages when not connected
         return;
     }
 
 .  endif
-.  if defined(kind)
+.  if defined(socket.class)
 .    if (type = "PUB")
     m_$(name)Channel->sendSocketMessage(topic, type, tx);
 .    else
@@ -825,7 +825,7 @@ void $(class.name:lower,Pascal)::send$(name:Pascal)()
 .    endif
 .  endfor
 .
-.  if !defined(kind)
+.  if !defined(socket.class)
 
 void $(class.name:lower,Pascal)::socketError(int errorNum, const QString &errorMsg)
 {
@@ -853,13 +853,13 @@ void $(class.name:lower,Pascal)::fsm$(Name)Entered()
 .  endfor
 .endfor
 .
-.for socket where (defined(kind) & (count(state) > 0))
+.for socket where (defined(socket.class) & (count(state) > 0))
 
-void $(class.name:lower,Pascal)::$(name)ChannelStateChanged($(kind:lower,Pascal)::State state)
+void $(class.name:lower,Pascal)::$(name)ChannelStateChanged($(socket.class:lower,Pascal)::State state)
 {
 .  for state where (count(event) > 0)
 
-    if (state == $(socket.kind:lower,Pascal)::$(name:Pascal))
+    if (state == $(socket.class:lower,Pascal)::$(name:Pascal))
     {
 .     for event
         if (m_state == $(when:Pascal))

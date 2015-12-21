@@ -12,7 +12,7 @@
        / C: MT_HALRCOMP_SET ( S: MT_HALRCOMP_SET_REJECTED )
   </abnf>
 
-  <socket name = "halrcmd" kind = "RPC Client" module = "Machinetalk" type = "DEALER">
+  <socket name = "halrcmd" class = "RPC Client" module = "Machinetalk" type = "DEALER">
     The sync channel is used to issue sync commands to the server.
 
     <state name = "trying">
@@ -62,7 +62,7 @@
     </incoming>
   </socket>
 
-  <socket name = "halrcomp" kind = "Subscribe" module = "Machinetalk" type = "SUB">
+  <socket name = "halrcomp" class = "Subscribe" module = "Machinetalk" type = "SUB">
     The sub channel is used to received status updates from the server.
     <state name = "trying">
       <event name = "halrcomp trying" when = "synced" />

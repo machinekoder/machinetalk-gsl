@@ -7,8 +7,8 @@ import zmq
 import threading
 import uuid
 from fysom import Fysom
-.for socket where (defined(kind))
-from $(module:Pascal,lower).$(kind:Pascal,lower) import $(kind:lower,Pascal)
+.for socket where (defined(socket.class))
+from $(module:Pascal,lower).$(socket.class:Pascal,lower) import $(socket.class:lower,Pascal)
 .endfor
 
 import machinetalk.protobuf.types_pb2 as pb
@@ -21,7 +21,7 @@ class $(class.name:lower,Pascal)(object):
         self.debugname = debugname
         self.error_string = ''
 .
-.for socket where (!defined(kind))
+.for socket where (!defined(socket.class))
         # ZeroMQ
         context = zmq.Context()
         context.linger = 0
@@ -43,8 +43,8 @@ class $(class.name:lower,Pascal)(object):
 .for socket
 
         # $(Name)
-.  if defined(kind)
-        self.$(name)_channel = $(kind:lower,Pascal)()
+.  if defined(socket.class)
+        self.$(name)_channel = $(socket.class:lower,Pascal)()
         self.$(name)_channel.debugname = '%s - %s' % (self.debugname, '$(name:)')
 .    if (count(state) > 0)
         self.$(name)_channel.state_changed_cb = self.$(name)_channel_state_changed
@@ -135,7 +135,7 @@ class $(class.name:lower,Pascal)(object):
 .  endfor
 .endfor
 .
-.for socket where (defined(kind))
+.for socket where (defined(socket.class))
 
     @property
     def $(name)_uri(self):
@@ -156,28 +156,28 @@ class $(class.name:lower,Pascal)(object):
 .  if (type = "SUB")
 
     def add_$(name)_topic(self, name):
-.    if defined(kind)
+.    if defined(socket.class)
         self.$(name)_channel.add_socket_topic(name)
 .    else
         self.$(name)_topics.add(name)
 .    endif
 
     def remove_$(name)_topic(self, name):
-.    if defined(kind)
+.    if defined(socket.class)
         self.$(name)_channel.remove_socket_topic(name)
 .    else
         self.$(name)_topics.remove(name)
 .    endif
 
     def clear_$(name)_topics(self):
-.    if defined(kind)
+.    if defined(socket.class)
         self.$(name)_channel.clear_socket_topics()
 .    else
         self.$(name)_topics.clear()
 .    endif
 .  endif
 .
-.  if !defined(kind)
+.  if !defined(socket.class)
 
     def socket_worker(self, context, uri):
         poll = zmq.Poller()
@@ -252,7 +252,7 @@ class $(class.name:lower,Pascal)(object):
         self.fsm.disconnect()
         self.started = False
 .
-.for socket where defined(kind)
+.for socket where defined(socket.class)
 
     def start_$(name)_channel(self):
         self.$(name)_channel.start()
@@ -322,7 +322,7 @@ class $(class.name:lower,Pascal)(object):
 .for socket where (count(incoming) > 0)
 
     # process all messages received on $(name:)
-.  if defined(kind)
+.  if defined(socket.class)
 .    if (type = "SUB")
     def $(name)_channel_message_received(self, topic, rx):
 .    else
@@ -418,7 +418,7 @@ class $(class.name:lower,Pascal)(object):
 .  else
     def send_$(name)_message(self, msg_type, tx):
 .  endif
-.  if defined(kind)
+.  if defined(socket.class)
 .    if (type = "PUB")
         self.$(name)_channel.send_socket_message(topic, msg_type, tx)
 .    else
@@ -478,7 +478,7 @@ class $(class.name:lower,Pascal)(object):
 .  endfor
 .endfor
 .
-.for socket where (defined(kind) & (count(state) > 0))
+.for socket where (defined(socket.class) & (count(state) > 0))
 
     def $(name)_channel_state_changed(self, state):
 .  for state where (count(event) > 0)
