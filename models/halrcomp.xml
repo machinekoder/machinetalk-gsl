@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Component Base" module = "HAL Remote" >
+<class name = "Remote Component Base" module = "HAL Remote">
   HAL Remote Component Client
 
   <abnf>
@@ -13,7 +13,7 @@
   </abnf>
 
   <socket name = "halrcmd" class = "RPC Client" module = "Machinetalk" type = "DEALER">
-    The sync channel is used to issue sync commands to the server.
+    The halrcmd channel is used to bind HAL remote components and to update pins.
 
     <state name = "trying">
       <event name = "halrcmd trying" when = "syncing" />
@@ -24,25 +24,13 @@
       <event name = "halrcmd up" when = "trying" />
     </state>
 
-    <outgoing name = "*">
-      Any message to the remote service.
-      <response name = "*" />
-    </outgoing>
-
     <outgoing name = "halrcomp bind" public = "true">
       Bind the HAL remote component.
-      <response name = "halrcomp bind confirm" />
-      <response name = "halrcomp bind rejected" />
     </outgoing>
 
     <outgoing name = "halrcomp set" public = "true">
       Update a HAL pin.
-      <response name = "halrcomp set rejected" />
     </outgoing>
-
-    <incoming name = "*">
-      Any incoming message from the remote service.
-    </incoming>
 
     <incoming name = "halrcomp bind confirm">
       Bind confirmed by Haltalk.
@@ -60,20 +48,18 @@
       <event name = "set rejected" when = "synced" />
       <note />
     </incoming>
+
   </socket>
 
-  <socket name = "halrcomp" class = "Subscribe" module = "Machinetalk" type = "SUB">
-    The sub channel is used to received status updates from the server.
+  <socket name = "halrcomp" class = "Subscribe" module = "HAL Remote" type = "SUB">
+    The halrcomp channel is used to received status updates from the server.
+
     <state name = "trying">
       <event name = "halrcomp trying" when = "synced" />
     </state>
     <state name = "up">
       <event name = "halrcomp up" when = "syncing" />
     </state>
-
-    <incoming name = "*">
-      Any message from the remote end point.
-    </incoming>
 
     <incoming name = "halrcomp full update" public = "true">
       Full status update from remote end point.
@@ -84,7 +70,7 @@
     </incoming>
 
     <incoming name = "halrcommand error" public = "true">
-      Error on HALrmcd channel.
+      Error on HALrcmd channel.
     </incoming>
 
   </socket>
@@ -96,23 +82,20 @@
   <slot name = "synced" />
 
   <fsm name = "fsm" initial = "down">
-      <state name = "down" inherit = "defaults">
+      <state name = "down">
         <event name = "connect" next = "trying">
           <action name = "add pins" />
           <action name = "start halrcmd channel" />;
         </event>
       </state>
-      <state name = "trying">
+
+      <state name = "trying" inherit = "defaults">
         <event name = "halrcmd up" next = "binding">
           <action name = "bind" />
         </event>
-        <event name = "disconnect" next = "down">
-          <action name = "stop halrcmd channel" />
-          <action name = "stop halrcomp channel" />
-          <action name = "remove pins" />
-        </event>
       </state>
-      <state name = "binding">
+
+      <state name = "binding" inherit = "defaults">
         <event name = "bind confirmed" next = "syncing">
           <action name = "start halrcomp channel" />
         </event>
@@ -121,26 +104,18 @@
         </event>
         <event name = "halrcmd trying" next = "trying">
         </event>
-        <event name = "disconnect" next = "down">
-          <action name = "stop halrcmd channel" />
-          <action name = "stop halrcomp channel" />
-          <action name = "remove pins" />
-        </event>
       </state>
-      <state name = "syncing">
+
+      <state name = "syncing" inherit = "defaults">
         <event name = "halrcmd trying" next = "trying">
           <action name = "stop halrcomp channel" />
         </event>
         <event name = "halrcomp up" next = "synced">
           <action name = "synced" />
         </event>
-        <event name = "disconnect" next = "down">
-          <action name = "stop halrcmd channel" />
-          <action name = "stop halrcomp channel" />
-          <action name = "remove pins" />
-        </event>
       </state>
-      <state name = "synced">
+
+      <state name = "synced" inherit = "defaults">
         <event name = "halrcomp trying" next = "syncing">
           <action name = "unsync pins" />
         </event>
@@ -152,13 +127,12 @@
           <action name = "stop halrcomp channel" />
           <action name = "stop halrcmd channel" />
         </event>
-        <event name = "disconnect" next = "down">
-          <action name = "stop halrcmd channel" />
-          <action name = "stop halrcomp channel" />
-          <action name = "remove pins" />
-        </event>
       </state>
-      <state name = "error">
+
+      <state name = "error" inherit = "defaults">
+      </state>
+
+      <state name = "defaults">
         <event name = "disconnect" next = "down">
           <action name = "stop halrcmd channel" />
           <action name = "stop halrcomp channel" />
