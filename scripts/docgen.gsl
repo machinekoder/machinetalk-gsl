@@ -18,7 +18,7 @@ Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry a [$(nam
 .endmacro
 .
 .for include
-.  class.load_file(filename)
+.  class.load_file("models/" + filename)
 .endfor
 .
 # $(name:)

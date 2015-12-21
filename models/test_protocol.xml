@@ -1,0 +1,29 @@
+<?xml version = "1.0" ?>
+<class name = "Test Protocol">
+  The Machinetalk RPC Protocol provides a realiable RPC interface for Machinetalk.
+  It is designed with as RESTful interface.
+
+  <message name = "ping">
+    Ping from client to service. The PING message is used in the client
+    to check if a remote service is still present. Furthermore, some type
+    of connections require a transfer every once in while to be kept alive
+    by the operating system.
+
+    <response name = "ping acknowledge" />
+
+    <field name = "emc_status_config" message = "EmcStatusConfig" requirement = "MUST" quantity = "1">
+      <field name = "axes" requirement = "MUST" />
+    </field>
+    <field name = "uuid" requirement = "MAY" />
+    <field name = "ticket" requirement = "MAY" />
+    <field name = "credit" requirement = "MAY" />
+
+  </message>
+
+  <message name = "ping acknowledge" ignore = "true">
+    Service response to ping from client.
+
+    <field name = "uuid" requirement = "MAY" />
+  </message>
+
+</class>

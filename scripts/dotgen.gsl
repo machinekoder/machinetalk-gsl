@@ -1,7 +1,7 @@
 .###  This whole script runs in template mode.
 .#
 .template 1
-.gsl from "prepare_fsm.gsl"
+.gsl from "scripts/prepare_fsm.gsl"
 .output "generated/$(class.name:Pascal,lower).dot"
 .
 digraph $(class.name:c) {

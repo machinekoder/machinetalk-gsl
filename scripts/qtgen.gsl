@@ -3,7 +3,7 @@
 .# Generates a low level Qt/C++ Machinetalk channel
 .#
 .template 1
-.gsl from "prepare_fsm.gsl"
+.gsl from "scripts/prepare_fsm.gsl"
 .output "generated/$(class.name:Pascal,lower).h"
 /****************************************************************************
 **
