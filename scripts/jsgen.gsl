@@ -4,14 +4,18 @@
 .gsl from "scripts/prepare_fsm.gsl"
 .output "generated/$(class.module:Pascal,lower)/$(class.name:Pascal,lower).js"
 var EventEmitter = require('events').EventEmitter;
+var StateMachine = require("javascript-state-machine").StateMachine;
 var util = require('util');
 var zmq = require('zmq');
 var _ = require('underscore');
 var protobufMessage = require('machinetalk-protobuf').message;
 var Container = protobufMessage.Container;
 var ContainerType = protobufMessage.ContainerType;
+.for socket where (defined(kind))
+var $(kind:Pascal,lower) = require('$(kind:Pascal,lower).js').$(kind:Pascal,lower)
+.endfor
 
-function $(class.name:lower,Pascal)(address) {
+function $(class.name:lower,Pascal)(debuglevel, debugname) {
   this.address = address;
   this.socket = zmq.socket('sub');
   this.status = {};
@@ -47,7 +51,7 @@ StatusClient.prototype._handleMessage = function(topic, message) {
   if (message.type === ContainerType.MT_PING) {
     // TODO: Handle ping (reset watchdog)
   } else if (message.type === ContainerType.MT_EMCSTAT_FULL_UPDATE) {
-    StatusClient.extendStatus(status, this._getStatusFromMessage(topic, message));
+      StatusClient.extendStatus(status, this._getStatusFromMessage(topic, message));
     this.emit(topic + 'statuschanged', status);
     this.emit('topicstatuschanged', topic, status);
     this.emit('statuschanged', this.status);
