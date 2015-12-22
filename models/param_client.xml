@@ -2,6 +2,8 @@
 <class name = "Param Client" module = "Param">
   Paramter Service Consumer
 
+  <protocol filename = "param_protocol.xml" />
+
   <socket name = "paramcmd" class = "RPC Client" module = "Machinetalk" type = "DEALER">
     The paramcmd channel is used to update key values.
 

@@ -1,0 +1,30 @@
+.- copies fields from protocol messages to socket messages
+.
+.for protocol
+.  class.load_file("models/" + filename)
+.endfor
+.
+.for class as proto
+.  for message
+.    copy message to class
+.  endfor
+.  delete proto
+.endfor
+.
+.
+.macro copy_fields(src)
+.  for class.message as msg where (my.src.name = msg.name)
+.    for msg.field
+.       copy field to my.src
+.    endfor
+.  endfor
+.endmacro
+.
+.for socket
+.  for outgoing
+.    copy_fields(outgoing)
+.  endfor
+.  for incoming
+.    copy_fields(incoming)
+.  endfor
+.endfor
