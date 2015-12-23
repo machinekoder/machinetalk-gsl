@@ -4,7 +4,7 @@
 .gsl from "scripts/prepare_fsm.gsl"
 .output "generated/$(class.module:Pascal,lower)/$(class.name:Pascal,lower).js"
 var EventEmitter = require('events').EventEmitter;
-var StateMachine = require("javascript-state-machine").StateMachine;
+var StateMachine = require('javascript-state-machine').StateMachine;
 var util = require('util');
 var zmq = require('zmq');
 var _ = require('underscore');
@@ -12,7 +12,7 @@ var protobufMessage = require('machinetalk-protobuf').message;
 var Container = protobufMessage.Container;
 var ContainerType = protobufMessage.ContainerType;
 .for socket where (defined(socket.class))
-var $(socket.class:lower,Pascal) = require('$(socket.class:Pascal,lower).js').$(socket.class:lower,Pascal)
+var $(socket.class:lower,Pascal) = require('./$(socket.module:Pascal,lower)/$(socket.class:Pascal,lower).js')
 .endfor
 
 function $(class.name:lower,Pascal)(debuglevel, debugname) {
@@ -33,10 +33,10 @@ function $(class.name:lower,Pascal)(debuglevel, debugname) {
     this.$(name)Channel = $(socket.class:lower,Pascal)();
     this.$(name)Channel.debugname = debugname + ' $(name:)';
 .    if (count(state) > 0)
-    this.$(name)Channel.stateChanged = this.$(name)ChannelStateChanged;
+    this.$(name)Channel.on('stateChanged', this.$(name)ChannelStateChanged);
 .    endif
 .    if (count(incoming) > 0)
-    this.$(name)Channel.socketMessageReceived = this.$(name)ChannelMessageReceived;
+    this.$(name)Channel.on('socketMessageReceived', this.$(name)MessageReceived);
 .    endif
 .  else
     this.$(name)Uri = '';
@@ -46,10 +46,10 @@ function $(class.name:lower,Pascal)(debuglevel, debugname) {
 .  endif
     // more efficient to reuse protobuf messages
 .  if (count(incoming) > 0)
-    this.$(name)Rx = Container();
+    this.$(name)Rx = new Container();
 .  endif
 .  if (count(outgoing) > 0)
-    this.$(name)Tx = Container();
+    this.$(name)Tx = new Container();
 .  endif
 .endfor
 .
@@ -66,10 +66,10 @@ function $(class.name:lower,Pascal)(debuglevel, debugname) {
     // callbacks
 .for socket
 .  if (count(incoming) > 0)
-    this.$(name)MessageReceived = null;
+    this.on('$(name)MessageReceived', function () {});
 .  endif
 .endfor
-    this.stateChanged = null;
+    this.on('stateChanged', function () {});
     this.started = false;
 
 .for fsm
@@ -82,15 +82,17 @@ function $(class.name:lower,Pascal)(debuglevel, debugname) {
            {name: '$(name:c)', from: '$(state.name:c)', to: '$(next:c)'},
 .    endfor
 .  endfor
-   ]});
+    ]});
 
 .  for state
-    this.fsm.on$(name:c) = this.onFsm$(name:Pascal);
+    this.fsm.on$(name:c) = this.emit.bind(this, 'onFsm$(name:Pascal)');
+    this.on('onFsm$(name:Pascal)', this.onFsm$(name:Pascal));
 .    for event
 .-     make sure we assign only once
 .      if (!defined(on_$(name:c)))
 .        on_$(name:c) = 1
-    this.fsm.on$(name:c) = self.onFsm$(name:Pascal);
+    this.fsm.on$(name:c) = this.emit.bind(this, 'onFsm$(name:Pascal)');
+    this.on('onFsm$(name:Pascal)', this.onFsm$(name:Pascal));
 .      endif
 .    endfor
 .  endfor
@@ -101,25 +103,24 @@ util.inherits($(class.name:lower,Pascal), EventEmitter);
 .for fsm
 .  for state
 
-$(class.name:lower,Pascal).protoype.onFsm$(name:Pascal) = function(event, from, to) {
+$(class.name:lower,Pascal).prototype.onFsm$(name:Pascal) = function(event, from, to) {
     if (this.debuglevel > 0)
         console.log(self.debugname + ': state $(NAME)');
 
-    if (this.stateChanged != null)
-        this.stateChanged('$(name:c)');
-}
+    this.emit('stateChanged', '$(name:c)')
+};
 .    for event
 .-     make sure we assign only once
 .      if (!defined(fsm_on_$(name:c)))
 .        fsm_on_$(name:c) = 1
 
-$(class.name:lower,Pascal).protoype.onFsm$(name:Pascal) = function(event, from, to) {
+$(class.name:lower,Pascal).prototype.onFsm$(name:Pascal) = function(event, from, to) {
     if (this.debuglevel > 0)
         console.log(self.debugname + ': event $(NAME)');
 .      for action
     this.$(name:Camel)();
 .      endfor
-}
+};
 .      endif
 .    endfor
 .  endfor
@@ -127,41 +128,42 @@ $(class.name:lower,Pascal).protoype.onFsm$(name:Pascal) = function(event, from, 
 .
 .for slot
 
-$(class.name:lower,Pascal).protoype.$(name:Camel) = function() {
+$(class.name:lower,Pascal).prototype.$(name:Camel) = function() {
     console.log('WARNING: slot $(name) unimplemented');
-}
+};
 .endfor
 .
 .for socket
 .  if (type = "SUB")
 
-$(class.name:lower,Pascal).protoype.add$(Name)Topic = function(name) {
+$(class.name:lower,Pascal).prototype.add$(Name)Topic = function(name) {
 .    if defined(socket.class)
     this.$(name)Channel.addSocketTopic(name);
 .    else
     this.$(name)Topics.push(name);
 .    endif
-}
+};
 
-$(class.name:lower,Pascal).protoype.remove$(Name)Topic = function(name) {
+$(class.name:lower,Pascal).prototype.remove$(Name)Topic = function(name) {
 .    if defined(socket.class)
     this.$(name)Channel.removeSocketTopic(name);
 .    else
     this.$(name)Topics.pop(name);
 .    endif
-}
+};
 
-$(class.name:lower,Pascal).protoype.clear$(Name)Topics = function() {
+$(class.name:lower,Pascal).prototype.clear$(Name)Topics = function() {
 .    if defined(socket.class)
     this.$(name)Channel.clearSocketTopics();
 .    else
     this.$(name)Topics = [];
 .    endif
-}
+};
 .  endif
 .
 .  if !defined(socket.class)
-$(class.name:lower,Pascal).protoype.connectSockets = function() {
+
+$(class.name:lower,Pascal).prototype.connectSockets = function() {
     this.socket = zmq.socket('$(type)');
     this.socket.setsockopt(zmq.ZMQ_LINGER, 0);
     this.socket.connect(this.socketUri);
@@ -174,96 +176,284 @@ $(class.name:lower,Pascal).protoype.connectSockets = function() {
         this.socket.subscribe(self.socketTopics[i]);
     }
 .    endif
-}
+};
 
-$(class.name:lower,Pascal).protoype.disconnectSockets = function() {
+$(class.name:lower,Pascal).prototype.disconnectSockets = function() {
     if (this.socket != null) {
         this.socket.close();
         this.socket = null;
     }
-}
+};
 .  endif
 .endfor
+
+$(class.name:lower,Pascal).prototype.start = function() {
+    if (this.started)
+        return;
+    this.fsm.connect();
+    this.started = true;
+};
+
+$(class.name:lower,Pascal).prototype.stop = function() {
+    if (!this.started)
+        return;
+    this.fsm.diconnect();
+    this.started = false;
+};
 .
-StatusClient.prototype.connect = function() {
-  this.socket.connect(this.address);
-};
-StatusClient.prototype.subscribe = function(topic) {
-  this.socket.subscribe(topic);
-};
-StatusClient.prototype._handleMessage = function(topic, message) {
-  topic = topic && topic.toString();
-  var status = this.status[topic] || (this.status[topic] = {});
+.for socket where defined(socket.class)
 
-  message = Container.decode(message);
-  this.emit('message', message);
-
-  if (message.type === ContainerType.MT_PING) {
-    // TODO: Handle ping (reset watchdog)
-  } else if (message.type === ContainerType.MT_EMCSTAT_FULL_UPDATE) {
-      StatusClient.extendStatus(status, this._getStatusFromMessage(topic, message));
-    this.emit(topic + 'statuschanged', status);
-    this.emit('topicstatuschanged', topic, status);
-    this.emit('statuschanged', this.status);
-  } else if (message.type === ContainerType.MT_EMCSTAT_INCREMENTAL_UPDATE) {
-    StatusClient.extendStatus(status, this._getStatusFromMessage(topic, message));
-    this.emit(topic + 'statuschanged', status);
-    this.emit('topicstatuschanged', topic, status);
-    this.emit('statuschanged', this.status);
-  } else {
-    console.log('Unknown message type', message.type);
-  }
+$(class.name:lower,Pascal).prototype.start$(Name)Channel = function() {
+    this.$(name)Channel.start();
 };
-StatusClient.prototype._getStatusFromMessage = function(topic, message) {
-  return message['emc_status_' + topic];
-};
-StatusClient.extendStatus = function extendStatus(destination, source) {
-  for (var key in source) {
-    if (!source.hasOwnProperty(key) || source[key] === null)
-      // Skip if source doesn't have a value.
-      continue;
 
-    if (source[key] instanceof Array) {
-      destination[key] = StatusClient.extendArray(destination[key], source[key]);
-      continue;
+$(class.name:lower,Pascal).prototype.stop$(Name)Channel = function() {
+    this.$(name)Channel.stop();
+};
+.endfor
+.
+.for heartbeat
+
+$(class.name:lower,Pascal).prototype.$(name)TimerTick = function() {
+    this.$(name)Timer = null // timer is dead on tick
+
+    if (this.debuglevel > 0)
+        console.log(self.debugname + ' timer tick');
+
+    this.$(name)ErrorCount += 1;
+    if (this.$(name)ErrorCount > this.$(name)ErrorThreshold) {
+.  for timeout
+.    for event
+        if (this.fsm.current == '$(when:c)')
+            this.fsm.$(name:c)();
+.    endfor
+.  endfor
+    }
+    else {
+.  for tick
+.    for event
+        if (this.fsm.current == '$(when:c)')
+            this.fsm.$(name:c)();
+.    endfor
+.  endfor
+    }
+};
+
+$(class.name:lower,Pascal).prototype.reset$(Name)Error = function() {
+    this.$(name)ErrorCount = 0;
+};
+
+$(class.name:lower,Pascal).prototype.reset$(Name)Timer = function() {
+    if (!this.$(name)Active)
+        return;
+
+    if (this.$(name)Timer != null) {
+        clearTimeout(this.$(name)Timer);
+        this.$(name)Timer = null;
     }
 
-    if (destination[key] === null || destination[key] === undefined) {
-      // Overwrite if destination has no value.
-      destination[key] = source[key];
-      continue;
-    }
+    if (this.$(name)Period > 0)
+        this.$(name)Timer = setTimeout(this.$(name)TimerTick, this.$(name)Period / 1000.0);
 
-    if (typeof source[key] !== 'object') {
-      // Overwrite if source has a primitive value.
-      destination[key] = source[key];
-      continue;
-    }
-
-    if (typeof destination[key] === 'object') {
-      // Recurse down for object values.
-      extendStatus(destination[key], source[key]);
-      continue;
-    }
-
-    throw new Error('Incorrect status');
-  }
-  return destination;
+    if (this.debuglevel > 0)
+        console.log(this.debugname + ' timer reset');
 };
 
-StatusClient.extendArray = function extendArray(destination, source) {
-  return source.reduce(function(array, item) {
-    if (item.index >= array.length) {
-      array.length = item.index + 1;
+$(class.name:lower,Pascal).prototype.start$(Name)Timer = function() {
+    this.$(name)Active = true;
+    this.reset$(Name)Timer();
+};
+
+$(class.name:lower,Pascal).prototype.reset$(Name)Timer = function() {
+    this.$(name)Active = false
+    if (this.$(name)Timer != null) {
+        clearTimeout(this.$(name)Timer);
+        this.$(name)Timer = null;
     }
-    array[item.index] = StatusClient.extendStatus(array[item.index] || {}, item);
-    return array;
-  }, destination || []);
 };
+.endfor
+.
+.for socket where (count(incoming) > 0)
 
-StatusClient.prototype.close = function close() {
-  this.socket.close();
+/** process all messages received on $(name:) */
+.  if (type = "SUB")
+$(class.name:lower,Pascal).prototype._$(name)MessageReceived = function(topic, rx) {
+.  else
+$(class.name:lower,Pascal).prototype._$(name)MessageReceived = function(rx) {
+.  endif
+.  if (!defined(socket.class))
+    rx = Container.decode(rx);
+    if (this.debuglevel > 0) {
+        console.log(this.debugname + ' received message');
+        if (this.debuglevel > 1) {
+            console.log(rx);
+        }
+    }
+.  endif
+.
+.  for incoming
+.    if (defined(ignore) | (count(event) > 0) | defined(public))
+
+.      if (name <> "*")
+.        ws = "    "
+    // react to $(name) message
+    if (rx.type == ContainerType.MT_$(NAME:c)) {
+.      else
+.        ws = ""
+    // react to any incoming message
+.      endif
+.
+.      for response
+    $(ws)this.send$(name:Pascal)();
+.      endfor
+.
+.      for pparams
+    $(ws)if (rx.pparams != undefined) {
+        $(ws)interval = rx.pparams.keepalive_timer;
+        $(ws)this.heartbeatPeriod = interval;
+    $(ws)}
+.      endfor
+.
+.      for note
+    $(ws)// update error string with note
+    $(ws)this.errorString = ''
+    $(ws)for (var = i; i < rx.note.length(); ++i) {
+        $(ws)this.errorString += rx.note[i] + '\\n';
+    $(ws)}
+.      endfor
+.
+.      for event
+    $(ws)if (this.fsm.current == '$(when:c)')
+        $(ws)this.fsm.$(name:c)();
+.      endfor
+.
+.      if (defined(public) & public = "true")
+.        if (socket.type = "SUB")
+    $(ws)this.$(name:c)Received(topic, rx)
+.        else
+    $(ws)this.$(name:c)Received(rx)
+.        endif
+.      endif
+.
+.      if (defined(ignore) & ignore = "true")
+    $(ws)return; // $(incoming.name:) is uninteresting
+.      endif
+.      if (name <> "*")
+    }
+.      endif
+.    endif
+.  endfor
+
+.  if (type = "SUB")
+    this.emit('$(name)MessageReceived', topic, rx);
+.  else
+    this.emit('$(name)MessageReceived', rx);
+.  endif
 };
+.
+.
+.  for incoming where (defined(public) & (public = "true"))
 
-module.exports = StatusClient;
+.    if (socket.type = "SUB")
+$(class.name:lower,Pascal).prototype.$(name:Camel)Received = function(topic, rx) {
+.    else
+$(class.name:lower,Pascal).prototype.$(name:Camel)Received = function(rx) {
+.    endif
+    console.log('SLOT $(name:) unimplemented');
+}
+.  endfor
+.
+.endfor
+.
+.for socket where (count(outgoing) > 0)
+
+.  if (type = "PUB")
+$(class.name:lower,Pascal).prototype.send$(name:Pascal)Message = function(topic, type, tx)
+.  else
+$(class.name:lower,Pascal).prototype.send$(name:Pascal)Message = function(type, tx)
+.  endif
+{
+.  if defined(socket.class)
+.    if (type = "PUB")
+    this.$(name)Channel.sendSocketMessage(topic, type, tx)
+.    else
+    this.$(name)Channel.sendSocketMessage(type, tx)
+.    endif
+.  else
+    tx.type = type
+    if (this.debuglevel > 0) {
+        console.log(self.debugname + ' sending message: ' msg_type);
+        if (this.debuglevel > 1)
+            console.log(tx);
+    }
+
+.    if (type = "PUB")
+    this.socket.send([topic, Container.encode(tx)]);
+.    else
+    this.socket.send(Container.encode(tx));
+.    endif
+    tx.Clear();
+.  endif
+.
+.  for outgoing where ((count(event) > 0))
+.    if (name <> "*")
+.      ws = "    "
+    if (type == ContainerType.MT_$(NAME:c))
+    {
+.    else
+.      ws = ""
+.    endif
+.
+.    for event
+     $(ws)if (this.fsm.current == '$(name:c)')
+         $(ws)this.fsm.$(name:c)();
+.    endfor
+.    if (name <> "*")
+    }
+.    endif
+.  endfor
+};
+.endfor
+.
+.for socket
+.  for outgoing where (name <> "*")
+
+.    if (socket.type = "PUB")
+.      if defined(public)
+$(class.name:lower,Pascal).prototype.send$(name:Pascal) = function(topic, tx) {
+.      else
+$(class.name:lower,Pascal).prototype.send$(name:Pascal) = function(topic) {
+    tx = this.$(socket.name)Tx;
+.      endif
+    this.send$(socket.Name)Message(topic, ContainerType.MT_$(NAME:c), tx);
+};
+.    else
+.      if defined(public)
+$(class.name:lower,Pascal).prototype.send$(name:Pascal) = function(tx) {
+.      else
+$(class.name:lower,Pascal).prototype.send$(name:Pascal) = function() {
+    tx = self.$(socket.name)Tx
+.      endif
+    this.send$(socket.Name)Message(ContainerType.MT_$(NAME:c), tx);
+};
+.    endif
+.  endfor
+.endfor
+.
+.for socket where (defined(socket.class) & (count(state) > 0))
+
+$(class.name:lower,Pascal).prototype.$(name)ChannelStateChanged = function(state) {
+.  for state where (count(event) > 0)
+
+    if (state == '$(name:c)') {
+.     for event
+        if (this.fsm.current == '$(when:c)')
+            this.fsm.$(name:c)();
+.     endfor
+    }
+.  endfor
+};
+.endfor
+
+module.exports = $(class.name:lower,Pascal);
 .endtemplate
