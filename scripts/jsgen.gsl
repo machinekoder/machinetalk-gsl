@@ -11,31 +11,181 @@ var _ = require('underscore');
 var protobufMessage = require('machinetalk-protobuf').message;
 var Container = protobufMessage.Container;
 var ContainerType = protobufMessage.ContainerType;
-.for socket where (defined(kind))
-var $(kind:Pascal,lower) = require('$(kind:Pascal,lower).js').$(kind:Pascal,lower)
+.for socket where (defined(socket.class))
+var $(socket.class:lower,Pascal) = require('$(socket.class:Pascal,lower).js').$(socket.class:lower,Pascal)
 .endfor
 
 function $(class.name:lower,Pascal)(debuglevel, debugname) {
-  this.address = address;
-  this.socket = zmq.socket('sub');
-  this.status = {};
-  this.socket.on('message', this._handleMessage.bind(this));
+    debuglevel = typeof debuglevel !== 'undefined' ? debuglevel : 0;
+    debugname = typeof debugname !== 'undefined' ? debugname : 0;
+    this.debuglevel = debuglevel;
+    this.debugname = debugname;
+    this.errorString = '';
+.
+.for socket where (!defined(socket.class))
+    this.socket = null;
+.endfor
+.
+.for socket
 
-  this.socket.on('connect', this.emit.bind(this, 'connect'));
-  this.socket.on('connect_delay', this.emit.bind(this, 'connect_delay'));
-  this.socket.on('connect_retry', this.emit.bind(this, 'connect_retry'));
-  this.socket.on('listen', this.emit.bind(this, 'listen'));
-  this.socket.on('bind_error', this.emit.bind(this, 'bind_error'));
-  this.socket.on('accept', this.emit.bind(this, 'accept'));
-  this.socket.on('accept_error', this.emit.bind(this, 'accept_error'));
-  this.socket.on('close', this.emit.bind(this, 'close'));
-  this.socket.on('close_error', this.emit.bind(this, 'close_error'));
-  this.socket.on('disconnect', this.emit.bind(this, 'disconnect'));
-  this.socket.on('monitor_error', this.emit.bind(this, 'monitor_error'));
+    // $(Name)
+.  if defined(socket.class)
+    this.$(name)Channel = $(socket.class:lower,Pascal)();
+    this.$(name)Channel.debugname = debugname + ' $(name:)';
+.    if (count(state) > 0)
+    this.$(name)Channel.stateChanged = this.$(name)ChannelStateChanged;
+.    endif
+.    if (count(incoming) > 0)
+    this.$(name)Channel.socketMessageReceived = this.$(name)ChannelMessageReceived;
+.    endif
+.  else
+    this.$(name)Uri = '';
+.    if (type = "SUB")
+    this.$(name)Topics = [];
+.    endif
+.  endif
+    // more efficient to reuse protobuf messages
+.  if (count(incoming) > 0)
+    this.$(name)Rx = Container();
+.  endif
+.  if (count(outgoing) > 0)
+    this.$(name)Tx = Container();
+.  endif
+.endfor
+.
+.for heartbeat
+
+    // $(Name)
+    this.$(name)Period = $(period);
+    this.$(name)ErrorCount = 0;
+    this.$(name)ErrorThreshold = $(error_threshold);
+    this.$(name)Timer = null;
+    this.$(name)Active = false;
+.endfor
+
+    // callbacks
+.for socket
+.  if (count(incoming) > 0)
+    this.$(name)MessageReceived = null;
+.  endif
+.endfor
+    this.stateChanged = null;
+    this.started = false;
+
+.for fsm
+    // fsm
+    this.fsm = StateMachine.create({
+        initial: '$(initial:c)',
+        events: [
+.  for state
+.    for event
+           {name: '$(name:c)', from: '$(state.name:c)', to: '$(next:c)'},
+.    endfor
+.  endfor
+   ]});
+
+.  for state
+    this.fsm.on$(name:c) = this.onFsm$(name:Pascal);
+.    for event
+.-     make sure we assign only once
+.      if (!defined(on_$(name:c)))
+.        on_$(name:c) = 1
+    this.fsm.on$(name:c) = self.onFsm$(name:Pascal);
+.      endif
+.    endfor
+.  endfor
+.endfor
 }
-util.inherits(StatusClient, EventEmitter);
+util.inherits($(class.name:lower,Pascal), EventEmitter);
+.
+.for fsm
+.  for state
+
+$(class.name:lower,Pascal).protoype.onFsm$(name:Pascal) = function(event, from, to) {
+    if (this.debuglevel > 0)
+        console.log(self.debugname + ': state $(NAME)');
+
+    if (this.stateChanged != null)
+        this.stateChanged('$(name:c)');
+}
+.    for event
+.-     make sure we assign only once
+.      if (!defined(fsm_on_$(name:c)))
+.        fsm_on_$(name:c) = 1
+
+$(class.name:lower,Pascal).protoype.onFsm$(name:Pascal) = function(event, from, to) {
+    if (this.debuglevel > 0)
+        console.log(self.debugname + ': event $(NAME)');
+.      for action
+    this.$(name:Camel)();
+.      endfor
+}
+.      endif
+.    endfor
+.  endfor
+.endfor
+.
+.for slot
+
+$(class.name:lower,Pascal).protoype.$(name:Camel) = function() {
+    console.log('WARNING: slot $(name) unimplemented');
+}
+.endfor
+.
+.for socket
+.  if (type = "SUB")
+
+$(class.name:lower,Pascal).protoype.add$(Name)Topic = function(name) {
+.    if defined(socket.class)
+    this.$(name)Channel.addSocketTopic(name);
+.    else
+    this.$(name)Topics.push(name);
+.    endif
+}
+
+$(class.name:lower,Pascal).protoype.remove$(Name)Topic = function(name) {
+.    if defined(socket.class)
+    this.$(name)Channel.removeSocketTopic(name);
+.    else
+    this.$(name)Topics.pop(name);
+.    endif
+}
+
+$(class.name:lower,Pascal).protoype.clear$(Name)Topics = function() {
+.    if defined(socket.class)
+    this.$(name)Channel.clearSocketTopics();
+.    else
+    this.$(name)Topics = [];
+.    endif
+}
+.  endif
+.
+.  if !defined(socket.class)
+$(class.name:lower,Pascal).protoype.connectSockets = function() {
+    this.socket = zmq.socket('$(type)');
+    this.socket.setsockopt(zmq.ZMQ_LINGER, 0);
+    this.socket.connect(this.socketUri);
+.    if (count(incoming) > 0)
+    this.socket.on('message', this._socketMessageReceived.bind(this));
+.    endif
+
+.    if (type = "SUB")
+    for (var i = 0; i < this.socketTopics.length(); ++i) {
+        this.socket.subscribe(self.socketTopics[i]);
+    }
+.    endif
+}
+
+$(class.name:lower,Pascal).protoype.disconnectSockets = function() {
+    if (this.socket != null) {
+        this.socket.close();
+        this.socket = null;
+    }
+}
+.  endif
+.endfor
+.
 StatusClient.prototype.connect = function() {
-  this.socket.monitor(1000, 0);
   this.socket.connect(this.address);
 };
 StatusClient.prototype.subscribe = function(topic) {

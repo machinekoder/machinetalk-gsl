@@ -3,6 +3,7 @@ process () {
 name=$1
 gsl -script:scripts/pygen.gsl models/$name.xml
 gsl -script:scripts/qtgen.gsl models/$name.xml
+gsl -script:scripts/jsgen.gsl models/$name.xml
 gsl -script:scripts/dotgen.gsl models/$name.xml
 }
 
@@ -11,7 +12,7 @@ mkdir -p generated/halremote
 mkdir -p generated/param
 rm generated/machinetalk/*
 rm generated/halremote/*
-rm generated/param
+rm generated/param/*
 process rpc_client
 process rpc_service
 process subscribe
