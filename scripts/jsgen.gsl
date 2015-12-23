@@ -12,14 +12,12 @@ var protobufMessage = require('machinetalk-protobuf').message;
 var Container = protobufMessage.Container;
 var ContainerType = protobufMessage.ContainerType;
 .for socket where (defined(socket.class))
-var $(socket.class:lower,Pascal) = require('./$(socket.module:Pascal,lower)/$(socket.class:Pascal,lower).js')
+var $(socket.class:lower,Pascal) = require('../$(socket.module:Pascal,lower)/$(socket.class:Pascal,lower).js')
 .endfor
 
-function $(class.name:lower,Pascal)(debuglevel, debugname) {
-    debuglevel = typeof debuglevel !== 'undefined' ? debuglevel : 0;
-    debugname = typeof debugname !== 'undefined' ? debugname : 0;
-    this.debuglevel = debuglevel;
-    this.debugname = debugname;
+function $(class.name:lower,Pascal)(debugname, debuglevel) {
+    this.debuglevel = typeof debuglevel !== 'undefined' ? debuglevel : 0;
+    this.debugname = typeof debugname !== 'undefined' ? debugname : 0;
     this.errorString = '';
 .
 .for socket where (!defined(socket.class))
@@ -30,13 +28,13 @@ function $(class.name:lower,Pascal)(debuglevel, debugname) {
 
     // $(Name)
 .  if defined(socket.class)
-    this.$(name)Channel = $(socket.class:lower,Pascal)();
+    this.$(name)Channel = new $(socket.class:lower,Pascal)();
     this.$(name)Channel.debugname = debugname + ' $(name:)';
 .    if (count(state) > 0)
-    this.$(name)Channel.on('stateChanged', this.$(name)ChannelStateChanged);
+    this.$(name)Channel.on('stateChanged', this.$(name)ChannelStateChanged.bind(this));
 .    endif
 .    if (count(incoming) > 0)
-    this.$(name)Channel.on('socketMessageReceived', this.$(name)MessageReceived);
+    this.$(name)Channel.on('socketMessageReceived', this._$(name)MessageReceived.bind(this));
 .    endif
 .  else
     this.$(name)Uri = '';
@@ -85,14 +83,12 @@ function $(class.name:lower,Pascal)(debuglevel, debugname) {
     ]});
 
 .  for state
-    this.fsm.on$(name:c) = this.emit.bind(this, 'onFsm$(name:Pascal)');
-    this.on('onFsm$(name:Pascal)', this.onFsm$(name:Pascal));
+    this.fsm.on$(name:c) = this.onFsm$(name:Pascal).bind(this);
 .    for event
 .-     make sure we assign only once
 .      if (!defined(on_$(name:c)))
 .        on_$(name:c) = 1
-    this.fsm.on$(name:c) = this.emit.bind(this, 'onFsm$(name:Pascal)');
-    this.on('onFsm$(name:Pascal)', this.onFsm$(name:Pascal));
+    this.fsm.on$(name:c) = this.onFsm$(name:Pascal).bind(this);
 .      endif
 .    endfor
 .  endfor
@@ -105,9 +101,9 @@ util.inherits($(class.name:lower,Pascal), EventEmitter);
 
 $(class.name:lower,Pascal).prototype.onFsm$(name:Pascal) = function(event, from, to) {
     if (this.debuglevel > 0)
-        console.log(self.debugname + ': state $(NAME)');
+        console.log(this.debugname + ': state $(NAME)');
 
-    this.emit('stateChanged', '$(name:c)')
+    this.emit('stateChanged', '$(name:c)');
 };
 .    for event
 .-     make sure we assign only once
@@ -116,7 +112,7 @@ $(class.name:lower,Pascal).prototype.onFsm$(name:Pascal) = function(event, from,
 
 $(class.name:lower,Pascal).prototype.onFsm$(name:Pascal) = function(event, from, to) {
     if (this.debuglevel > 0)
-        console.log(self.debugname + ': event $(NAME)');
+        console.log(this.debugname + ': event $(NAME)');
 .      for action
     this.$(name:Camel)();
 .      endfor
@@ -172,8 +168,8 @@ $(class.name:lower,Pascal).prototype.connectSockets = function() {
 .    endif
 
 .    if (type = "SUB")
-    for (var i = 0; i < this.socketTopics.length(); ++i) {
-        this.socket.subscribe(self.socketTopics[i]);
+    for (var i = 0; i < this.socketTopics.length; ++i) {
+        this.socket.subscribe(this.socketTopics[i]);
     }
 .    endif
 };
@@ -204,6 +200,7 @@ $(class.name:lower,Pascal).prototype.stop = function() {
 .for socket where defined(socket.class)
 
 $(class.name:lower,Pascal).prototype.start$(Name)Channel = function() {
+    this.$(name)Channel.socketUri = this.$(name)Uri;
     this.$(name)Channel.start();
 };
 
@@ -215,25 +212,28 @@ $(class.name:lower,Pascal).prototype.stop$(Name)Channel = function() {
 .for heartbeat
 
 $(class.name:lower,Pascal).prototype.$(name)TimerTick = function() {
-    this.$(name)Timer = null // timer is dead on tick
+    this.$(name)Timer = null; // timer is dead on tick
 
-    if (this.debuglevel > 0)
-        console.log(self.debugname + ' timer tick');
+    if (this.debuglevel > 0) {
+        console.log(this.debugname + ' timer tick');
+    }
 
     this.$(name)ErrorCount += 1;
     if (this.$(name)ErrorCount > this.$(name)ErrorThreshold) {
 .  for timeout
 .    for event
-        if (this.fsm.current == '$(when:c)')
+        if (this.fsm.current == '$(when:c)') {
             this.fsm.$(name:c)();
+        }
 .    endfor
 .  endfor
     }
     else {
 .  for tick
 .    for event
-        if (this.fsm.current == '$(when:c)')
+        if (this.fsm.current == '$(when:c)') {
             this.fsm.$(name:c)();
+        }
 .    endfor
 .  endfor
     }
@@ -252,8 +252,9 @@ $(class.name:lower,Pascal).prototype.reset$(Name)Timer = function() {
         this.$(name)Timer = null;
     }
 
-    if (this.$(name)Period > 0)
-        this.$(name)Timer = setTimeout(this.$(name)TimerTick, this.$(name)Period / 1000.0);
+    if (this.$(name)Period > 0) {
+        this.$(name)Timer = setTimeout(this.$(name)TimerTick.bind(this), this.$(name)Period);
+    }
 
     if (this.debuglevel > 0)
         console.log(this.debugname + ' timer reset');
@@ -264,7 +265,7 @@ $(class.name:lower,Pascal).prototype.start$(Name)Timer = function() {
     this.reset$(Name)Timer();
 };
 
-$(class.name:lower,Pascal).prototype.reset$(Name)Timer = function() {
+$(class.name:lower,Pascal).prototype.stop$(Name)Timer = function() {
     this.$(name)Active = false
     if (this.$(name)Timer != null) {
         clearTimeout(this.$(name)Timer);
@@ -308,7 +309,7 @@ $(class.name:lower,Pascal).prototype._$(name)MessageReceived = function(rx) {
 .      endfor
 .
 .      for pparams
-    $(ws)if (rx.pparams != undefined) {
+    $(ws)if (rx.pparams != null) {
         $(ws)interval = rx.pparams.keepalive_timer;
         $(ws)this.heartbeatPeriod = interval;
     $(ws)}
@@ -317,7 +318,7 @@ $(class.name:lower,Pascal).prototype._$(name)MessageReceived = function(rx) {
 .      for note
     $(ws)// update error string with note
     $(ws)this.errorString = ''
-    $(ws)for (var = i; i < rx.note.length(); ++i) {
+    $(ws)for (var i = 0; i < rx.note.length; ++i) {
         $(ws)this.errorString += rx.note[i] + '\\n';
     $(ws)}
 .      endfor
@@ -382,7 +383,7 @@ $(class.name:lower,Pascal).prototype.send$(name:Pascal)Message = function(type, 
 .  else
     tx.type = type
     if (this.debuglevel > 0) {
-        console.log(self.debugname + ' sending message: ' msg_type);
+        console.log(this.debugname + ' sending message: ' + msg_type);
         if (this.debuglevel > 1)
             console.log(tx);
     }
@@ -392,7 +393,7 @@ $(class.name:lower,Pascal).prototype.send$(name:Pascal)Message = function(type, 
 .    else
     this.socket.send(Container.encode(tx));
 .    endif
-    tx.Clear();
+    tx = new Container();
 .  endif
 .
 .  for outgoing where ((count(event) > 0))
@@ -432,7 +433,7 @@ $(class.name:lower,Pascal).prototype.send$(name:Pascal) = function(topic) {
 $(class.name:lower,Pascal).prototype.send$(name:Pascal) = function(tx) {
 .      else
 $(class.name:lower,Pascal).prototype.send$(name:Pascal) = function() {
-    tx = self.$(socket.name)Tx
+    tx = this.$(socket.name)Tx
 .      endif
     this.send$(socket.Name)Message(ContainerType.MT_$(NAME:c), tx);
 };
