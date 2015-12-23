@@ -275,15 +275,15 @@ class $(class.name:lower,Pascal)(object):
         if self.$(name)_error_count > self.$(name)_error_threshold:
 .  for timeout
 .    for event
-            if self.fsm.isstate('$(when)'):
-                self.fsm.$(name)()
+            if self.fsm.isstate('$(when:c)'):
+                self.fsm.$(name:c)()
 .    endfor
 .  endfor
             return
 .  for tick
 .    for event
-        if self.fsm.isstate('$(when)'):
-            self.fsm.$(name)()
+        if self.fsm.isstate('$(when:c)'):
+            self.fsm.$(name:c)()
 .    endfor
 .  endfor
 
@@ -300,7 +300,7 @@ class $(class.name:lower,Pascal)(object):
             self.$(name)_timer = None
 
         if self.$(name)_period > 0:
-            self.$(name)_timer = threading.Timer(self.$(name)_period / 1000,
+            self.$(name)_timer = threading.Timer(self.$(name)_period / 1000.0,
                                                  self.$(name)_timer_tick)
             self.$(name)_timer.start()
         self.$(name)_lock.release()
