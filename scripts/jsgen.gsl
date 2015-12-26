@@ -28,8 +28,8 @@ function $(class.name:lower,Pascal)(debugname, debuglevel) {
 
     // $(Name)
 .  if defined(socket.class)
-    this.$(name)Channel = new $(socket.class:lower,Pascal)();
-    this.$(name)Channel.debugname = debugname + ' $(name:)';
+    this.$(name)Channel = new $(socket.class:lower,Pascal)(debugname + ' $(name:)', 
+                                                           debuglevel);
 .    if (count(state) > 0)
     this.$(name)Channel.on('stateChanged', this.$(name)ChannelStateChanged.bind(this));
 .    endif
@@ -127,6 +127,17 @@ $(class.name:lower,Pascal).prototype.onFsm$(name:Pascal) = function(event, from,
 $(class.name:lower,Pascal).prototype.$(name:Camel) = function() {
     console.log('WARNING: slot $(name) unimplemented');
 };
+.endfor
+.
+.for trigger
+
+$(class.name:lower,Pascal).prototype.$(name:Camel) = function() {
+.  for event
+    if (this.fsm.current == '$(when:c)') {
+        this.fsm.$(name:c)();
+    }
+.  endfor
+}
 .endfor
 .
 .for socket
@@ -244,8 +255,9 @@ $(class.name:lower,Pascal).prototype.reset$(Name)Error = function() {
 };
 
 $(class.name:lower,Pascal).prototype.reset$(Name)Timer = function() {
-    if (!this.$(name)Active)
+    if (!this.$(name)Active) {
         return;
+    }
 
     if (this.$(name)Timer != null) {
         clearTimeout(this.$(name)Timer);
@@ -256,8 +268,9 @@ $(class.name:lower,Pascal).prototype.reset$(Name)Timer = function() {
         this.$(name)Timer = setTimeout(this.$(name)TimerTick.bind(this), this.$(name)Period);
     }
 
-    if (this.debuglevel > 0)
+    if (this.debuglevel > 0) {
         console.log(this.debugname + ' timer reset');
+    }
 };
 
 $(class.name:lower,Pascal).prototype.start$(Name)Timer = function() {
@@ -330,9 +343,9 @@ $(class.name:lower,Pascal).prototype._$(name)MessageReceived = function(rx) {
 .
 .      if (defined(public) & public = "true")
 .        if (socket.type = "SUB")
-    $(ws)this.$(name:c)Received(topic, rx)
+    $(ws)this.$(name:Camel)Received(topic, rx)
 .        else
-    $(ws)this.$(name:c)Received(rx)
+    $(ws)this.$(name:Camel)Received(rx)
 .        endif
 .      endif
 .
@@ -383,15 +396,17 @@ $(class.name:lower,Pascal).prototype.send$(name:Pascal)Message = function(type, 
 .  else
     tx.type = type
     if (this.debuglevel > 0) {
-        console.log(this.debugname + ' sending message: ' + msg_type);
+        console.log(this.debugname + ' sending message: ' + type);
         if (this.debuglevel > 1)
             console.log(tx);
     }
 
+    var encoded = Container.encode(tx);
+    var sendBuffer = encoded.buffer.slice(0, encoded.limit);
 .    if (type = "PUB")
-    this.socket.send([topic, Container.encode(tx)]);
+    this.socket.send([topic, sendBuffer]);
 .    else
-    this.socket.send(Container.encode(tx));
+    this.socket.send(sendBuffer);
 .    endif
     tx = new Container();
 .  endif
