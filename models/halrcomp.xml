@@ -83,6 +83,10 @@
   <slot name = "unsync pins" />
   <slot name = "synced" />
 
+  <trigger name = "no bind">
+    <event name = "no bind" when = "binding" />
+  </trigger>
+
   <fsm name = "fsm" initial = "down">
       <state name = "down">
         <event name = "connect" next = "trying">
@@ -103,6 +107,9 @@
         </event>
         <event name = "bind rejected" next = "error">
           <action name = "stop halrcmd channel" />
+        </event>
+        <event name = "no bind" next = "syncing">
+          <action name = "start halrcomp channel" />
         </event>
         <event name = "halrcmd trying" next = "trying">
         </event>
