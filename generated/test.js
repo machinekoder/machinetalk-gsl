@@ -68,19 +68,85 @@ halrcmdBrowser.on('update', function (data) {
 });
 
 function HalRemoteComponent(debugname, debuglevel) {
-    HalRemoteComponent.super_.call(this);
+    HalRemoteComponent.super_.apply(this, [debugname, debuglevel]);
     this.debugname = debugname
     this.debuglevel = debuglevel
+
+    this.pins = {} // pinsbyname
+    this.pinsbyhandle = {}
 }
 util.inherits(HalRemoteComponent, HalRemoteComponentBase);
 
 HalRemoteComponent.prototype.addPins = function() {
-    console.log('better');
+    console.log('should add pins here');
+}
+
+HalRemoteComponent.prototype.removePins = function() {
+    console.log('should remove pins here');
+}
+
+HalRemoteComponent.prototype.unsyncPins = function() {
+    console.log('unsyncing pins');
+}
+
+HalRemoteComponent.prototype.synced = function() {
+    console.log('now synced');
+}
+
+HalRemoteComponent.prototype.bind = function() {
+    console.log('time to bind the component');
+    this.noBind();
+}
+
+HalRemoteComponent.prototype.pinUpdate = function(rpin, lpin) {
+
+    if (rpin.halfloat !== null) {
+        lpin.value = rpin.halfloat;
+        lpin.synced = true;
+    }
+    else if (rpin.halbit !== null) {
+        lpin.value = rpin.halbit;
+        lpin.synced = true;
+    }
+    else if (rpin.hals32 !== null) {
+        lpin.value = rpin.hals32;
+        lpin.synced = true;
+    }
+    else if (rpin.halu32 !== null) {
+        lpin.value = rpin.halu32;
+        lpin.synced = true;
+    }
+}
+
+HalRemoteComponent.prototype.halrcompFullUpdateReceived = function(topic, rx) {
+    console.log('full update received');
+
+    var comp = rx.comp[0];
+    for (var i = 0; i < comp.pin.length; ++i) {
+        var rpin = comp.pin[i];
+        var name = rpin.name.split('.')[1];
+        if (this.pins[name] === undefined) {  // new pin
+            this.pins[name] = {type: rpin.type,
+                               direction: rpin.dir,
+                               synced: false}
+        }
+        this.pinsbyhandle[rpin.handle] = this.pins[name]; // create reference
+        this.pinUpdate(rpin, this.pins[name]);
+    }
+}
+
+HalRemoteComponent.prototype.halrcompIncrementalUpdateReceived = function(topic, rx) {
+    console.log('incremental update received');
+
+    for (var i = 0; i < rx.pin.length; ++i) {
+        var rpin = rx.pin[i];
+        this.pinUpdate(rpin, this.pinsbyhandle[rpin.handle]);
+    }
 }
 
 function initializeComponent(halrcmdDsn, halrcompDsn) {
     console.log(halrcmdDsn, halrcompDsn);
-    var rcomp = new HalRemoteComponent('test', 1);
+    var rcomp = new HalRemoteComponent('test', 0);
     rcomp.addHalrcompTopic('anddemo');
     rcomp.halrcompUri = halrcompDsn;
     rcomp.halrcmdUri = halrcmdDsn;
