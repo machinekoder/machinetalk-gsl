@@ -1,0 +1,27 @@
+* Machinetalk code generator
+  This code generator is based on [[https://github.com/imatix/gsl][imatix/gsl]] and generates code for
+  Machinetalk protocol bindings. The idea is that protocol description
+  resides in a single model from which documentation and different
+  language bindings can be generated.
+
+  Currently machinetalk-gsl supports following languages:
+  - Python
+  - Qt/C++
+  - Node.js
+  - Markdown and Graphviz
+
+** Directory structure
+   The project is organized in the following structure:
+   - models: contains all protocol and channel models
+   - scripts: contains scripts for the code generator
+   - generated: here all the generated code is output
+   - generate.sh: fires up the code generator
+
+** Getting started
+   - First install gsl by following these [[https://github.com/imatix/gsl#toc3-32][instructions]].
+   - Then install graphviz ~sudo apt install graphviz~
+   - Fire up ~sh generate.sh~
+
+   You can use the =entr= tool to automatically trigger a new build
+   when a model changes by issuing following command:
+   ~ls models/* scripts/* | entr sh -c "sh generate.sh"~
