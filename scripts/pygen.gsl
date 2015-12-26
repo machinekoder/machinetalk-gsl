@@ -450,7 +450,7 @@ class $(class.name:lower,Pascal)(object):
 .    endif
 .
 .    for event
-        $(ws)if self.fsm.isstate('$(name:c)'):
+        $(ws)if self.fsm.isstate('$(when:c)'):
             $(ws)self.fsm.$(name:c)()
 .    endfor
 .  endfor

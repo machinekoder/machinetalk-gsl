@@ -406,8 +406,8 @@ $(class.name:lower,Pascal).prototype.send$(name:Pascal)Message = function(type, 
 .    endif
 .
 .    for event
-     $(ws)if (this.fsm.current == '$(name:c)')
-         $(ws)this.fsm.$(name:c)();
+    $(ws)if (this.fsm.current == '$(when:c)')
+        $(ws)this.fsm.$(name:c)();
 .    endfor
 .    if (name <> "*")
     }
