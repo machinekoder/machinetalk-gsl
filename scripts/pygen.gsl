@@ -3,7 +3,8 @@
 .template 1
 .gsl from "scripts/prepare_fsm.gsl"
 .gsl from "scripts/prepare_msg.gsl"
-.output "generated/$(class.module:Pascal,lower)/$(class.name:Pascal,lower).py"
+.path = "generated/python/$(class.module:Pascal,lower)"
+.output path + "/$(class.name:Pascal,lower).py"
 import zmq
 import threading
 import uuid

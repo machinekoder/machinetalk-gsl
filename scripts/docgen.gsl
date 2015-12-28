@@ -1,7 +1,8 @@
 .###  This whole script runs in template mode.
 .#
 .template 1
-.output "generated/$(class.module:Pascal,lower)/$(class.name:Pascal,lower).md"
+.path = "generated/doc/$(class.module:Pascal,lower)"
+.output path + "/$(class.name:Pascal,lower).md"
 .
 .mtname = "machinetalk-protobuf.md"
 .

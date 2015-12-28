@@ -2,7 +2,9 @@
 .#
 .template 1
 .gsl from "scripts/prepare_fsm.gsl"
-.output "generated/$(class.module:Pascal,lower)/$(class.name:Pascal,lower).dot"
+.path = "generated/doc/$(class.module:Pascal,lower)"
+.filepath = path + "/$(class.name:Pascal,lower).dot"
+.output filepath
 .
 digraph $(class.name:c) {
     rankdir = LR;
@@ -89,8 +91,8 @@ digraph $(class.name:c) {
 .endfor
 }
 .close
-.x = proc.new("dot -Tpng -O generated/$(class.module:Pascal,lower)/$(class.name:Pascal,lower).dot", ".")
+.x = proc.new("dot -Tpng -O " + filepath, ".")
 .x.run()
-.-x = proc.new("dot -Tsvg -O generated/$(class.module:Pascal,lower)/$(class.name:Pascal,lower).dot", ".")
+.-x = proc.new("dot -Tsvg -O " + filepath, ".")
 .-x.run()
 .endtemplate

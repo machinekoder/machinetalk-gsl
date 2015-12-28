@@ -2,7 +2,8 @@
 .#
 .template 1
 .gsl from "scripts/prepare_fsm.gsl"
-.output "generated/$(class.module:Pascal,lower)/$(class.name:Pascal,lower).js"
+.path = "generated/nodejs/$(class.module:Pascal,lower)"
+.output path + "/$(class.name:Pascal,lower).js"
 var EventEmitter = require('events').EventEmitter;
 var StateMachine = require('javascript-state-machine').StateMachine;
 var util = require('util');
