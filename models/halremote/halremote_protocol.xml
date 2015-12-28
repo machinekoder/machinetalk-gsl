@@ -232,6 +232,9 @@
       <field name = "name" requirement = "MAY" />
       <field name = "type" requirement = "MAY" />
       <field name = "dir" requirement = "MAY" />
+      <field name = "linked" requirement = "MUST"/>
+      <field name = "flags" requirement = "MUST"/>
+      <field name = "epsilon" requirement = "MAY"/>
       <oneof requirement = "MUST">
         <field name = "halfloat" />
         <field name = "halbit" />
@@ -244,6 +247,9 @@
       <field name = "handle" requirement = "MUST" />
       <field name = "name" requirement = "MAY" />
       <field name = "type" requirement = "MAY" />
+      <field name = "readers" requirement = "MAY" />
+      <field name = "writers" requirement = "MAY" />
+      <field name = "bidirs" requirement = "MAY" />
       <oneof requirement = "MUST">
         <field name = "halfloat" />
         <field name = "halbit" />
@@ -321,12 +327,24 @@
         <field name = "linked" requirement = "MUST"/>
         <field name = "flags" requirement = "MUST"/>
         <field name = "epsilon" requirement = "MAY"/>
+        <oneof requirement = "MUST">
+          <field name = "halfloat" />
+          <field name = "halbit" />
+          <field name = "hals32" />
+          <field name = "halu32" />
+        </oneof>
       </field>
       <field name = "param" message = "Param" requirement = "MAY" quantity = "0+">
         <field name = "type" requirement = "MUST" />
         <field name = "dir" requirement = "MUST" />
         <field name = "handle" requirement = "MUST" />
         <field name = "name" requirement = "MUST"/>
+        <oneof requirement = "MUST">
+          <field name = "halfloat" />
+          <field name = "halbit" />
+          <field name = "hals32" />
+          <field name = "halu32" />
+        </oneof>
       </field>
     </field>
     <field name = "signal" message = "Signal" requirement = "MAY" quantity = "0+">
@@ -336,6 +354,12 @@
       <field name = "writers" requirement = "MUST" />
       <field name = "bidirs" requirement = "MUST" />
       <field name = "handle" requirement = "MUST" />
+      <oneof requirement = "MUST">
+        <field name = "halfloat" />
+        <field name = "halbit" />
+        <field name = "hals32" />
+        <field name = "halu32" />
+      </oneof>
     </field>
     <field name = "group" message = "Group" requirement = "MAY" quantity = "0+">
       <field name = "name" requirement = "MUST"/>
@@ -356,6 +380,12 @@
           <field name = "writers" requirement = "MUST" />
           <field name = "bidirs" requirement = "MUST" />
           <field name = "handle" requirement = "MUST" />
+          <oneof requirement = "MUST">
+            <field name = "halfloat" />
+            <field name = "halbit" />
+            <field name = "hals32" />
+            <field name = "halu32" />
+          </oneof>
         </field>
       </field>
     </field>
