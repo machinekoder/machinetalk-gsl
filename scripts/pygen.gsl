@@ -154,6 +154,15 @@ class $(class.name:lower,Pascal)(object):
         print('WARNING: slot $(name) unimplemented')
 .endfor
 .
+.for trigger
+
+    def $(name:c)(self):
+.  for event
+        if self.fsm.isstate('$(when:c)'):
+            self.fsm.$(name:c)()
+.  endfor
+.endfor
+.
 .for socket
 .  if (type = "SUB")
 
