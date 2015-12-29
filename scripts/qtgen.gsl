@@ -21,7 +21,11 @@
 #include <machinetalk/protobuf/message.pb.h>
 #include <google/protobuf/text_format.h>
 .for socket where (defined(socket.class))
+.  if (class.module = module)
+#include "$(socket.class:Pascal,lower).h"
+.  else
 #include "$(module:Pascal,lower)/$(socket.class:Pascal,lower).h"
+.  endif
 .endfor
 
 #if defined(Q_OS_IOS)
@@ -178,6 +182,11 @@ public slots:
     void remove$(Name)Topic(const QString &name);
     void clear$(Name)Topics();
 .  endif
+.endfor
+.
+.for trigger
+
+    void $(name:Camel)(); // trigger
 .endfor
 
 private:
@@ -869,6 +878,19 @@ void $(class.name:lower,Pascal)::$(name)ChannelStateChanged($(socket.class:lower
             emit fsm$(name:Pascal)();
         }
 .     endfor
+    }
+.  endfor
+}
+.endfor
+.
+.for trigger
+
+/** $(name:) trigger */
+void $(class.name:lower,Pascal)::$(name:Camel)()
+{
+.  for event
+    if (m_state == $(when:Pascal)) {
+        emit fsm$(name:Pascal)();
     }
 .  endfor
 }
