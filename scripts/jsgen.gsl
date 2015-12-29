@@ -205,7 +205,7 @@ $(class.name:lower,Pascal).prototype.start = function() {
 $(class.name:lower,Pascal).prototype.stop = function() {
     if (!this.started)
         return;
-    this.fsm.diconnect();
+    this.fsm.disconnect();
     this.started = false;
 };
 .
