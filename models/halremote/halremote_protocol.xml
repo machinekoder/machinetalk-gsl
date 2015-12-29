@@ -122,6 +122,10 @@
       </field>
     </field>
 
+    <field name = "pparams" message = "ProtcolParameters" requirement = "MAY" quantity = "1">
+      <field name = "keepalive_timer" requirement = "MUST" />
+    </field>
+
     <field name = "serial" requirement = "MAY" />
     <field name = "uuid" requirement = "MAY" />
 
