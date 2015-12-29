@@ -53,7 +53,7 @@
 
   </socket>
 
-  <socket name = "halrcomp" class = "Subscribe" module = "HAL Remote" type = "SUB">
+  <socket name = "halrcomp" class = "Halrcomp Subscribe" module = "HAL Remote" type = "SUB">
     The halrcomp channel is used to received status updates from the server.
 
     <state name = "trying">
