@@ -1,0 +1,126 @@
+<?xml version = "1.0" ?>
+<class name = "Launcher Protocol" module = "Application">
+  The Launcher protocol can be used to remotely start, stop and
+  monitor machinekit instances.
+
+  <message name = "launcher full update">
+    Full update of the current launcher status.
+
+    <field name = "launcher" message = "Launcher" requirement = "MAY" quantity = "0+">
+      <field name = "index" requirement = "MUST" />
+      <field name = "name" requirement = "MUST" />
+      <field name = "description" requirement = "MUST" />
+      <field name = "image" message = "File" requirement = "MAY">
+        <field name = "name" requirement = "MUST" />
+        <field name = "encoding" requirement = "MUST" />
+        <field name = "bytes" requirement = "MUST" />
+      </field>
+      <field name = "info" message = "MachineInfo" requirement = "MUST">
+        <field name = "type" requirement = "MUST" />
+        <field name = "manufacturer" requirement = "MUST" />
+        <field name = "model" requirement = "MUST" />
+        <field name = "variant" requirement = "MUST" />
+      </field>
+      <field name = "running" requirement = "MUST" />
+      <field name = "terminating" requirement = "MUST" />
+      <field name = "command" requirement = "MUST" />
+      <field name = "shell" requirement = "MUST" />
+      <field name = "output" message = "StdoutLine" requirement = "MAY" quantity = "0+">
+        <field name = "index" requirement = "MUST" />
+        <field name = "line" requirement = "MUST" />
+      </field>
+      <field name = "returncode" requirement = "MUST" />
+      <field name = "workdir" requirement = "MUST" />
+    </field>
+
+    <field name = "pparams" message = "ProtcolParameters" requirement = "MAY" quantity = "1">
+      <field name = "keepalive_timer" requirement = "MUST" />
+    </field>
+
+    <field name = "serial" requirement = "MAY" />
+
+  </message>
+
+  <message name = "launcher incremental update">
+    Incremental update of the current launcher status.
+
+    <field name = "launcher" message = "Launcher" requirement = "MAY" quantity = "0+">
+      <field name = "index" requirement = "MUST" />
+      <field name = "name" requirement = "MAY" />
+      <field name = "description" requirement = "MAY" />
+      <field name = "image" message = "File" requirement = "MAY">
+        <field name = "name" requirement = "MUST" />
+        <field name = "encoding" requirement = "MUST" />
+        <field name = "bytes" requirement = "MUST" />
+      </field>
+      <field name = "info" message = "MachineInfo" requirement = "MAY">
+        <field name = "type" requirement = "MAY" />
+        <field name = "manufacturer" requirement = "MAY" />
+        <field name = "model" requirement = "MAY" />
+        <field name = "variant" requirement = "MAY" />
+      </field>
+      <field name = "running" requirement = "MAY" />
+      <field name = "terminating" requirement = "MAY" />
+      <field name = "command" requirement = "MAY" />
+      <field name = "shell" requirement = "MAY" />
+      <field name = "output" message = "StdoutLine" requirement = "MAY" quantity = "0+">
+        <field name = "index" requirement = "MUST" />
+        <field name = "line" requirement = "MUST" />
+      </field>
+      <field name = "returncode" requirement = "MAY" />
+      <field name = "workdir" requirement = "MAY" />
+    </field>
+
+    <field name = "serial" requirement = "MAY" />
+
+  </message>
+
+  <message name = "launcher error">
+    Error on the launcher channel.
+
+    <field name = "note" requirement = "MUST" quantity = "1+" />
+  </message>
+
+  <message name = "error">
+    Error on the launchercmd channel.
+
+    <field name = "note" requirement = "MUST" quantity = "1+" />
+  </message>
+
+  <message name = "launcher start">
+    Starts a Machinekit instance.
+
+    <field name = "index" requirement = "MUST" />
+  </message>
+
+  <message name = "launcher kill">
+    Kills a Machinekit instance.
+
+    <field name = "index" requirement = "MUST" />
+  </message>
+
+  <message name = "launcher terminate">
+    Terminates a Machinekit instance.
+
+    <field name = "index" requirement = "MUST" />
+  </message>
+
+  <message name = "launcher write stdin">
+    Writes to the standard input of a Machinekit instance.
+
+    <field name = "index" requirement = "MUST" />
+    <field name = "name" requirement = "MUST" />
+  </message>
+
+  <message name = "launcher call">
+    Runs a call on the Launcher Service.
+
+    <field name = "name" requirement = "MUST" />
+  </message>
+
+  <message name = "launcher shutdown">
+    Issues a shutdown request to the Launcher Service.
+
+  </message>
+
+</class>

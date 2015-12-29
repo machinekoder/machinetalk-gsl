@@ -1,0 +1,114 @@
+<?xml version = "1.0" ?>
+<class name = "Launcher Base" module = "Application">
+  Application Launcher Client
+
+  <protocol filename = "launcher_protocol.xml" />
+
+  <socket name = "launchercmd" class = "RPC Client" module = "Machinetalk" type = "DEALER">
+    The launchercmd channel is used to issue commands to mklauncher.
+
+    <state name = "trying">
+      <event name = "launchercmd trying" when = "syncing" />
+      <event name = "launchercmd trying" when = "synced" />
+    </state>
+    <state name = "up">
+      <event name = "launchercmd up" when = "trying" />
+    </state>
+
+    <outgoing name = "launcher start" public = "true">
+      Start a Machinekit instance.
+    </outgoing>
+
+    <outgoing name = "launcher kill" public = "true">
+      Kills a Machinekit instance.
+    </outgoing>
+
+    <outgoing name = "launcher terminate" public = "true">
+      Terminates a Machinekit instance.
+    </outgoing>
+
+    <outgoing name = "launcher write stdin" public = "true">
+      Write to stding of a machinekit instance.
+    </outgoing>
+
+    <outgoing name = "launcher call" public = "true">
+      Call a command.
+    </outgoing>
+
+    <outgoing name = "launcher shutdown" public = "true">
+      Shutdown Machinekit host.
+    </outgoing>
+
+    <incoming name = "error" public = "true">
+      Error on launchercmd channel???
+    </incoming>
+
+  </socket>
+
+  <socket name = "launcher" class = "Launcher Subscribe" module = "Application" type = "SUB">
+    <state name = "trying">
+      <event name = "launcher trying" when = "synced" />
+    </state>
+    <state name = "up">
+      <event name = "launcher up" when = "syncing" />
+    </state>
+
+    <incoming name = "launcher full update" public = "true">
+      Full update from mklauncher.
+    </incoming>
+
+    <incoming name = "launcher incremental update" public = "true">
+      Incremental update from mklauncher.
+    </incoming>
+
+    <incoming name = "launcher error" public = "true">
+      Error on launcher channel???
+    </incoming>
+
+  </socket>
+
+  <slot name = "sync status" />
+  <slot name = "unsync status" />
+
+  <fsm name = "fsm" initial = "down">
+    <state name = "down">
+        <event name = "connect" next = "trying">
+          <action name = "start launchercmd channel" />
+        </event>
+    </state>
+
+    <state name = "trying" inherit = "defaults">
+        <event name = "launchercmd up" next = "syncing">
+          <action name = "start launcher channel" />
+        </event>
+    </state>
+
+    <state name = "syncing" inherit = "defaults">
+      <event name = "launchercmd trying" next = "trying">
+        <action name = "stop launcher channel" />
+      </event>
+      <event name = "launcher up" next = "synced">
+        <action name = "sync status" />
+      </event>
+    </state>
+
+    <state name = "synced" inherit = "defaults">
+      <event name = "launcher trying" next = "syncing">
+        <action name = "unsync status" />
+      </event>
+      <event name = "launchercmd trying" next = "trying">
+        <action name = "stop launcher channel" />
+        <action name = "unsync status" />
+      </event>
+    </state>
+
+    <state name = "defaults">
+      <event name = "disconnect" next = "down">
+        <action name = "stop launchercmd channel" />
+        <action name = "stop launcher channel" />
+        <action name = "unsync status" />
+      </event>
+    </state>
+  </fsm>
+
+</class>
