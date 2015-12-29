@@ -64,8 +64,9 @@
     In case the *set* request cannot be issued by the Haltalk instance a
     *set reject* message will be returned.
 
-    If the optional *reply_required* is set to true a acknowledgement
-    message will be returned in case the request is successful.
+    If the optional *reply_required* field is set to true a
+    acknowledgement message will be returned in case the request is
+    successful.
 
     <response name = "halrcomp set reject" />
     <response name = "halrcomp ack" />

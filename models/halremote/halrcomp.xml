@@ -71,8 +71,10 @@
       Incremental status update from remote end point.
     </incoming>
 
-    <incoming name = "halrcommand error" public = "true">
-      Error on HALrcmd channel.
+    <incoming name = "halrcomp error" public = "true">
+      Error when subscribing to the topic.
+      <event name = "sync failed" when = "syncing" />
+      <note />
     </incoming>
 
   </socket>
@@ -121,6 +123,10 @@
         </event>
         <event name = "halrcomp up" next = "synced">
           <action name = "synced" />
+        </event>
+        <event name = "sync failed" next = "error">
+          <action name = "stop halrcomp channel" />
+          <action name = "stop halrcmd channel" />
         </event>
       </state>
 
