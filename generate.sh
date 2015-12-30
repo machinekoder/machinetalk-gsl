@@ -23,8 +23,10 @@ process param param_client
 process param param_server
 process application launcher
 process application launcher_subscribe
+process application config
 gsl -script:scripts/docgen.gsl models/machinetalk/rpc_protocol.xml
 gsl -script:scripts/docgen.gsl models/machinetalk/pubsub_protocol.xml
 gsl -script:scripts/docgen.gsl models/halremote/halremote_protocol.xml
 gsl -script:scripts/docgen.gsl models/param/param_protocol.xml
 gsl -script:scripts/docgen.gsl models/application/launcher_protocol.xml
+gsl -script:scripts/docgen.gsl models/application/config_protocol.xml

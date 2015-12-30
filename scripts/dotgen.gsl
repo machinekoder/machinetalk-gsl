@@ -29,7 +29,12 @@ digraph $(class.name:c) {
 .      for class.socket
 .        for incoming
 .          for event as ev where ((state.name = when) & (name = event.name))
-.             triggers += "message " + incoming.name + "<br></br>"
+.             triggers += incoming.name + " received<br></br>"
+.          endfor
+.        endfor
+.        for outgoing
+.          for event as ev where ((state.name = when) & (name = event.name))
+.             triggers += outgoing.name + " sent<br></br>"
 .          endfor
 .        endfor
 .        for state as st
