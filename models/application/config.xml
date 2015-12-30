@@ -1,0 +1,93 @@
+<?xml version = "1.0" ?>
+<class name = "Config Base" module = "Application">
+  Application Config Client
+
+  <protocol filename = "config_protocol.xml" />
+
+  <socket name = "config" class = "RPC Client" module = "Machinetalk" type = "DEALER">
+    The config channel is used to retrieve application configurations
+    from config-server.
+
+    <state name = "trying">
+      <event name = "config trying" when = "listing" />
+      <event name = "config trying" when = "up" />
+      <event name = "config trying" when = "loading" />
+    </state>
+
+    <state name = "up">
+      <event name = "config up" when = "trying" />
+    </state>
+
+    <outgoing name = "list applications">
+    </outgoing>
+
+    <outgoing name = "retrieve application" public = "true">
+      <event name = "load application" when = "up" />
+    </outgoing>
+
+    <incoming name = "describe application" public = "true">
+      <event name = "application retrieved" when = "listing" />
+    </incoming>
+
+    <incoming name = "application detail" public = "true">
+      <event name = "application loaded" when = "loading" />
+    </incoming>
+
+    <incoming name = "error" public = "true">
+      <note />
+    </incoming>
+
+  </socket>
+
+  <slot name = "sync config" />
+  <slot name = "unsync config" />
+
+  <fsm name = "fsm" initial = "down">
+    <state name = "down">
+      <event name = "connect" next = "trying">
+        <action name = "add pins" />
+        <action name = "start halrcmd channel" />
+      </event>
+    </state>
+
+    <state name = "trying" inherit = "defaults">
+      <event name = "config up" next = "listing">
+        <action name = "send config list application" />
+      </event>
+    </state>
+
+    <state name = "listing" inherit = "defaults">
+      <event name = "application retrieved" next = "up">
+        <action name = "sync config" />
+      </event>
+      <event name = "config trying" next = "trying">
+        <action name = "unsync config" />
+      </event>
+    </state>
+
+    <state name = "up" inherit = "defaults">
+      <event name = "config trying" next = "trying">
+        <action name = "unsync config" />
+      </event>
+      <event name = "load application" next = "loading">
+      </event>
+    </state>
+
+    <state name = "loading" inherit = "defaults">
+      <event name = "application loaded" next = "up">
+      </event>
+      <event name = "config trying" next = "trying">
+        <action name = "unsync config" />
+      </event>
+    </state>
+
+    <state name = "defaults">
+      <event name = "disconnect" next = "down">
+        <action name = "stop halrcmd channel" />
+        <action name = "stop halrcomp channel" />
+        <action name = "unsync config" />
+      </event>
+    </state>
+  </fsm>
+
+</class>

@@ -1,0 +1,55 @@
+<?xml version = "1.0" ?>
+<class name = "Config Protocol" module = "Application">
+  The config protocol can be used to remotely retrieve user interfaces
+  from a Machinetalk config-server.
+
+  <message name = "list applications">
+    List all remote applications.
+
+    <response name = "describe application" />
+
+  </message>
+
+  <message name = "retrieve application">
+    Request details for a specific application.
+
+    <response name = "application detail" />
+
+    <field name = "name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "describe application">
+    A list of all remote applications.
+
+    <field name = "app" message = "Application" requirement = "MAY" quantity = "0+">
+      <field name = "type" requirement = "MUST" />
+      <field name = "name" requirement = "MUST" />
+      <field name = "description" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "application detail">
+    Detail for a specific application.
+
+    <field name = "app" message = "Application" requirement = "MUST">
+      <field name = "type" requirement = "MUST" />
+      <field name = "name" requirement = "MUST" />
+      <field name = "description" requirement = "MUST" />
+      <field name = "file" message = "File" requirement = "MUST" quantity = "1+">
+        <field name = "encoding" requirement = "MUST" />
+        <field name = "blob" requirement = "MUST" />
+        <field name = "name" requirement = "MUST" />
+      </field>
+    </field>
+  </message>
+
+  <message name = "error">
+    Error on config channel.
+
+    <field name = "note" requirement = "MUST" quantity = "1+" />
+
+  </message>
+
+</class>
