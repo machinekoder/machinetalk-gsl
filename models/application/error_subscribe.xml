@@ -1,0 +1,71 @@
+<?xml version = "1.0" ?>
+<class name = "Error Subscribe" module = "Application">
+  Subscribe channel for the Application Error channel
+
+  <socket type = "SUB" nature = "client" name = "socket">
+    Alle messages are passed over this socket.
+
+    <incoming name = "*">
+      Any message from publiser.
+      <event name = "message received" when = "up"/>
+    </incoming>
+
+    <incoming name = "ping" ignore = "true">
+      The server sends pings every once in a while.
+
+      <event name = "connected" when = "trying"/>
+      <pparams />
+    </incoming>
+
+  </socket>
+
+  <heartbeat
+      name = "heartbeat"
+      period = "0"
+      error_threshold = "2" >
+    For monitoring if the connection is alive.
+    <tick>
+      <event name = "tick" when = "up" />
+    </tick>
+    <timeout>
+      <event name = "timeout" when = "up" />
+    </timeout>
+  </heartbeat>
+
+  <fsm name = "fsm" initial = "down">
+    <state name = "down">
+      <event name = "connect" next = "trying">
+        <action name = "connect sockets" />
+      </event>
+    </state>
+
+    <state name = "trying" inherit = "defaults">
+      <event name = "connected" next = "up">
+        <action name = "reset heartbeat error" />
+        <action name = "start heartbeat timer" />
+      </event>
+    </state>
+
+    <state name = "up" inherit = "defaults">
+      <event name = "timeout" next = "trying">
+        <action name = "stop heartbeat timer" />
+        <action name = "disconnect sockets" />
+        <action name = "connect sockets" />
+      </event>
+      <event name = "tick" next = "up">
+        <action name = "reset heartbeat timer" />
+      </event>
+      <event name = "message received" next = "up">
+        <action name = "reset heartbeat error" />
+        <action name = "reset heartbeat timer" />
+      </event>
+    </state>
+
+    <state name = "defaults">
+      <event name = "disconnect" next = "down">
+        <action name = "stop heartbeat timer" />
+        <action name = "disconnect sockets" />
+      </event>
+    </state>
+  </fsm>
+</class>

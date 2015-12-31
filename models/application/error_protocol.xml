@@ -1,0 +1,51 @@
+<?xml version = "1.0" ?>
+<class name = "Error Protocol" module = "Application">
+  The error protocol is used to retrieve error messages from the CNC stack.
+
+  <message name = "emc nml error">
+    Error from NML.
+
+    <field name = "note" requirement = "MUST" quantity = "1+" />
+
+  </message>
+
+  <message name = "emc nml text">
+    Text from NML.
+
+    <field name = "note" requirement = "MUST" quantity = "1+" />
+
+  </message>
+
+  <message name = "emc nml display">
+    Display from NML.
+
+    <field name = "note" requirement = "MUST" quantity = "1+" />
+
+  </message>
+
+  <message name = "emc operator error">
+    Error from operator.
+
+    <field name = "note" requirement = "MUST" quantity = "1+" />
+
+  </message>
+
+  <message name = "emc operator text">
+    Text from operator.
+
+    <field name = "note" requirement = "MUST" quantity = "1+" />
+
+  </message>
+
+  <message name = "emc operator display">
+    Display from operator.
+
+    <field name = "note" requirement = "MUST" quantity = "1+" />
+
+  </message>
+
+  <message name = "ping">
+    Ping from host.
+  </message>
+
+</class>

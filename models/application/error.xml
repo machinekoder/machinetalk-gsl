@@ -1,0 +1,58 @@
+<?xml version = "1.0" ?>
+<class name = "Error Base" module = "Application">
+  Application Error Client
+
+  <protocol filename = "error_protocol.xml" />
+
+  <socket name = "error" class = "Error Subscribe" module = "Application" type = "SUB">
+    The error channel is used to receive error messages from the host.
+
+    <state name = "trying">
+      <event name = "error trying" when = "up" />
+    </state>
+    <state name = "up">
+      <event name = "error up" when = "trying" />
+    </state>
+
+    <incoming name = "emc nml error" public = "true" />
+    <incoming name = "emc nml text" public = "true" />
+    <incoming name = "emc nml display" public = "true" />
+    <incoming name = "emc operator text" public = "true" />
+    <incoming name = "emc operator error" public = "true" />
+    <incoming name = "emc operator display" public = "true" />
+
+  </socket>
+
+  <slot name = "update topics" />
+  <slot name = "set connected" />
+  <slot name = "clear connected" />
+
+  <fsm name = "fsm" initial = "down">
+    <state name = "down">
+        <event name = "connect" next = "trying">
+          <action name = "update topics" />
+          <action name = "start error channel" />
+        </event>
+    </state>
+
+    <state name = "trying" inherit = "defaults">
+        <event name = "error up" next = "up">
+          <action name = "set connected" />
+        </event>
+    </state>
+
+    <state name = "up" inherit = "defaults">
+      <event name = "error trying" next = "trying">
+        <action name = "clear connected" />
+      </event>
+    </state>
+
+    <state name = "defaults">
+      <event name = "disconnect" next = "down">
+        <action name = "stop error channel" />
+        <action name = "clear connected" />
+      </event>
+    </state>
+  </fsm>
+
+</class>

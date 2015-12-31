@@ -46,6 +46,8 @@
   </socket>
 
   <socket name = "launcher" class = "Launcher Subscribe" module = "Application" type = "SUB">
+    The launcher channel is used to received updates of the launcher structure.
+
     <state name = "trying">
       <event name = "launcher trying" when = "synced" />
     </state>
