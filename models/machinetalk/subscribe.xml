@@ -36,41 +36,46 @@
     <timeout>
       <event name = "timeout" when = "up" />
     </timeout>
-    </heartbeat>
+  </heartbeat>
 
-    <fsm name = "fsm" initial = "down">
-      <state name = "down" inherit = "defaults">
-        <event name = "connect" next = "trying">
-          <action name = "connect sockets" />
-        </event>
-      </state>
-      <state name = "trying">
-        <event name = "connected" next = "up">
-          <action name = "reset heartbeat error" />
-          <action name = "start heartbeat timer" />
-        </event>
-        <event name = "disconnect" next = "down">
-          <action name = "stop heartbeat timer" />
-          <action name = "disconnect sockets" />
-        </event>
-      </state>
-      <state name = "up">
-        <event name = "timeout" next = "trying">
-          <action name = "stop heartbeat timer" />
-          <action name = "disconnect sockets" />
-          <action name = "connect sockets" />
-        </event>
-        <event name = "tick" next = "up">
-          <action name = "reset heartbeat timer" />
-        </event>
-        <event name = "message received" next = "up">
-          <action name = "reset heartbeat error" />
-          <action name = "reset heartbeat timer" />
-        </event>
-        <event name = "disconnect" next = "down">
-          <action name = "stop heartbeat timer" />
-          <action name = "disconnect sockets" />
-        </event>
-      </state>
-    </fsm>
+  <fsm name = "fsm" initial = "down">
+    <state name = "down">
+      <event name = "connect" next = "trying">
+        <action name = "connect sockets" />
+      </event>
+    </state>
+
+    <state name = "trying" inherit = "defaults">
+      <event name = "connected" next = "up">
+        <action name = "reset heartbeat error" />
+        <action name = "start heartbeat timer" />
+      </event>
+      <event name = "disconnect" next = "down">
+        <action name = "stop heartbeat timer" />
+        <action name = "disconnect sockets" />
+      </event>
+    </state>
+
+    <state name = "up" inherit = "defaults">
+      <event name = "timeout" next = "trying">
+        <action name = "stop heartbeat timer" />
+        <action name = "disconnect sockets" />
+        <action name = "connect sockets" />
+      </event>
+      <event name = "tick" next = "up">
+        <action name = "reset heartbeat timer" />
+      </event>
+      <event name = "message received" next = "up">
+        <action name = "reset heartbeat error" />
+        <action name = "reset heartbeat timer" />
+      </event>
+    </state>
+
+    <state name = "defaults">
+      <event name = "disconnect" next = "down">
+        <action name = "stop heartbeat timer" />
+        <action name = "disconnect sockets" />
+      </event>
+    </state>
+  </fsm>
 </class>
