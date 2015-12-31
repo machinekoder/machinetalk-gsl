@@ -1,0 +1,150 @@
+<?xml version = "1.0" ?>
+<class name = "Command Protocol" module = "Application">
+  The Command protocol can be used to send commands to the CNC stack
+  of a running Machinekit instance.
+
+  <message name = "emc task abort">
+    Aborts the command currently executed by task. 
+
+    <field name = "interp_name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "emc task plan run">
+    Run the task planner from the specified line number.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "line number" requirement = "MUST" />
+    </field>
+    <field name = "interp_name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "emc task plan pause">
+    Pause the task planner at the current position.
+
+    <field name = "interp_name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "emc task plan step">
+    Step the task planner at the current position.
+
+    <field name = "interp_name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "emc task plan resume">
+    Resume a pause program.
+
+    <field name = "interp_name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "emc spindle brake engage">
+    Engage the spindle brake.
+
+  </message>
+
+  <message name = "emc spindle brake release">
+    Release the spindle brake.
+
+  </message>
+
+  <message name = "emc set debug">
+    Set the debug level of the CNC stack.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "debug_level" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc traj set scale">
+    Set the scale for the trajectory also known as feed override.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "scale" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc coolant flood on">
+    Enable the coolant flood.
+
+  </message>
+
+  <message name = "emc coolant flood off">
+    Disable the coolant flood.
+
+  </message>
+
+  <message name = "emc axis home">
+    Home the specified axis.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "index" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc axis jog">
+    Starts a continious jog movement.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "index" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc axis abort">
+    Aborts a continuous jog movement.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "index" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc axis incr jog">
+    Starts a incremental jog movement.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "index" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc tool load tool table">
+    (Re)Loads the tool table.
+
+  </message>
+
+  <message name = "emc traj set max velocity">
+    Sets the maximum trajectory velocity.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "velocity" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc task plan execute">
+    Execute a MDI command on the task planner.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "command" requirement = "MUST" />
+    </field>
+    <field name = "interp_name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "emc coolant mist on">
+    Turn the coolant mist on.
+  </message>
+
+  <message name = "emc coolant mist off">
+    Turn the coolant mist off.
+  </message>
+
+</class>
