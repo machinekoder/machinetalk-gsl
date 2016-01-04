@@ -147,4 +147,261 @@
     Turn the coolant mist off.
   </message>
 
+  <message name = "emc task plan init">
+    Resets the RS274NGC interpreter.
+
+    <field name = "interp_name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "emc task plan open">
+    Opens an NGC file on the task planner.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "path" requirement = "MUST" />
+    </field>
+    <field name = "interp_name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "emc task plan set block delete">
+    Sets block delete flag.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "enable" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc task plan set optional stop">
+    Sets optional stop on/off.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "enable" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc task set mode">
+    Set mode (MODE_MDI, MODE_MANUAL, MODE_AUTO).
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "task_mode" requirement = "MUST" />
+    </field>
+    <field name = "interp_name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "emc task set state">
+    Sets the machine state. Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON or STATE_OFF.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "task_state" requirement = "MUST" />
+    </field>
+    <field name = "interp_name" requirement = "MUST" />
+
+  </message>
+
+  <message name = "emc task traj set so enable">
+    Sets spindle override flag.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "enable" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc traj set fh enable">
+    Sets feed hold on/off.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "enable" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc traj set fo enable">
+    Sets feed override on/off.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "enable" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc traj set max velocity">
+    Sets maximum velocity.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "velocity" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc traj set mode">
+    Sets trajectory mode. Mode is one of MODE_FREE, MODE_COORD or MODE_TELEOP.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "traj_mode" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc traj set scale">
+    Sets the feedrate.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "scale" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc traj set spindle scale">
+    Sets spindle override factor.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "scale" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc traj set teleop enable">
+    Enable/disable teleop mode.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "enable" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc traj set teleop vector">
+    Sets teleop destination vector.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field message = "Pose" name = "pose" requirement = "MUST">
+        <field name = "a" requirement = "MUST" />
+        <field name = "b" requirement = "MUST" />
+        <field name = "c" requirement = "MUST" />
+        <field name = "u" requirement = "MAY" />
+        <field name = "v" requirement = "MAY" />
+        <field name = "w" requirement = "MAY" />
+      </field>
+    </field>
+
+  </message>
+
+  <message name = "emc tool set offset">
+    Sets the tool offset.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field message = "ToolData" name = "tool_data" requirement = "MUST">
+        <field name = "index" requirement = "MUST" />
+        <field name = "zOffset" requirement = "MUST" />
+        <field name = "xOffset" requirement = "MUST" />
+        <field name = "diameter" requirement = "MUST" />
+        <field name = "frontangle" requirement = "MUST" />
+        <field name = "backangle" requirement = "MUST" />
+        <field name = "orientation" requirement = "MUST" />
+      </field>
+    </field>
+
+  </message>
+
+  <message name = "emc axis override limits">
+    Sets the override axis limits flag.
+
+  </message>
+
+  <message name = "emc spindle constant">
+    Sets spindle direction to SPINDLE_CONSTANT.
+
+  </message>
+
+  <message name = "emc spindle decrease">
+    Sets spindle direction to SPINDLE_DECREASE.
+
+  </message>
+
+  <message name = "emc spindle increase">
+    Sets spindle direction to SPINDLE_INCREASE.
+
+  </message>
+
+  <message name = "emc spindle off">
+    Sets spindle direction to SPINDLE_OFF.
+
+  </message>
+
+  <message name = "emc spindle on">
+    Sets spindle direction to SPINDLE_FORWARD and changes spindle speed(?!).
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "velocity" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc splindle brake engage">
+    Engage spindle brake.
+  </message>
+
+  <message name = "emc splindle brake release">
+    Release spindle brake.
+  </message>
+
+  <message name = "emc motion set aout">
+    Sets analog output pin to value.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "index" requirement = "MUST" />
+      <field name = "value" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc motion set dout">
+    Sets digital output pin to value.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "index" requirement = "MUST" />
+      <field name = "enable" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc motion adaptive">
+    Sets adaptive feed flag.
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "enable" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc axis set max position limit">
+    Sets max position limit for a given axis.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "index" requirement = "MUST" />
+      <field name = "value" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc axis set min position limit">
+    Sets min position limit for a given axis.
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "index" requirement = "MUST" />
+      <field name = "value" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <message name = "emc axis unhome">
+    Unhome a given axis.
+
+    <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
+      <field name = "index" requirement = "MUST" />
+    </field>
+
+  </message>
 </class>
