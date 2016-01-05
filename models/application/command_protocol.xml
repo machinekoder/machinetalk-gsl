@@ -4,7 +4,7 @@
   of a running Machinekit instance.
 
   <message name = "emc task abort">
-    Aborts the command currently executed by task. 
+    Aborts the command currently executed by task.
 
     <field name = "interp_name" requirement = "MUST" />
 
@@ -333,7 +333,8 @@
   </message>
 
   <message name = "emc spindle on">
-    Sets spindle direction to SPINDLE_FORWARD and changes spindle speed(?!).
+    Sets spindle direction to SPINDLE_FORWARD and changes spindle
+    speed if velocity is not set to 0.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "velocity" requirement = "MUST" />
@@ -341,11 +342,11 @@
 
   </message>
 
-  <message name = "emc splindle brake engage">
+  <message name = "emc spindle brake engage">
     Engage spindle brake.
   </message>
 
-  <message name = "emc splindle brake release">
+  <message name = "emc spindle brake release">
     Release spindle brake.
   </message>
 
@@ -404,4 +405,17 @@
     </field>
 
   </message>
+
+  <message name="emccmd executed">
+    Response from server when command has been executed.
+  </message>
+
+  <message name="emccmd completed">
+    Response from server when command has been completed.
+  </message>
+
+  <message name="error">
+    Response from server when command parameters are wrong.
+  </message>
+
 </class>

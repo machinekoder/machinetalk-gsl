@@ -1,0 +1,76 @@
+<?xml version = "1.0" ?>
+<class name = "Command Base" module = "Application">
+  Application Command Client
+
+  <protocol filename = "command_protocol.xml" />
+
+  <socket name="command" class="RPC Client" module="Machinetalk" type="DEALER">
+    The command channel is used to issue commands to mklauncher.
+
+    <state name="trying">
+    </state>
+    <state name="up">
+    </state>
+
+    <outgoing name="emc task abort" public="true" />
+    <outgoing name="emc task plan run" public="true" />
+    <outgoing name="emc task plan pause" public="true" />
+    <outgoing name="emc task plan step" public="true" />
+    <outgoing name="emc task plan resume" public="true" />
+    <outgoing name="emc spindle brake engage" public="true" />
+    <outgoing name="emc spindle brake release" public="true" />
+    <outgoing name="emc set debug" public="true" />
+    <outgoing name="emc traj set scale" public="true" />
+    <outgoing name="emc coolant flood on" public="true" />
+    <outgoing name="emc coolant flood off" public="true" />
+    <outgoing name="emc axis home" public="true" />
+    <outgoing name="emc axis jog" public="true" />
+    <outgoing name="emc axis abort" public="true" />
+    <outgoing name="emc axis incr jog" public="true" />
+    <outgoing name="emc tool load tool table" public="true" />
+    <outgoing name="emc traj set max velocity" public="true" />
+    <outgoing name="emc task plan execute" public="true" />
+    <outgoing name="emc coolant mist on" public="true" />
+    <outgoing name="emc coolant mist off" public="true" />
+    <outgoing name="emc task plan init" public="true" />
+    <outgoing name="emc task plan open" public="true" />
+    <outgoing name="emc task plan set optional estop" public="true" />
+    <outgoing name="emc task set mode" public="true" />
+    <outgoing name="emc task set state" public="true" />
+    <outgoing name="emc traj set so enable" public="true" />
+    <outgoing name="emc traj set fh enable" public="true" />
+    <outgoing name="emc traj set fo enable" public="true" />
+    <outgoing name="emc traj set max velocity" public="true" />
+    <outgoing name="emc traj set mode" public="true" />
+    <outgoing name="emc traj set scale" public="true" />
+    <outgoing name="emc traj set spindle scale" public="true" />
+    <outgoing name="emc traj set teleop enable" public="true" />
+    <outgoing name="emc traj set teleop vector" public="true" />
+    <outgoing name="emc tool set offset" public="true" />
+    <outgoing name="emc axis override limits" public="true" />
+    <outgoing name="emc spindle constant" public="true" />
+    <outgoing name="emc spindle decrease" public="true" />
+    <outgoing name="emc spindle increase" public="true" />
+    <outgoing name="emc spindle off" public="true" />
+    <outgoing name="emc spindle on" public="true" />
+    <outgoing name="emc spindle brake engage" public="true" />
+    <outgoing name="emc spindle brake release" public="true" />
+    <outgoing name="emc motion set aout" public="true" />
+    <outgoing name="emc motion set dout" public="true" />
+    <outgoing name="emc motion adaptive" public="true" />
+    <outgoing name="emc axis set max position limit" public="true" />
+    <outgoing name="emc axis set min position limit" public="true" />
+    <outgoing name="emc axis unhome" public="true" />
+
+    <incoming name="emccmd executed">
+    </incoming>
+
+    <incoming name="emccmd completed">
+    </incoming>
+
+    <incoming name="error">
+    </incoming>
+
+  </socket>
+
+</class>
