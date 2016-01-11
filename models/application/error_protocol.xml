@@ -48,4 +48,6 @@
     Ping from host.
   </message>
 
+  <include filename = "error.xml" />
+
 </class>
