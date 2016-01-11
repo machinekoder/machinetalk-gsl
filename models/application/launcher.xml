@@ -40,7 +40,8 @@
     </outgoing>
 
     <incoming name = "error" public = "true">
-      Error on launchercmd channel???
+      Error on launchercmd channel.
+      <note />
     </incoming>
 
   </socket>
@@ -61,10 +62,6 @@
 
     <incoming name = "launcher incremental update" public = "true">
       Incremental update from mklauncher.
-    </incoming>
-
-    <incoming name = "launcher error" public = "true">
-      Error on launcher channel???
     </incoming>
 
   </socket>
