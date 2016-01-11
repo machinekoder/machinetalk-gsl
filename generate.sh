@@ -32,6 +32,7 @@ process application launcher_subscribe
 process application config
 process application error
 process application error_subscribe
+process application command
 
 protocol machinetalk rpc_protocol
 protocol machinetalk pubsub_protocol
@@ -39,4 +40,5 @@ protocol halremote halremote_protocol
 protocol param param_protocol
 protocol application launcher_protocol
 protocol application config_protocol
+protocol application command_protocol
 

@@ -7,6 +7,7 @@
     Aborts the command currently executed by task.
 
     <field name = "interp_name" requirement = "MUST" />
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -17,6 +18,7 @@
       <field name = "line number" requirement = "MUST" />
     </field>
     <field name = "interp_name" requirement = "MUST" />
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -24,6 +26,7 @@
     Pause the task planner at the current position.
 
     <field name = "interp_name" requirement = "MUST" />
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -31,6 +34,7 @@
     Step the task planner at the current position.
 
     <field name = "interp_name" requirement = "MUST" />
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -38,16 +42,21 @@
     Resume a pause program.
 
     <field name = "interp_name" requirement = "MUST" />
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
   <message name = "emc spindle brake engage">
     Engage the spindle brake.
 
+    <field name="ticket" requirement="MAY" />
+
   </message>
 
   <message name = "emc spindle brake release">
     Release the spindle brake.
+
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -57,6 +66,7 @@
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "debug_level" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -66,16 +76,21 @@
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "scale" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
   <message name = "emc coolant flood on">
     Enable the coolant flood.
 
+    <field name="ticket" requirement="MAY" />
+
   </message>
 
   <message name = "emc coolant flood off">
     Disable the coolant flood.
+
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -85,6 +100,7 @@
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -94,6 +110,7 @@
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -103,6 +120,7 @@
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -112,6 +130,7 @@
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -126,6 +145,7 @@
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "velocity" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -136,21 +156,29 @@
       <field name = "command" requirement = "MUST" />
     </field>
     <field name = "interp_name" requirement = "MUST" />
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
   <message name = "emc coolant mist on">
     Turn the coolant mist on.
+
+    <field name="ticket" requirement="MAY" />
+
   </message>
 
   <message name = "emc coolant mist off">
     Turn the coolant mist off.
+
+    <field name="ticket" requirement="MAY" />
+
   </message>
 
   <message name = "emc task plan init">
     Resets the RS274NGC interpreter.
 
     <field name = "interp_name" requirement = "MUST" />
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -161,6 +189,7 @@
       <field name = "path" requirement = "MUST" />
     </field>
     <field name = "interp_name" requirement = "MUST" />
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -170,6 +199,7 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -179,6 +209,7 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -189,6 +220,7 @@
       <field name = "task_mode" requirement = "MUST" />
     </field>
     <field name = "interp_name" requirement = "MUST" />
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -199,6 +231,7 @@
       <field name = "task_state" requirement = "MUST" />
     </field>
     <field name = "interp_name" requirement = "MUST" />
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -208,6 +241,7 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -216,6 +250,7 @@
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
+      <field name="ticket" requirement="MAY" />
     </field>
 
   </message>
@@ -226,6 +261,7 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -235,6 +271,7 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "velocity" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -244,6 +281,7 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "traj_mode" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -253,6 +291,7 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "scale" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -262,6 +301,7 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "scale" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -287,6 +327,7 @@
         <field name = "w" requirement = "MAY" />
       </field>
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -304,31 +345,42 @@
         <field name = "orientation" requirement = "MUST" />
       </field>
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
   <message name = "emc axis override limits">
     Sets the override axis limits flag.
 
+    <field name="ticket" requirement="MAY" />
+
   </message>
 
   <message name = "emc spindle constant">
     Sets spindle direction to SPINDLE_CONSTANT.
+
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
   <message name = "emc spindle decrease">
     Sets spindle direction to SPINDLE_DECREASE.
 
+    <field name="ticket" requirement="MAY" />
+
   </message>
 
   <message name = "emc spindle increase">
     Sets spindle direction to SPINDLE_INCREASE.
 
+    <field name="ticket" requirement="MAY" />
+
   </message>
 
   <message name = "emc spindle off">
     Sets spindle direction to SPINDLE_OFF.
+
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -339,15 +391,22 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "velocity" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
   <message name = "emc spindle brake engage">
     Engage spindle brake.
+
+    <field name="ticket" requirement="MAY" />
+
   </message>
 
   <message name = "emc spindle brake release">
     Release spindle brake.
+
+    <field name="ticket" requirement="MAY" />
+
   </message>
 
   <message name = "emc motion set aout">
@@ -357,6 +416,7 @@
       <field name = "index" requirement = "MUST" />
       <field name = "value" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -367,14 +427,17 @@
       <field name = "index" requirement = "MUST" />
       <field name = "enable" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
   <message name = "emc motion adaptive">
     Sets adaptive feed flag.
+
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -385,15 +448,18 @@
       <field name = "index" requirement = "MUST" />
       <field name = "value" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
   <message name = "emc axis set min position limit">
     Sets min position limit for a given axis.
+
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
       <field name = "value" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
@@ -403,19 +469,33 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
+    <field name="ticket" requirement="MAY" />
 
   </message>
 
   <message name="emccmd executed">
-    Response from server when command has been executed.
+    Response from server when command has been executed. Contains a
+    return ticket to indicate which command this belongs to.
+
+    <field name="return_ticket" requirement="MUST" />
+
   </message>
 
   <message name="emccmd completed">
-    Response from server when command has been completed.
+    Response from server when command has been completed. Contains a
+    return ticket to indicate which command this belongs to.
+
+    <field name="return_ticket" requirement="MUST" />
+
   </message>
 
   <message name="error">
     Response from server when command parameters are wrong.
+
+    <field name="note" requirement="MUST" quantity="1+" />
+
   </message>
+
+  <include filename = "command.xml" />
 
 </class>

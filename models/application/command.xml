@@ -8,8 +8,10 @@
     The command channel is used to issue commands to mklauncher.
 
     <state name="trying">
+      <event name="command trying" when="up" />
     </state>
     <state name="up">
+      <event name="command up" when="trying" />
     </state>
 
     <outgoing name="emc task abort" public="true" />
@@ -68,9 +70,40 @@
     <incoming name="emccmd completed">
     </incoming>
 
-    <incoming name="error">
+    <incoming name="error" public="true">
+      <note />
     </incoming>
 
   </socket>
+
+  <slot name="set connected" />
+  <slot name="clear connected" />
+
+  <fsm name="fsm" initial="down">
+    <state name="down">
+        <event name="connect" next="trying">
+          <action name="start command channel" />
+        </event>
+    </state>
+
+    <state name="trying" inherit="defaults">
+      <event name="command up" next="up">
+        <action name="set connected" />
+      </event>
+    </state>
+
+    <state name="up" inherit="defaults">
+      <event name="command trying" next="trying">
+        <action name="clear connected" />
+      </event>
+    </state>
+
+    <state name="defaults">
+      <event name="disconnect" next="down">
+        <action name="stop command channel" />
+        <action name="clear connected" />
+      </event>
+    </state>
+  </fsm>
 
 </class>
