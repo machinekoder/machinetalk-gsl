@@ -3,309 +3,279 @@
   The Command protocol can be used to send commands to the CNC stack
   of a running Machinekit instance.
 
-  <message name = "emc task abort">
+  <data name="command">
+    <field name="ticket" requirement="MAY" />
+
+    <response name = "emccmd executed" />
+    <response name = "emccmd completed" />
+    <response name = "error" />
+  </data>
+
+  <message name = "emc task abort" inherit="command">
     Aborts the command currently executed by task.
 
     <field name = "interp_name" requirement = "MUST" />
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task plan run">
+  <message name = "emc task plan run" inherit="command">
     Run the task planner from the specified line number.
 
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "line number" requirement = "MUST" />
     </field>
     <field name = "interp_name" requirement = "MUST" />
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task plan pause">
+  <message name = "emc task plan pause" inherit="command">
     Pause the task planner at the current position.
 
     <field name = "interp_name" requirement = "MUST" />
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task plan step">
+  <message name = "emc task plan step" inherit="command">
     Step the task planner at the current position.
 
     <field name = "interp_name" requirement = "MUST" />
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task plan resume">
+  <message name = "emc task plan resume" inherit="command">
     Resume a pause program.
 
     <field name = "interp_name" requirement = "MUST" />
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc spindle brake engage">
+  <message name = "emc spindle brake engage" inherit="command">
     Engage the spindle brake.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc spindle brake release">
+  <message name = "emc spindle brake release" inherit="command">
     Release the spindle brake.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc set debug">
+  <message name = "emc set debug" inherit="command">
     Set the debug level of the CNC stack.
 
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "debug_level" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc traj set scale">
+  <message name = "emc traj set scale" inherit="command">
     Set the scale for the trajectory also known as feed override.
 
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "scale" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc coolant flood on">
+  <message name = "emc coolant flood on" inherit="command">
     Enable the coolant flood.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc coolant flood off">
+  <message name = "emc coolant flood off" inherit="command">
     Disable the coolant flood.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc axis home">
+  <message name = "emc axis home" inherit="command">
     Home the specified axis.
 
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc axis jog">
+  <message name = "emc axis jog" inherit="command">
     Starts a continious jog movement.
 
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc axis abort">
+  <message name = "emc axis abort" inherit="command">
     Aborts a continuous jog movement.
 
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc axis incr jog">
+  <message name = "emc axis incr jog" inherit="command">
     Starts a incremental jog movement.
 
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc tool load tool table">
+  <message name = "emc tool load tool table" inherit="command">
     (Re)Loads the tool table.
 
   </message>
 
-  <message name = "emc traj set max velocity">
+  <message name = "emc traj set max velocity" inherit="command">
     Sets the maximum trajectory velocity.
 
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "velocity" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task plan execute">
+  <message name = "emc task plan execute" inherit="command">
     Execute a MDI command on the task planner.
 
     <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
       <field name = "command" requirement = "MUST" />
     </field>
     <field name = "interp_name" requirement = "MUST" />
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc coolant mist on">
+  <message name = "emc coolant mist on" inherit="command">
     Turn the coolant mist on.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc coolant mist off">
+  <message name = "emc coolant mist off" inherit="command">
     Turn the coolant mist off.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc task plan init">
+  <message name = "emc task plan init" inherit="command">
     Resets the RS274NGC interpreter.
 
     <field name = "interp_name" requirement = "MUST" />
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task plan open">
+  <message name = "emc task plan open" inherit="command">
     Opens an NGC file on the task planner.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "path" requirement = "MUST" />
     </field>
     <field name = "interp_name" requirement = "MUST" />
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task plan set block delete">
+  <message name = "emc task plan set block delete" inherit="command">
     Sets block delete flag.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task plan set optional stop">
+  <message name = "emc task plan set optional stop" inherit="command">
     Sets optional stop on/off.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task set mode">
+  <message name = "emc task set mode" inherit="command">
     Set mode (MODE_MDI, MODE_MANUAL, MODE_AUTO).
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "task_mode" requirement = "MUST" />
     </field>
     <field name = "interp_name" requirement = "MUST" />
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task set state">
+  <message name = "emc task set state" inherit="command">
     Sets the machine state. Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON or STATE_OFF.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "task_state" requirement = "MUST" />
     </field>
     <field name = "interp_name" requirement = "MUST" />
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc task traj set so enable">
+  <message name = "emc task traj set so enable" inherit="command">
     Sets spindle override flag.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc traj set fh enable">
+  <message name = "emc traj set fh enable" inherit="command">
     Sets feed hold on/off.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
-      <field name="ticket" requirement="MAY" />
     </field>
 
   </message>
 
-  <message name = "emc traj set fo enable">
+  <message name = "emc traj set fo enable" inherit="command">
     Sets feed override on/off.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc traj set max velocity">
+  <message name = "emc traj set max velocity" inherit="command">
     Sets maximum velocity.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "velocity" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc traj set mode">
+  <message name = "emc traj set mode" inherit="command">
     Sets trajectory mode. Mode is one of MODE_FREE, MODE_COORD or MODE_TELEOP.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "traj_mode" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc traj set scale">
+  <message name = "emc traj set scale" inherit="command">
     Sets the feedrate.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "scale" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc traj set spindle scale">
+  <message name = "emc traj set spindle scale" inherit="command">
     Sets spindle override factor.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "scale" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc traj set teleop enable">
+  <message name = "emc traj set teleop enable" inherit="command">
     Enable/disable teleop mode.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
@@ -314,7 +284,7 @@
 
   </message>
 
-  <message name = "emc traj set teleop vector">
+  <message name = "emc traj set teleop vector" inherit="command">
     Sets teleop destination vector.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
@@ -327,11 +297,10 @@
         <field name = "w" requirement = "MAY" />
       </field>
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc tool set offset">
+  <message name = "emc tool set offset" inherit="command">
     Sets the tool offset.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
@@ -345,131 +314,109 @@
         <field name = "orientation" requirement = "MUST" />
       </field>
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc axis override limits">
+  <message name = "emc axis override limits" inherit="command">
     Sets the override axis limits flag.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc spindle constant">
+  <message name = "emc spindle constant" inherit="command">
     Sets spindle direction to SPINDLE_CONSTANT.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc spindle decrease">
+  <message name = "emc spindle decrease" inherit="command">
     Sets spindle direction to SPINDLE_DECREASE.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc spindle increase">
+  <message name = "emc spindle increase" inherit="command">
     Sets spindle direction to SPINDLE_INCREASE.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc spindle off">
+  <message name = "emc spindle off" inherit="command">
     Sets spindle direction to SPINDLE_OFF.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc spindle on">
+  <message name = "emc spindle on" inherit="command">
     Sets spindle direction to SPINDLE_FORWARD and changes spindle
     speed if velocity is not set to 0.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "velocity" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc spindle brake engage">
+  <message name = "emc spindle brake engage" inherit="command">
     Engage spindle brake.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc spindle brake release">
+  <message name = "emc spindle brake release" inherit="command">
     Release spindle brake.
 
-    <field name="ticket" requirement="MAY" />
-
   </message>
 
-  <message name = "emc motion set aout">
+  <message name = "emc motion set aout" inherit="command">
     Sets analog output pin to value.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
       <field name = "value" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc motion set dout">
+  <message name = "emc motion set dout" inherit="command">
     Sets digital output pin to value.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
       <field name = "enable" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc motion adaptive">
+  <message name = "emc motion adaptive" inherit="command">
     Sets adaptive feed flag.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "enable" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc axis set max position limit">
+  <message name = "emc axis set max position limit" inherit="command">
     Sets max position limit for a given axis.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
       <field name = "value" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc axis set min position limit">
+  <message name = "emc axis set min position limit" inherit="command">
     Sets min position limit for a given axis.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
       <field name = "value" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 
-  <message name = "emc axis unhome">
+  <message name = "emc axis unhome" inherit="command">
     Unhome a given axis.
 
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
-    <field name="ticket" requirement="MAY" />
 
   </message>
 

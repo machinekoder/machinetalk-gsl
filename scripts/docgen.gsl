@@ -1,6 +1,7 @@
 .###  This whole script runs in template mode.
 .#
 .template 1
+.gsl from "scripts/inherit_msg.gsl"
 .path = "generated/doc/$(class.module:Pascal,lower)"
 .output path + "/$(class.name:Pascal,lower).md"
 .
@@ -8,17 +9,23 @@
 .
 .macro recurse_field (scp, msg, indent)
 .  for my.scp.field
+.    qTerm = "one"
+.    qS = ""
+.    if (defined(field.quantity) & (field.quantity = "1+"))
+.      qTerm = "one or more"
+.      qS = "s"
+.    endif
 .    if (defined(field.message))
-$(my.indent) The [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry a [$(field.message:)]($(mtname)#pb.$(field.message:)) message. <br />
-.       recurse_field(field, field.message, "&nbsp;&nbsp;" + my.indent)
+$(my.indent)* Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry $(qTerm) [$(field.message:)]($(mtname)#pb.$(field.message:)) message$(qS).
+.       recurse_field(field, field.message, "  " + my.indent)
 .    else
-$(my.indent) Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry a [$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) field. <br />
+$(my.indent)* Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry $(qTerm) [$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) field$(qS).
 .    endif
 .  endfor
 .  for my.scp.oneof
-$(my.indent) Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry one of the following fields <br />
+$(my.indent)* Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry one of the following fields
 .    for field
-$(my.indent) &nbsp;&nbsp;[$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) <br />
+$(my.indent)$("  ")* [$(name:)]($(mtname)#pb.$(my.msg:).$(name:))
 .    endfor
 .  endfor
 .endmacro
@@ -36,11 +43,16 @@ $(class:no,left)
 ### $(NAME)
 $(message:no,left)
 .
+.- output all data fields
+.  if (count(field) > 0)
+#### Data Fields
+.    recurse_field(message, "Container", "")
+.  endif
 .- output all response messages
 .  if (count(response) > 0)
 #### Possible Responses
 .    for response
-[$(NAME)](#msg_$(name:c)) <br />
+* [$(NAME)](#msg_$(name:c))
 .    endfor
 .  endif
 .
@@ -56,14 +68,10 @@ $(message:no,left)
 .  if (count(responseto) > 0)
 #### Response to
 .    for responseto
-[$(NAME)](#msg_$(name:c)) <br />
+* [$(NAME)](#msg_$(name:c))
 .    endfor
 .  endif
 .
-.  if (count(field) > 0)
-#### Data Fields
-.    recurse_field(message, "Container", "")
-.  endif
 .endfor
 .
 .for class
