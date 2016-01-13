@@ -1,0 +1,54 @@
+<?xml version = "1.0" ?>
+<class name = "Status Base" module = "Application">
+  Application Status Client
+
+  <protocol filename = "status_protocol.xml" />
+
+  <socket name = "status" class = "Status Subscribe" module = "Application" type = "SUB">
+    The status channel is used to receive status updates from the host.
+
+    <state name = "trying">
+      <event name = "status trying" when = "up" />
+    </state>
+    <state name = "up">
+      <event name = "status up" when = "trying" />
+    </state>
+
+    <incoming name = "emcstat full update" public = "true" />
+    <incoming name = "emcstat incremental update" public = "true" />
+
+  </socket>
+
+  <slot name = "sync status" />
+  <slot name = "unsync status" />
+  <slot name = "update topics" />
+
+  <fsm name = "fsm" initial = "down">
+    <state name = "down">
+      <event name = "connect" next = "trying">
+        <action name = "update topics" />
+        <action name = "start status channel" />
+      </event>
+    </state>
+
+    <state name = "trying" inherit = "defaults">
+      <event name = "status up" next = "up">
+        <action name = "sync status" />
+      </event>
+    </state>
+
+    <state name = "up" inherit = "defaults">
+      <event name = "status trying" next = "trying">
+        <action name = "unsync status" />
+      </event>
+    </state>
+
+    <state name = "defaults">
+      <event name = "disconnect" next = "down">
+        <action name = "stop status channel" />
+        <action name = "unsync status" />
+      </event>
+    </state>
+  </fsm>
+
+</class>

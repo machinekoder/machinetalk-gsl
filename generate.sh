@@ -33,6 +33,8 @@ process application config
 process application error
 process application error_subscribe
 process application command
+process application status
+process application status_subscribe
 
 protocol machinetalk rpc_protocol
 protocol machinetalk pubsub_protocol
@@ -41,4 +43,5 @@ protocol param param_protocol
 protocol application launcher_protocol
 protocol application config_protocol
 protocol application command_protocol
+protocol application status_protocol
 

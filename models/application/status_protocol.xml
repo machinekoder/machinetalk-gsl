@@ -1,0 +1,33 @@
+<?xml version = "1.0" ?>
+<class name = "Status Protocol" module = "Application">
+  The Status protocol can be used to synchronize the EMC status of a
+  machine.
+
+  <message name="emcstat full update">
+    Full status update from mkwrapper. This message is sent when a
+    client requests a full state synchronization. It contains the most
+    recent state of the EMC status element. The element is defined by
+    the topic of the message.
+
+    <field name="emc_status_config" message="EmcStatusConfig" requirement="MAY" synced="true" />
+    <field name="emc_status_motion" message="EmcStatusMotion" requirement="MAY" synced="true" />
+    <field name="emc_status_io" message="EmcStatusIo" requirement="MAY" synced="true" />
+    <field name="emc_status_task" message="EmcStatusTask" requirement="MAY" synced="true" />
+    <field name="emc_status_interp" message="EmcStatusInterp" requirement="MAY" synced="true" />
+
+  </message>
+
+  <message name="emcstat incremental update">
+    Incremental status update from mkwrapper. This message is sent
+    every time a change in the status structure has been detected. The
+    element is defined by the topic of the message.
+
+    <field name="emc_status_config" message="EmcStatusConfig" requirement="MAY" synced="true" />
+    <field name="emc_status_motion" message="EmcStatusMotion" requirement="MAY" synced="true" />
+    <field name="emc_status_io" message="EmcStatusIo" requirement="MAY" synced="true" />
+    <field name="emc_status_task" message="EmcStatusTask" requirement="MAY" synced="true" />
+    <field name="emc_status_interp" message="EmcStatusInterp" requirement="MAY" synced="true" />
+
+  </message>
+
+</class>
