@@ -16,8 +16,13 @@
 .      qS = "s"
 .    endif
 .    if (defined(field.message))
-$(my.indent)* Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry $(qTerm) [$(field.message:)]($(mtname)#pb.$(field.message:)) message$(qS).
-.       recurse_field(field, field.message, "  " + my.indent)
+$(my.indent)* Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry $(qTerm) [$(field.message:)]($(mtname)#pb.$(field.message:)) message$(qS).  
+.      if (defined(field.synced) & (field.synced = "true"))
+$(my.indent) This message is used for syncing. That means that all fields defined in
+$(my.indent) [$(field.message:)]($(mtname)#pb.$(field.message:)) MAY be carried by this message.
+.      else
+.         recurse_field(field, field.message, "  " + my.indent)
+.      endif
 .    else
 $(my.indent)* Each [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message $(REQUIREMENT) carry $(qTerm) [$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) field$(qS).
 .    endif
