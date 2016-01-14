@@ -424,7 +424,7 @@
     Response from server when command has been executed. Contains a
     return ticket to indicate which command this belongs to.
 
-    <field name="return_ticket" requirement="MUST" />
+    <field name="reply_ticket" requirement="MUST" />
 
   </message>
 
@@ -432,7 +432,7 @@
     Response from server when command has been completed. Contains a
     return ticket to indicate which command this belongs to.
 
-    <field name="return_ticket" requirement="MUST" />
+    <field name="reply_ticket" requirement="MUST" />
 
   </message>
 
