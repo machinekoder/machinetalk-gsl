@@ -49,7 +49,7 @@
     A bind request has been rejected by Haltalk. The *note* field
     contains information about the error message.
 
-    <field name = "note" message = "Note" requirement = "MUST" quantity = "1+" />
+    <field name = "note" requirement = "MUST" quantity = "1+" />
 
   </message>
 
@@ -92,7 +92,7 @@
     A pin set request has been rejected by Haltalk. The *note* field
     contains information about the error message.
 
-    <field name = "note" message = "Note" requirement = "MUST" quantity = "1+" />
+    <field name = "note" requirement = "MUST" quantity = "1+" />
 
   </message>
 
@@ -225,7 +225,7 @@
     A pin/signal set request has been rejected by Haltalk. The *note*
     field contains information about the error message.
 
-    <field name = "note" message = "Note" requirement = "MUST" quantity = "1+" />
+    <field name = "note" requirement = "MUST" quantity = "1+" />
 
   </message>
 
@@ -297,7 +297,7 @@
     A pin/signal get request has been rejected by Haltalk. The *note*
     field contains information about the error message.
 
-    <field name = "note" message = "Note" requirement = "MUST" quantity = "1+" />
+    <field name = "note" requirement = "MUST" quantity = "1+" />
 
   </message>
 
