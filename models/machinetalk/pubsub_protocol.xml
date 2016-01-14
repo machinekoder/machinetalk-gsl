@@ -4,7 +4,7 @@
   Publish-Subscribe based interfaces.
 
   The Pub-Sub channel is unidirectional and therefore no realiable way
-  to send message from subscriber to publisher exist. However, some
+  to send message from subscriber to publisher exists. However, some
   transports provide notification about new subscribers starting to
   listen. Depending on the implementation a second channel might be
   necessary to request new full updates from the service.
@@ -27,6 +27,14 @@
 
   </message>
 
+  <message name="ping">
+    A ping is sent to keep a connection alive when no other messages
+    need to be sent on a channel. The frequency with whom  ping
+    messages are sent depends on the implementation.
+
+  </message>
+
   <include filename = "subscribe.xml" />
   <include filename = "publish.xml" />
+
 </class>
