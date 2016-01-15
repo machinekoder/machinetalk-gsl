@@ -334,19 +334,30 @@ class $(class.name:lower,Pascal)(object):
 
     # process all messages received on $(name:)
 .  if defined(socket.class)
-.    if (type = "SUB")
-    def $(name)_channel_message_received(self, topic, rx):
+.    if ((type = "SUB") | (type = "ROUTER"))
+    def $(name)_channel_message_received(self, identity, rx):
 .    else
     def $(name)_channel_message_received(self, rx):
 .    endif
 .  else
     def socket_message_received(self, socket):
 .    if (type = "SUB")
-        (topic, msg) = socket.recv_multipart()
+        (identity, msg) = socket.recv_multipart()  # identity is topic
+.    elsif (type = "ROUTER")
+        frames = socket.recv_multipart()
+        identity = frames[:-1]
+        msg = frames[-1]
 .    else
         msg = socket.recv()
 .    endif
-        self.$(name)_rx.ParseFromString(msg)
+
+        try:
+            self.$(name)_rx.ParseFromString(msg)
+        except DecodeError as e:
+            note = 'Protobuf Decode Error: ' + str(e)
+            print(note)  # TODO: decode error
+            return
+
         if self.debuglevel > 0:
             print('[%s] received message' % self.debugname)
             if self.debuglevel > 1:
@@ -389,8 +400,8 @@ class $(class.name:lower,Pascal)(object):
 .      endfor
 .
 .      if (defined(public) & public = "true")
-.        if (socket.type = "SUB")
-        $(ws)self.$(name:c)_received(topic, rx)
+.        if ((socket.type = "SUB") | (socket.type = "ROUTER"))
+        $(ws)self.$(name:c)_received(identity, rx)
 .        else
         $(ws)self.$(name:c)_received(rx)
 .        endif
@@ -403,8 +414,8 @@ class $(class.name:lower,Pascal)(object):
 .  endfor
 
         if self.$(name)_message_received_cb:
-.  if (type = "SUB")
-            self.$(name)_message_received_cb(topic, rx)
+.  if ((type = "SUB") | (type = "ROUTER"))
+            self.$(name)_message_received_cb(identity, rx)
 .  else
             self.$(name)_message_received_cb(rx)
 .  endif
@@ -412,8 +423,8 @@ class $(class.name:lower,Pascal)(object):
 .
 .  for incoming where (defined(public) & (public = "true"))
 
-.    if (socket.type = "SUB")
-    def $(name:c)_received(self, topic, rx):
+.    if ((socket.type = "SUB") | (socket.type = "ROUTER"))
+    def $(name:c)_received(self, identity, rx):
 .    else
     def $(name:c)_received(self, rx):
 .    endif
@@ -424,14 +435,14 @@ class $(class.name:lower,Pascal)(object):
 .
 .for socket where (count(outgoing) > 0)
 
-.  if (type = "PUB")
-    def send_$(name)_message(self, topic, msg_type, tx):
+.  if ((type = "PUB") | (type = "ROUTER"))
+    def send_$(name)_message(self, identity, msg_type, tx):
 .  else
     def send_$(name)_message(self, msg_type, tx):
 .  endif
 .  if defined(socket.class)
-.    if (type = "PUB")
-        self.$(name)_channel.send_socket_message(topic, msg_type, tx)
+.    if ((type = "PUB") | (type = "ROUTER"))
+        self.$(name)_channel.send_socket_message(identity, msg_type, tx)
 .    else
         self.$(name)_channel.send_socket_message(msg_type, tx)
 .    endif
@@ -444,7 +455,9 @@ class $(class.name:lower,Pascal)(object):
                     print(str(tx))
 
 .    if (type = "PUB")
-            self.pipe.send_multipart([topic, tx.SerializeToString()])
+            self.pipe.send_multipart([identity, tx.SerializeToString()])
+.    elsif (type = "ROUTER")
+            self.pipe.send_multipart(identity + [tx.SerializeToString()])
 .    else
             self.pipe.send(tx.SerializeToString())
 .    endif
@@ -469,14 +482,14 @@ class $(class.name:lower,Pascal)(object):
 .for socket
 .  for outgoing where (name <> "*")
 
-.    if (socket.type = "PUB")
+.    if ((socket.type = "PUB") | (type = "ROUTER"))
 .      if defined(public)
-    def send_$(name:c)(self, topic, tx):
+    def send_$(name:c)(self, identity, tx):
 .      else
-    def send_$(name:c)(self, topic):
+    def send_$(name:c)(self, identity):
         tx = self.$(socket.name)_tx
 .      endif
-        self.send_$(socket.name)_message(topic, pb.MT_$(NAME:c), tx)
+        self.send_$(socket.name)_message(identity, pb.MT_$(NAME:c), tx)
 .    else
 .      if defined(public)
     def send_$(name:c)(self, tx):
