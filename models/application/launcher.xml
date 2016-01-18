@@ -4,7 +4,7 @@
 
   <protocol filename = "launcher_protocol.xml" />
 
-  <socket name = "launchercmd" class = "RPC Client" module = "Machinetalk" type = "DEALER">
+  <socket name = "launchercmd" class = "RPC Client" module = "Machinetalk">
     The launchercmd channel is used to issue commands to mklauncher.
 
     <state name = "trying">
@@ -46,7 +46,7 @@
 
   </socket>
 
-  <socket name = "launcher" class = "Launcher Subscribe" module = "Application" type = "SUB">
+  <socket name = "launcher" class = "Launcher Subscribe" module = "Application">
     The launcher channel is used to received updates of the launcher structure.
 
     <state name = "trying">

@@ -4,7 +4,7 @@
 
   <protocol filename = "status_protocol.xml" />
 
-  <socket name = "status" class = "Status Subscribe" module = "Application" type = "SUB">
+  <socket name = "status" class = "Status Subscribe" module = "Application">
     The status channel is used to receive status updates from the host.
 
     <state name = "trying">

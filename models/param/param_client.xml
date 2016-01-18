@@ -4,7 +4,7 @@
 
   <protocol filename = "param_protocol.xml" />
 
-  <socket name = "paramcmd" class = "RPC Client" module = "Machinetalk" type = "DEALER">
+  <socket name = "paramcmd" class = "RPC Client" module = "Machinetalk">
     The paramcmd channel is used to update key values.
 
     <state name = "trying">
@@ -22,7 +22,7 @@
 
   </socket>
 
-  <socket name = "param" class = "Subscribe" module = "Machinetalk" type = "SUB">
+  <socket name = "param" class = "Subscribe" module = "Machinetalk">
     The param channel is used to received status updates from the server.
 
     <state name = "trying">

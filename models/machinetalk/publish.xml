@@ -1,7 +1,7 @@
 <?xml version = "1.0" ?>
 <class name = "Publish" module = "Machinetalk">
   Publish
-  <socket type = "PUB" nature = "server" name = "socket">
+  <socket type = "XPUB" nature = "server" name = "socket">
     Alle messages are passed over this socket.
 
     <outgoing name = "*">
@@ -21,17 +21,37 @@
       Incremental update to subscribers.
     </outgoing>
 
+    <incoming name = "*">
+      Subscribe messages from client.
+    </incoming>
+
   </socket>
+
+  <heartbeat
+      name = "heartbeat"
+      period = "0" >
+    For sending pings to subscribers.
+    <tick>
+      <event name = "tick" when = "up" />
+    </tick>
+    <timeout />
+  </heartbeat>
 
   <fsm name = "fsm" initial = "down">
     <state name = "down" inherit = "defaults">
         <event name = "connect" next = "up">
           <action name = "connect sockets" />
+          <action name = "start heartbeat timer" />
         </event>
     </state>
     <state name = "up">
       <event name = "disconnect" next = "down">
+        <action name = "stop heartbeat timer" />
         <action name = "disconnect sockets" />
+      </event>
+      <event name = "tick" next = "up">
+        <action name = "send ping" />
+        <action name = "reset heartbeat timer" />
       </event>
     </state>
   </fsm>

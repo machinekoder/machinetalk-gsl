@@ -2,7 +2,7 @@
 <class name = "Param Server" module = "Param">
   Paramter Service Provider
 
-  <socket name = "paramcmd" class = "RPC Server" module = "Machinetalk" type = "ROUTER">
+  <socket name = "paramcmd" class = "RPC Server" module = "Machinetalk">
     The paramcmd channel is used to update key values.
 
     <incoming name = "incremental update" public = "true">
@@ -11,7 +11,7 @@
 
   </socket>
 
-  <socket name = "param" class = "Publish" module = "Machinetalk" type = "PUB">
+  <socket name = "param" class = "Publish" module = "Machinetalk">
     The param channel is used to received status updates from the server.
 
     <outgoing name = "full update" public = "true">

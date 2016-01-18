@@ -4,7 +4,7 @@
 
   <protocol filename = "config_protocol.xml" />
 
-  <socket name = "config" class = "RPC Client" module = "Machinetalk" type = "DEALER">
+  <socket name = "config" class = "RPC Client" module = "Machinetalk">
     The config channel is used to retrieve application configurations
     from config-server.
 

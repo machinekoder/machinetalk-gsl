@@ -4,7 +4,7 @@
 
   <protocol filename = "error_protocol.xml" />
 
-  <socket name = "error" class = "Error Subscribe" module = "Application" type = "SUB">
+  <socket name = "error" class = "Error Subscribe" module = "Application">
     The error channel is used to receive error messages from the host.
 
     <state name = "trying">
