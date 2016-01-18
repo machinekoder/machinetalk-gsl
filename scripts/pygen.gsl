@@ -57,7 +57,11 @@ class $(class.name:lower,Pascal)(object):
 .    endif
 .  else
         self.$(name)_uri = ''
-.    if (type = "SUB")
+.    if (nature = "server")
+        self._$(name)_port = 0
+        self._$(name)_port_event = threading.Event()  # sync event for port
+.    endif
+.    if ((type = "SUB") | (type = "XPUB"))
         self.$(name)_topics = set()
 .    endif
 .  endif
@@ -75,10 +79,12 @@ class $(class.name:lower,Pascal)(object):
         # $(Name)
         self.$(name)_lock = threading.Lock()
         self.$(name)_period = $(period)
-        self.$(name)_error_count = 0
-        self.$(name)_error_threshold = $(error_threshold)
         self.$(name)_timer = None
         self.$(name)_active = False
+.  if (defined(error_threshold))
+        self.$(name)_error_count = 0
+        self.$(name)_error_threshold = $(error_threshold)
+.  endif
 .endfor
 
         # callbacks
@@ -138,6 +144,14 @@ class $(class.name:lower,Pascal)(object):
 .  endfor
 .endfor
 .
+.for socket where (!defined(socket.class) & (nature = "server"))
+
+    @property
+    def $(name)_port(self):
+        self._$(name)_port_event.wait()
+        return self._$(name)_port
+.endfor
+.
 .for socket where (defined(socket.class))
 
     @property
@@ -147,6 +161,13 @@ class $(class.name:lower,Pascal)(object):
     @$(name)_uri.setter
     def $(name)_uri(self, value):
         self.$(name)_channel.socket_uri = value
+.
+.  if (defined(nature) & (nature = "server"))
+
+   @property
+   def $(name)_port(self):
+       return self.$(name)_port
+.  endif
 .endfor
 .
 .for slot
@@ -165,7 +186,7 @@ class $(class.name:lower,Pascal)(object):
 .endfor
 .
 .for socket
-.  if (type = "SUB")
+.  if ((type = "SUB") | (type = "XPUB"))
 
     def add_$(name)_topic(self, name):
 .    if defined(socket.class)
@@ -198,7 +219,11 @@ class $(class.name:lower,Pascal)(object):
 .    if (nature = "client")
         socket.connect(uri)
 .    else
-        socket.bind(uri)
+        if (('ipc://' in uri) or ('inproc://' in uri)):
+            socket.bind(uri)
+        else:
+            self._$(name)_port = socket.bind_to_random_port(uri)
+            self._$(name)_port_event.set()  # set sync for port
 .    endif
 .
 .    if (count(incoming) > 0)
@@ -209,6 +234,8 @@ class $(class.name:lower,Pascal)(object):
         # subscribe is always connected to socket creation
         for topic in self.$(name)_topics:
             socket.setsockopt(zmq.SUBSCRIBE, topic)
+.    elsif (type = "XPUB")
+        socket.setsockopt(zmq.XPUB_VERBOSE, 1)  # enable verbose subscription messages
 .    endif
 
         shutdown = context.socket(zmq.PULL)
@@ -227,7 +254,7 @@ class $(class.name:lower,Pascal)(object):
                 return  # shutdown signal
 .    if (count(outgoing) > 0)
             if pipe in s:
-.      if (type = "PUB")
+.      if (type = "XPUB")
                 socket.send_multipart(pipe.recv_multipart(), zmq.NOBLOCK)
 .      else
                 socket.send(pipe.recv(), zmq.NOBLOCK)
@@ -248,6 +275,9 @@ class $(class.name:lower,Pascal)(object):
         self.shutdown.send('')  # trigger socket thread shutdown
         self.thread.join()
         self.thread = None
+.    if (nature = "server")
+        self._$(name)_port_event.clear()  # clear sync for port
+.    endif
 .
 .  endif
 .endfor
@@ -282,15 +312,18 @@ class $(class.name:lower,Pascal)(object):
         if self.debuglevel > 0:
             print('[%s] $(name) timer tick' % self.debugname)
 
+.  if (defined(error_threshold))
         self.$(name)_error_count += 1
         if self.$(name)_error_count > self.$(name)_error_threshold:
-.  for timeout
-.    for event
+.    for timeout
+.      for event
             if self.fsm.isstate('$(when:c)'):
                 self.fsm.$(name:c)()
+.      endfor
 .    endfor
-.  endfor
             return
+.  endif
+.
 .  for tick
 .    for event
         if self.fsm.isstate('$(when:c)'):
@@ -298,8 +331,10 @@ class $(class.name:lower,Pascal)(object):
 .    endfor
 .  endfor
 
+.  if (defined(error_threshold))
     def reset_$(name)_error(self):
         self.$(name)_error_count = 0
+.  endif
 
     def reset_$(name)_timer(self):
         if not self.$(name)_active:
@@ -351,6 +386,8 @@ class $(class.name:lower,Pascal)(object):
 .    else
         msg = socket.recv()
 .    endif
+.
+.    if (type <> "XPUB")
 
         try:
             self.$(name)_rx.ParseFromString(msg)
@@ -364,6 +401,9 @@ class $(class.name:lower,Pascal)(object):
             if self.debuglevel > 1:
                 print(self.$(name)_rx)
         rx = self.$(name)_rx
+.    else
+        rx = msg
+.    endif
 .  endif
 .
 .  for incoming
@@ -436,13 +476,13 @@ class $(class.name:lower,Pascal)(object):
 .
 .for socket where (count(outgoing) > 0)
 
-.  if ((type = "PUB") | (type = "ROUTER"))
+.  if ((type = "XPUB") | (type = "ROUTER"))
     def send_$(name)_message(self, identity, msg_type, tx):
 .  else
     def send_$(name)_message(self, msg_type, tx):
 .  endif
 .  if defined(socket.class)
-.    if ((type = "PUB") | (type = "ROUTER"))
+.    if ((type = "XPUB") | (type = "ROUTER"))
         self.$(name)_channel.send_socket_message(identity, msg_type, tx)
 .    else
         self.$(name)_channel.send_socket_message(msg_type, tx)
@@ -455,7 +495,7 @@ class $(class.name:lower,Pascal)(object):
                 if self.debuglevel > 1:
                     print(str(tx))
 
-.    if (type = "PUB")
+.    if (type = "XPUB")
             self.pipe.send_multipart([identity, tx.SerializeToString()])
 .    elsif (type = "ROUTER")
             self.pipe.send_multipart(identity + [tx.SerializeToString()])
@@ -480,17 +520,26 @@ class $(class.name:lower,Pascal)(object):
 .  endfor
 .endfor
 .
+.- create functions for each outgoing message
 .for socket
 .  for outgoing where (name <> "*")
 
-.    if ((socket.type = "PUB") | (type = "ROUTER"))
+.    if ((socket.type = "XPUB") | (type = "ROUTER"))
 .      if defined(public)
     def send_$(name:c)(self, identity, tx):
+        ids = [identity]
 .      else
-    def send_$(name:c)(self, identity):
+    def send_$(name:c)(self):
         tx = self.$(socket.name)_tx
+        ids = self.$(socket.name)_topics
 .      endif
-        self.send_$(socket.name)_message(identity, pb.MT_$(NAME:c), tx)
+.-     add protocol parameters
+.      for pparams
+        pparams = tx.pparams
+        pparams.keepalive_timer = self.heartbeat_period
+.      endfor
+        for receiver in ids:
+            self.send_$(socket.name)_message(receiver, pb.MT_$(NAME:c), tx)
 .    else
 .      if defined(public)
     def send_$(name:c)(self, tx):
@@ -503,6 +552,7 @@ class $(class.name:lower,Pascal)(object):
 .  endfor
 .endfor
 .
+.- react on channel state changes
 .for socket where (defined(socket.class) & (count(state) > 0))
 
     def $(name)_channel_state_changed(self, state):
