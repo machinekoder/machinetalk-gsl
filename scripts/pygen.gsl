@@ -164,9 +164,9 @@ class $(class.name:lower,Pascal)(object):
 .
 .  if (defined(nature) & (nature = "server"))
 
-   @property
-   def $(name)_port(self):
-       return self.$(name)_port
+    @property
+    def $(name)_port(self):
+       return self.$(name)_channel.socket_port
 .  endif
 .endfor
 .
