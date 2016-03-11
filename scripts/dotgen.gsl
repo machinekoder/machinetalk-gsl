@@ -31,50 +31,50 @@ digraph $(class.name:c) {
 .      for class.socket
 .        for incoming
 .          for event as ev where ((state.name = when) & (name = event.name))
-.             triggers += incoming.name + " received<br></br>"
+.             triggers += incoming.name + " msg received"
 .          endfor
 .        endfor
 .        for outgoing
 .          for event as ev where ((state.name = when) & (name = event.name))
-.             triggers += outgoing.name + " sent<br></br>"
+.             triggers += outgoing.name + " msg sent"
 .          endfor
 .        endfor
 .        for state as st
 .          for event as ev where ((state.name = when) & (name = event.name))
-.            triggers += socket.name + " state " + st.name + "<br></br>"
+.            triggers += socket.name + " state " + st.name
 .          endfor
 .        endfor
 .      endfor
 .      if (name = "connect")
-.        triggers += "start" + "<br></br>"
+.        triggers += "start"
 .      endif
 .      if (name = "disconnect")
-.        triggers += "stop" + "<br></br>"
+.        triggers += "stop"
 .      endif
 .
 .- Heartbeat events
 .      for class.heartbeat
 .        for tick
 .          for event as ev where ((state.name = when) & (name = event.name))
-.            triggers += heartbeat.name + " tick<br></br>"
+.            triggers += heartbeat.name + " tick"
 .          endfor
 .        endfor
 .        for timeout
 .          for event as ev where ((state.name = when) & (name = event.name))
-.            triggers += heartbeat.name + " timeout<br></br>"
+.            triggers += heartbeat.name + " timeout"
 .          endfor
 .        endfor
 .      endfor
 .      if (triggers <> "")
-.        triggers = "<font color=\"red\">$(triggers)</font>"
+.        triggers = "<font color='red'>[$(triggers)]<br></br></font>"
 .      endif
 .
 .      label = ""
 .      for action
-.        label += name + "<br></br>"
+.        label += "/ " + name + "<br></br>"
 .      endfor
 .      if (label <> "")
-.        label = "<font color=\"blue\">$(label)</font>"
+.        label = "<font color='blue'>$(label)</font>"
 .      endif
 .
 .      if (state.name = next)
@@ -86,12 +86,14 @@ digraph $(class.name:c) {
                        height = 0;
                        penwidth = 0;
                        fixedsize = true];
-       $(state.Name) -> $(invisname:c):n [arrowhead=none];
-       $(invisname:c):s -> $(Next) [label = <$(Name)<br></br>$(Triggers)$(Label)>;
+       $(state.name) -> $(invisname:c):n [arrowhead=none];
+       $(invisname:c):s -> $(next) [label = <$(Name)<br></br>$(Triggers)$(Label)>;
+                                    arrowhead="open";
                                     labeltooltip = "Tooltip" ];
 .      else
-       $(state.Name) -> $(Next) [label = <$(Name)<br></br>$(Triggers)$(Label)>;
-                                 labeltooltip = "Tooltip" ];
+       $(state.name) -> $(next) [label = <$(Name)<br></br>$(Triggers)$(Label)>;
+                          arrowhead="open";
+                          labeltooltip="Tooltip" ];
 .      endif
 .    endfor
 .  endfor
