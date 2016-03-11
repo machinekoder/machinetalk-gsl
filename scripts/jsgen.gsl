@@ -71,7 +71,6 @@ function $(class.name:lower,Pascal)(debugname, debuglevel) {
 .  endif
 .endfor
     this.on('stateChanged', function () {});
-    this.started = false;
 
 .for fsm
     // fsm
@@ -196,20 +195,6 @@ $(class.name:lower,Pascal).prototype.disconnectSockets = function() {
 };
 .  endif
 .endfor
-
-$(class.name:lower,Pascal).prototype.start = function() {
-    if (this.started)
-        return;
-    this.fsm.connect();
-    this.started = true;
-};
-
-$(class.name:lower,Pascal).prototype.stop = function() {
-    if (!this.started)
-        return;
-    this.fsm.disconnect();
-    this.started = false;
-};
 .
 .for socket where defined(socket.class)
 

@@ -229,9 +229,6 @@ private:
 .  endif
 .endfor
 
-    void start();
-    void stop();
-
 private slots:
 .for heartbeat
 
@@ -543,24 +540,6 @@ void $(class.name:lower,Pascal)::disconnectSockets()
 .
 .  endif
 .endfor
-
-void $(class.name:lower,Pascal)::start()
-{
-#ifdef QT_DEBUG
-   DEBUG_TAG(1, m_debugName, "start");
-#endif
-
-   emit fsmConnect();
-}
-
-void $(class.name:lower,Pascal)::stop()
-{
-#ifdef QT_DEBUG
-    DEBUG_TAG(1, m_debugName, "stop");
-#endif
-
-    emit fsmDisconnect();
-}
 .
 .for socket where defined(socket.class)
 

@@ -94,7 +94,6 @@ class $(class.name:lower,Pascal)(object):
 .  endif
 .endfor
         self.state_changed_cb = None
-        self.started = False
 
 .for fsm
         # fsm
@@ -281,20 +280,8 @@ class $(class.name:lower,Pascal)(object):
 .
 .  endif
 .endfor
-
-    def start(self):
-        if self.started:
-            return
-        self.fsm.connect()  # todo
-        self.started = True
-
-    def stop(self):
-        if not self.started:
-            return
-        self.fsm.disconnect()
-        self.started = False
 .
-.for socket where defined(socket.class)
+.for socket where (defined(socket.class))
 
     def start_$(name)_channel(self):
         self.$(name)_channel.start()

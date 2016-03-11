@@ -89,6 +89,18 @@
     <event name = "no bind" when = "binding" />
   </trigger>
 
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "trying"/>
+    <event name = "disconnect" when = "binding"/>
+    <event name = "disconnect" when = "syncing"/>
+    <event name = "disconnect" when = "synced"/>
+    <event name = "disconnect" when = "error"/>
+  </trigger>
+
   <fsm name = "fsm" initial = "down">
       <state name = "down">
         <event name = "connect" next = "trying">

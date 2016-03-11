@@ -45,12 +45,11 @@ digraph $(class.name:c) {
 .          endfor
 .        endfor
 .      endfor
-.      if (name = "connect")
-.        triggers += "start"
-.      endif
-.      if (name = "disconnect")
-.        triggers += "stop"
-.      endif
+.      for class.trigger
+.        for event as ev where ((state.name = when) & (name = event.name))
+.          triggers += trigger.name
+.        endfor
+.      endfor
 .
 .- Heartbeat events
 .      for class.heartbeat
