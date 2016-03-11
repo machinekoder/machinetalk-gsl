@@ -17,13 +17,12 @@ digraph $(class.name:c) {
     // concentrate = true;
 .-    label="$(class.name:)"
 .for fsm
-.  for state
-.    if (name = fsm.initial)
-    node [shape = doublecircle]; $(Name);
-.    endif
+.  for state where (name = fsm.initial)
+    { node [shape = circle, style=filled, fillcolor=black, label="", size=8]; initial_state; }
+    node [shape = Mrecord];
+    initial_state -> $(name) [arrowhead="open"];
 .  endfor
 .endfor
-    node [shape = circle];
 .for fsm
 .  for state
 .    for event
