@@ -7,6 +7,9 @@
 .output filepath
 .
 digraph $(class.name:c) {
+    graph [fontname = "helvetica"];
+    node [fontname = "helvetica"];
+    edge [fontname = "helvetica"];
     rankdir = LR;
     size = 20;
     overlap = false;
