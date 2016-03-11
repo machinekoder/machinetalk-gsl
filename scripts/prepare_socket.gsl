@@ -1,5 +1,5 @@
 .for socket where (defined(socket.class))
-.  socket.load_file("models/$(module:c)/$(socket.class:c).xml")
+.  socket.load_file("models/$(module:Pascal,lower)/$(socket.class:c).xml")
 .  for socket.class as c
 .    for c.socket as s
 .       socket.type = s.type
