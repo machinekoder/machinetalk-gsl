@@ -42,6 +42,17 @@
   <slot name = "sync config" />
   <slot name = "unsync config" />
 
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "trying"/>
+    <event name = "disconnect" when = "listing"/>
+    <event name = "disconnect" when = "up"/>
+    <event name = "disconnect" when = "loading"/>
+  </trigger>
+
   <fsm name = "fsm" initial = "down">
     <state name = "down">
       <event name = "connect" next = "trying">
@@ -58,26 +69,28 @@
 
     <state name = "listing" inherit = "defaults">
       <event name = "application retrieved" next = "up">
-        <action name = "sync config" />
       </event>
       <event name = "config trying" next = "trying">
-        <action name = "unsync config" />
       </event>
     </state>
 
     <state name = "up" inherit = "defaults">
       <event name = "config trying" next = "trying">
-        <action name = "unsync config" />
       </event>
       <event name = "load application" next = "loading">
       </event>
+      <entry>
+        <action name = "sync config" />
+      </entry>
+      <exit>
+        <action name = "unsync config" />
+      </exit>
     </state>
 
     <state name = "loading" inherit = "defaults">
       <event name = "application loaded" next = "up">
       </event>
       <event name = "config trying" next = "trying">
-        <action name = "unsync config" />
       </event>
     </state>
 
@@ -85,7 +98,6 @@
       <event name = "disconnect" next = "down">
         <action name = "stop halrcmd channel" />
         <action name = "stop halrcomp channel" />
-        <action name = "unsync config" />
       </event>
     </state>
   </fsm>

@@ -45,6 +45,19 @@
 
   <slot name = "remove keys" />
   <slot name = "unsync keys" />
+  <slot name = "set synced" />
+  <slot name = "clear synced" />
+
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "connecting"/>
+    <event name = "disconnect" when = "syncing"/>
+    <event name = "disconnect" when = "trying"/>
+    <event name = "disconnect" when = "up"/>
+  </trigger>
 
   <fsm name = "fsm" initial = "down">
     Both channels down.
@@ -64,7 +77,6 @@
       <state name = "syncing" inherit = "defaults">
         Paramcmd channel up, Param trying.
         <event name = "param up" next = "up">
-          <action name = "synced" />
         </event>
         <event name = "paramcmd trying" next = "connecting" />
       </state>
@@ -72,19 +84,23 @@
       <state name = "trying" inherit = "defaults">
         Param channel up, Paramcmd trying.
         <event name = "paramcmd up" next = "up">
-          <action name = "synced" />
-        </event>
+          </event>
         <event name = "param trying" next = "connecting" />
       </state>
 
       <state name = "up" inherit = "defaults">
         Both channels up.
         <event name = "paramcmd trying" next = "trying">
-          <action name = "unsync keys" />
         </event>
         <event name = "param trying" next = "syncing">
-          <action name = "unsync keys" />
         </event>
+        <entry>
+          <action name = "set synced" />
+        </entry>
+        <exit>
+            <action name = "clear synced" />
+            <action name = "unsync keys" />
+        </exit>
       </state>
 
       <state name = "defaults">

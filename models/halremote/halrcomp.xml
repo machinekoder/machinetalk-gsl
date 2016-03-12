@@ -83,7 +83,8 @@
   <slot name = "add pins" />
   <slot name = "remove pins" />
   <slot name = "unsync pins" />
-  <slot name = "synced" />
+  <slot name = "set synced" />
+  <slot name = "clear synced" />
 
   <trigger name = "no bind">
     <event name = "no bind" when = "binding" />
@@ -134,7 +135,6 @@
           <action name = "stop halrcomp channel" />
         </event>
         <event name = "halrcomp up" next = "synced">
-          <action name = "synced" />
         </event>
         <event name = "sync failed" next = "error">
           <action name = "stop halrcomp channel" />
@@ -154,6 +154,12 @@
           <action name = "stop halrcomp channel" />
           <action name = "stop halrcmd channel" />
         </event>
+        <entry>
+          <action name = "set synced" />
+        </entry>
+        <exit>
+          <action name = "clear synced" />
+        </exit>
       </state>
 
       <state name = "error" inherit = "defaults">

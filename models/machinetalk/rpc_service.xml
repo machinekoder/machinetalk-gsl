@@ -1,6 +1,7 @@
 <?xml version = "1.0" ?>
 <class name = "RPC Service" module = "Machinetalk">
   RPC/Service
+
   <socket type = "ROUTER" nature = "server" name="socket">
     Alle messages are passed over this socket.
 
@@ -22,6 +23,14 @@
     </incoming>
 
   </socket>
+
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "up"/>
+  </trigger>
 
   <fsm name = "fsm" initial = "down">
     <state name = "down" inherit = "defaults">

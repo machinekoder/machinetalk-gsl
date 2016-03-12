@@ -66,6 +66,17 @@
 
   </socket>
 
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "trying"/>
+    <event name = "disconnect" when = "syncing"/>
+    <event name = "disconnect" when = "synced"/>
+  </trigger>
+
+
   <fsm name = "fsm" initial = "down">
       <state name = "down" inherit = "defaults">
         <event name = "connect" next = "trying">

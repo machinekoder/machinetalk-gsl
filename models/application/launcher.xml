@@ -69,6 +69,16 @@
   <slot name = "sync status" />
   <slot name = "unsync status" />
 
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "trying"/>
+    <event name = "disconnect" when = "syncing"/>
+    <event name = "disconnect" when = "synced"/>
+  </trigger>
+
   <fsm name = "fsm" initial = "down">
     <state name = "down">
         <event name = "connect" next = "trying">
@@ -87,25 +97,27 @@
         <action name = "stop launcher channel" />
       </event>
       <event name = "launcher up" next = "synced">
-        <action name = "sync status" />
       </event>
     </state>
 
     <state name = "synced" inherit = "defaults">
       <event name = "launcher trying" next = "syncing">
-        <action name = "unsync status" />
       </event>
       <event name = "launchercmd trying" next = "trying">
         <action name = "stop launcher channel" />
-        <action name = "unsync status" />
       </event>
+      <entry>
+        <action name = "sync status" />
+      </entry>
+      <exit>
+        <action name = "unsync status" />
+      </exit>
     </state>
 
     <state name = "defaults">
       <event name = "disconnect" next = "down">
         <action name = "stop launchercmd channel" />
         <action name = "stop launcher channel" />
-        <action name = "unsync status" />
       </event>
     </state>
   </fsm>

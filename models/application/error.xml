@@ -27,6 +27,15 @@
   <slot name = "set connected" />
   <slot name = "clear connected" />
 
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "trying"/>
+    <event name = "disconnect" when = "up"/>
+  </trigger>
+
   <fsm name = "fsm" initial = "down">
     <state name = "down">
         <event name = "connect" next = "trying">
@@ -37,20 +46,23 @@
 
     <state name = "trying" inherit = "defaults">
         <event name = "error up" next = "up">
-          <action name = "set connected" />
         </event>
     </state>
 
     <state name = "up" inherit = "defaults">
       <event name = "error trying" next = "trying">
-        <action name = "clear connected" />
       </event>
+      <entry>
+        <action name = "set connected" />
+      </entry>
+      <exit>
+        <action name = "clear connected" />
+      </exit>
     </state>
 
     <state name = "defaults">
       <event name = "disconnect" next = "down">
         <action name = "stop error channel" />
-        <action name = "clear connected" />
       </event>
     </state>
   </fsm>

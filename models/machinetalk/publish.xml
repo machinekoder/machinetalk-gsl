@@ -37,6 +37,14 @@
     <timeout />
   </heartbeat>
 
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "up"/>
+  </trigger>
+
   <fsm name = "fsm" initial = "down">
     <state name = "down" inherit = "defaults">
         <event name = "connect" next = "up">

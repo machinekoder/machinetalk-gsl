@@ -23,6 +23,15 @@
   <slot name = "unsync status" />
   <slot name = "update topics" />
 
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "trying"/>
+    <event name = "disconnect" when = "up"/>
+  </trigger>
+
   <fsm name = "fsm" initial = "down">
     <state name = "down">
       <event name = "connect" next = "trying">
@@ -33,20 +42,23 @@
 
     <state name = "trying" inherit = "defaults">
       <event name = "status up" next = "up">
-        <action name = "sync status" />
       </event>
     </state>
 
     <state name = "up" inherit = "defaults">
       <event name = "status trying" next = "trying">
-        <action name = "unsync status" />
       </event>
+      <entry>
+        <action name = "sync status" />
+      </entry>
+      <exit>
+        <action name = "unsync status" />
+      </exit>
     </state>
 
     <state name = "defaults">
       <event name = "disconnect" next = "down">
         <action name = "stop status channel" />
-        <action name = "unsync status" />
       </event>
     </state>
   </fsm>
