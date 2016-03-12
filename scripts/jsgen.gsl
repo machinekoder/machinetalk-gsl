@@ -93,6 +93,13 @@ function $(class.name:lower,Pascal)(debugname, debuglevel) {
     this.fsm.on$(name:c) = this.onFsm$(name:Pascal).bind(this);
 .      endif
 .    endfor
+.-   entry and exit
+.    for entry
+    this.fsm.onenter$(state.name:c) = this.onFsm$(state.name:Pascal)Entry.bind(this);
+.    endfor
+.    for exit
+    this.fsm.onleave$(state.name:c) = this.onFsm$(state.name:Pascal)Exit.bind(this);
+.    endfor
 .  endfor
 .endfor
 }
@@ -120,6 +127,27 @@ $(class.name:lower,Pascal).prototype.onFsm$(name:Pascal) = function(event, from,
 .      endfor
 };
 .      endif
+.    endfor
+.-   entry and exit
+.    for entry
+
+$(class.name:lower,Pascal).prototype.onFsm$(state.name:Pascal)Entry = function(event, from, to) {
+    if (this.debuglevel > 0)
+        console.log(this.debugname + ': state $(state.NAME) entry');
+.      for action
+    this.$(name:Camel)();
+.      endfor
+};
+.    endfor
+.    for exit
+
+$(class.name:lower,Pascal).prototype.onFsm$(state.name:Pascal)Exit = function(event, from, to) {
+    if (this.debuglevel > 0)
+        console.log(this.debugname + ': state $(state.NAME) exit');
+.      for action
+    this.$(name:Camel)();
+.      endfor
+};
 .    endfor
 .  endfor
 .endfor

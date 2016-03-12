@@ -25,6 +25,27 @@ digraph $(class.name:c) {
 .endfor
 .for fsm
 .  for state
+.
+.    entry = ""
+.    exit = ""
+.    for entry
+.      for action
+.        entry += " $(Name)"
+.      endfor
+.    endfor
+.    for exit
+.      for action
+.        exit += " $(Name)"
+.      endfor
+.    endfor
+.    if (entry <> "")
+.      entry = "entry /$(entry:)"
+.    endif
+.    if (exit <> "")
+.      exit = "exit /$(exit:)"
+.    endif
+       $(state.name) [label = <$(state.name) | {$(entry:)<br></br>$(exit:)}>]
+.
 .    for event
 .
 .      triggers = ""

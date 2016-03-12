@@ -406,6 +406,17 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
 .  for state
     QState *$(name:Camel)State = new QState(m_fsm);
     connect($(name:Camel)State, SIGNAL(entered()), this, SLOT(fsm$(Name:Pascal)Entered()));
+.-   entry and exit
+.    for entry
+.      for action
+    connect($(state.name:Camel)State, SIGNAL(entered()), this, SLOT($(name:Camel)()));
+.      endfor
+.    endfor
+.    for exit
+.      for action
+    connect($(state.name:Camel)State, SIGNAL(exited()), this, SLOT($(name:Camel)()));
+.      endfor
+.    endfor
 .  endfor
     m_fsm->setInitialState($(initial:Camel)State);
     m_fsm->start();
