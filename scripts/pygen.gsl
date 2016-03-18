@@ -74,7 +74,7 @@ class $(class.name:lower,Pascal)(object):
 .  endif
 .endfor
 .
-.for heartbeat
+.for timer
 
         # $(Name)
         self.$(name)_lock = threading.Lock()
@@ -320,7 +320,7 @@ class $(class.name:lower,Pascal)(object):
         self.$(name)_channel.stop()
 .endfor
 .
-.for heartbeat
+.for timer
 
     def $(name)_timer_tick(self):
         with self.$(name)_lock:
@@ -442,7 +442,7 @@ class $(class.name:lower,Pascal)(object):
 .      for pparams
         $(ws)if rx.HasField('pparams'):
             $(ws)interval = rx.pparams.keepalive_timer
-            $(ws)self.heartbeat_period = interval
+            $(ws)self.timer_period = interval
 .      endfor
 .
 .      for note
@@ -553,7 +553,7 @@ class $(class.name:lower,Pascal)(object):
 .-     add protocol parameters
 .      for pparams
         pparams = tx.pparams
-        pparams.keepalive_timer = self.heartbeat_period
+        pparams.keepalive_timer = self.timer_period
 .      endfor
         for receiver in ids:
             self.send_$(socket.name)_message(receiver, pb.MT_$(NAME:c), tx)

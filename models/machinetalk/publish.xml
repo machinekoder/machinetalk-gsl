@@ -27,7 +27,7 @@
 
   </socket>
 
-  <heartbeat
+  <timer
       name = "heartbeat"
       period = "0" >
     For sending pings to subscribers.
@@ -35,7 +35,7 @@
       <event name = "tick" when = "up" />
     </tick>
     <timeout />
-  </heartbeat>
+  </timer>
 
   <trigger name = "start">
     <event name = "connect" when = "down"/>

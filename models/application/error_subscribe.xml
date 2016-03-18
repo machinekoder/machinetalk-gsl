@@ -19,7 +19,7 @@
 
   </socket>
 
-  <heartbeat
+  <timer
       name = "heartbeat"
       period = "0"
       error_threshold = "2" >
@@ -30,7 +30,7 @@
     <timeout>
       <event name = "timeout" when = "up" />
     </timeout>
-  </heartbeat>
+  </timer>
 
   <trigger name = "start">
     <event name = "connect" when = "down"/>

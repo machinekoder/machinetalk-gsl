@@ -54,7 +54,7 @@ function $(class.name:lower,Pascal)(debugname, debuglevel) {
 .  endif
 .endfor
 .
-.for heartbeat
+.for timer
 
     // $(Name)
     this.$(name)Period = $(period);
@@ -236,7 +236,7 @@ $(class.name:lower,Pascal).prototype.stop$(Name)Channel = function() {
 };
 .endfor
 .
-.for heartbeat
+.for timer
 
 $(class.name:lower,Pascal).prototype.$(name)TimerTick = function() {
     this.$(name)Timer = null; // timer is dead on tick
@@ -340,7 +340,7 @@ $(class.name:lower,Pascal).prototype._$(name)MessageReceived = function(rx) {
 .      for pparams
     $(ws)if (rx.pparams != null) {
         $(ws)interval = rx.pparams.keepalive_timer;
-        $(ws)this.heartbeatPeriod = interval;
+        $(ws)this.timerPeriod = interval;
     $(ws)}
 .      endfor
 .

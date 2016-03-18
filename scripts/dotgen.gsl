@@ -72,16 +72,16 @@ digraph $(class.name:c) {
 .        endfor
 .      endfor
 .
-.- Heartbeat events
-.      for class.heartbeat
+.- Timer events
+.      for class.timer
 .        for tick
 .          for event as ev where ((state.name = when) & (name = event.name))
-.            triggers += heartbeat.name + " tick"
+.            triggers += timer.name + " tick"
 .          endfor
 .        endfor
 .        for timeout
 .          for event as ev where ((state.name = when) & (name = event.name))
-.            triggers += heartbeat.name + " timeout"
+.            triggers += timer.name + " timeout"
 .          endfor
 .        endfor
 .      endfor

@@ -47,7 +47,7 @@ class $(class.name:lower,Pascal) : public QObject
     Q_PROPERTY(QString debugName READ debugName WRITE setDebugName NOTIFY debugNameChanged)
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
     Q_PROPERTY(QString errorString READ errorString NOTIFY errorStringChanged)
-.for heartbeat
+.for timer
     Q_PROPERTY(int $(name)Period READ $(name)Period WRITE set$(Name)Period NOTIFY $(name)PeriodChanged)
 .endfor
     Q_ENUMS(State)
@@ -90,11 +90,11 @@ public:
     {
         return m_errorString;
     }
-.for heartbeat
+.for timer
 
     int $(name)Period() const
     {
-        return m_heartbeatPeriod;
+        return m_timerPeriod;
     }
 .endfor
 
@@ -128,7 +128,7 @@ public slots:
         m_debugName = debugName;
         emit debugNameChanged(debugName);
     }
-.for heartbeat
+.for timer
 
     void set$(Name)Period(int $(name)Period)
     {
@@ -212,7 +212,7 @@ private:
     QStateMachine *m_fsm;
     QString       m_errorString;
 .
-.for heartbeat
+.for timer
 
     QTimer     *m_$(name)Timer;
     int         m_$(name)Period;
@@ -230,7 +230,7 @@ private:
 .endfor
 
 private slots:
-.for heartbeat
+.for timer
 
     void $(name)TimerTick();
     void reset$(Name)Error();
@@ -314,7 +314,7 @@ signals:
     void debugNameChanged(QString debugName);
     void stateChanged($(class.name:lower,Pascal)::State state);
     void errorStringChanged(QString errorString);
-.for heartbeat
+.for timer
     void $(name)PeriodChanged(int $(name)Period);
 .endfor
     void readyChanged(bool ready);
@@ -367,7 +367,7 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
     m_state($(class->fsm.Initial)),
     m_fsm(NULL),
     m_errorString("")
-.for heartbeat
+.for timer
     ,m_$(name)Timer(new QTimer(this)),
     m_$(name)Period($(period)),
     m_$(name)ErrorCount(0),
@@ -395,7 +395,7 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
 .  endif
 .endfor
 .
-.for heartbeat
+.for timer
 
     m_$(name)Timer->setSingleShot(true);
     connect(m_$(name)Timer, SIGNAL(timeout()), this, SLOT($(name)TimerTick()));
@@ -565,7 +565,7 @@ void $(class.name:lower,Pascal)::stop$(Name)Channel()
 }
 .endfor
 .
-.for heartbeat
+.for timer
 
 void $(class.name:lower,Pascal)::reset$(Name)Error()
 {
@@ -681,7 +681,7 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     $(ws)if (rx->has_pparams())
     $(ws){
         $(ws)pb::ProtocolParameters pparams = rx->pparams();
-        $(ws)m_heartbeatPeriod = pparams.keepalive_timer();
+        $(ws)m_timerPeriod = pparams.keepalive_timer();
     $(ws)}
 .      endfor
 .
