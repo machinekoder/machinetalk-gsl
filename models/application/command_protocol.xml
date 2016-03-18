@@ -4,6 +4,11 @@
   of a running Machinekit instance.
 
   <data name="command">
+    If the ticket field of a command is set command execution status
+    messages will be returned by the server implementation. The
+    execution status messages contain the same ticket number as the
+    request.
+
     <field name="ticket" requirement="MAY" />
 
     <response name = "emccmd executed" />
