@@ -34,7 +34,6 @@
     <tick>
       <event name = "tick" when = "up" />
     </tick>
-    <timeout />
   </timer>
 
   <trigger name = "start">

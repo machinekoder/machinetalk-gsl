@@ -58,10 +58,12 @@ function $(class.name:lower,Pascal)(debugname, debuglevel) {
 
     // $(Name)
     this.$(name)Period = $(period);
-    this.$(name)ErrorCount = 0;
-    this.$(name)ErrorThreshold = $(error_threshold);
     this.$(name)Timer = null;
     this.$(name)Active = false;
+.  if (defined(liveness))
+    this.$(name)Liveness = 0;
+    this.$(name)ResetLiveness = $(liveness);
+.  endif
 .endfor
 
     // callbacks
@@ -245,30 +247,34 @@ $(class.name:lower,Pascal).prototype.$(name)TimerTick = function() {
         console.log(this.debugname + ' timer tick');
     }
 
-    this.$(name)ErrorCount += 1;
-    if (this.$(name)ErrorCount > this.$(name)ErrorThreshold) {
-.  for timeout
-.    for event
+.  if (defined(liveness))
+    this.$(name)Liveness -= 1;
+    if (this.$(name)Liveness == 0) {
+.    for timeout
+.      for event
         if (this.fsm.current == '$(when:c)') {
             this.fsm.$(name:c)();
         }
+.      endfor
 .    endfor
-.  endfor
+        return;
     }
-    else {
+.  endif
+.
 .  for tick
 .    for event
-        if (this.fsm.current == '$(when:c)') {
-            this.fsm.$(name:c)();
-        }
+    if (this.fsm.current == '$(when:c)') {
+        this.fsm.$(name:c)();
+    }
 .    endfor
 .  endfor
-    }
 };
 
-$(class.name:lower,Pascal).prototype.reset$(Name)Error = function() {
-    this.$(name)ErrorCount = 0;
+.  if (defined(liveness))
+$(class.name:lower,Pascal).prototype.reset$(Name)Liveness = function() {
+    this.$(name)Liveness = this.$(name)ResetLiveness;
 };
+.  endif
 
 $(class.name:lower,Pascal).prototype.reset$(Name)Timer = function() {
     if (!this.$(name)Active) {

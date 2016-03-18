@@ -22,7 +22,7 @@
   <timer
       name = "heartbeat"
       period = "0"
-      error_threshold = "2" >
+      liveness = "2" >
     For monitoring if the connection is alive.
     <tick>
       <event name = "tick" when = "up" />
@@ -50,7 +50,7 @@
 
     <state name = "trying" inherit = "defaults">
       <event name = "connected" next = "up">
-        <action name = "reset heartbeat error" />
+        <action name = "reset heartbeat liveness" />
         <action name = "start heartbeat timer" />
       </event>
     </state>
@@ -65,7 +65,7 @@
         <action name = "reset heartbeat timer" />
       </event>
       <event name = "message received" next = "up">
-        <action name = "reset heartbeat error" />
+        <action name = "reset heartbeat liveness" />
         <action name = "reset heartbeat timer" />
       </event>
     </state>

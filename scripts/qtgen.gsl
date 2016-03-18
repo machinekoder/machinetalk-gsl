@@ -216,8 +216,10 @@ private:
 
     QTimer     *m_$(name)Timer;
     int         m_$(name)Period;
-    int         m_$(name)ErrorCount;
-    int         m_$(name)ErrorThreshold;
+.  if (defined(liveness))
+    int         m_$(name)Liveness;
+    int         m_$(name)ResetLiveness;
+.  endif
 .endfor
     // more efficient to reuse a protobuf Messages
 .for socket
@@ -233,7 +235,9 @@ private slots:
 .for timer
 
     void $(name)TimerTick();
-    void reset$(Name)Error();
+.  if (defined(liveness))
+    void reset$(Name)Liveness();
+.  endif
     void reset$(Name)Timer();
     void start$(Name)Timer();
     void stop$(Name)Timer();
@@ -370,8 +374,10 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
 .for timer
     ,m_$(name)Timer(new QTimer(this)),
     m_$(name)Period($(period)),
-    m_$(name)ErrorCount(0),
-    m_$(name)ErrorThreshold($(error_threshold))
+.  if (defined(liveness))
+    m_$(name)Liveness(0),
+    m_$(name)ResetLiveness($(liveness))
+.  endif
 .endfor
 {
 .for socket where defined(socket.class)
@@ -567,10 +573,12 @@ void $(class.name:lower,Pascal)::stop$(Name)Channel()
 .
 .for timer
 
-void $(class.name:lower,Pascal)::reset$(Name)Error()
+.  if (defined(liveness))
+void $(class.name:lower,Pascal)::reset$(Name)Liveness()
 {
-    m_$(name)ErrorCount = 0;
+    m_$(name)Liveness = m_$(name)ResetLiveness;
 }
+.  endif
 
 void $(class.name:lower,Pascal)::reset$(Name)Timer()
 {
@@ -598,29 +606,30 @@ void $(class.name:lower,Pascal)::stop$(Name)Timer()
 
 void $(class.name:lower,Pascal)::$(name)TimerTick()
 {
-    m_$(name)ErrorCount += 1;
-    if (m_$(name)ErrorCount > m_$(name)ErrorThreshold)
+.  if (defined(liveness))
+    m_$(name)Liveness -= 1;
+    if (m_$(name)Liveness == 0)
     {
-.  for timeout
-.    for event
+.    for timeout
+.      for event
          if (m_state == $(when:Pascal))
          {
              emit fsm$(name:Pascal)();
          }
+.      endfor
 .    endfor
-.  endfor
+         return;
     }
-    else
-    {
+.  endif
+.
 .  for tick
 .    for event
-         if (m_state == $(when:Pascal))
-         {
-             emit fsm$(name:Pascal)();
-         }
+    if (m_state == $(when:Pascal))
+    {
+         emit fsm$(name:Pascal)();
+    }
 .    endfor
 .  endfor
-    }
 }
 .endfor
 .

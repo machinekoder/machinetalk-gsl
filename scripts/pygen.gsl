@@ -81,9 +81,9 @@ class $(class.name:lower,Pascal)(object):
         self.$(name)_period = $(period)
         self.$(name)_timer = None
         self.$(name)_active = False
-.  if (defined(error_threshold))
-        self.$(name)_error_count = 0
-        self.$(name)_error_threshold = $(error_threshold)
+.  if (defined(liveness))
+        self.$(name)_liveness = 0
+        self.$(name)_reset_liveness = $(liveness)
 .  endif
 .endfor
 
@@ -329,9 +329,9 @@ class $(class.name:lower,Pascal)(object):
         if self.debuglevel > 0:
             print('[%s] $(name) timer tick' % self.debugname)
 
-.  if (defined(error_threshold))
-        self.$(name)_error_count += 1
-        if self.$(name)_error_count > self.$(name)_error_threshold:
+.  if (defined(liveness))
+        self.$(name)_liveness -= 1
+        if self.$(name)_liveness == 0:
 .    for timeout
 .      for event
             if self.fsm.isstate('$(when:c)'):
@@ -348,9 +348,9 @@ class $(class.name:lower,Pascal)(object):
 .    endfor
 .  endfor
 
-.  if (defined(error_threshold))
-    def reset_$(name)_error(self):
-        self.$(name)_error_count = 0
+.  if (defined(liveness))
+    def reset_$(name)_liveness(self):
+        self.$(name)_liveness = self.$(name)_reset_liveness
 .  endif
 
     def reset_$(name)_timer(self):
