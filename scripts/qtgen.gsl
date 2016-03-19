@@ -184,10 +184,10 @@ public slots:
     void clear$(Name)Topics();
 .  endif
 .endfor
-.
-.for trigger
 
-    void $(name:Camel)(); // trigger
+protected:
+.for trigger
+    void $(name:Camel)(); // $(name) trigger
 .endfor
 
 private:
