@@ -202,7 +202,7 @@ $(class.name:lower,Pascal).prototype.clear$(Name)Topics = function() {
 .
 .  if !defined(socket.class)
 
-$(class.name:lower,Pascal).prototype.connectSockets = function() {
+$(class.name:lower,Pascal).prototype.startSocket = function() {
     this.socket = zmq.socket('$(type)');
     this.socket.setsockopt(zmq.ZMQ_LINGER, 0);
     this.socket.connect(this.socketUri);
@@ -217,7 +217,7 @@ $(class.name:lower,Pascal).prototype.connectSockets = function() {
 .    endif
 };
 
-$(class.name:lower,Pascal).prototype.disconnectSockets = function() {
+$(class.name:lower,Pascal).prototype.stopSocket = function() {
     if (this.socket != null) {
         this.socket.close();
         this.socket = null;

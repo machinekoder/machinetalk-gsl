@@ -295,12 +295,12 @@ class $(class.name:lower,Pascal)(object):
                 self.socket_message_received(socket)
 .    endif
 
-    def connect_sockets(self):
+    def start_socket(self):
         self.thread = threading.Thread(target=self.socket_worker,
                                        args=(self.context, self.$(name)_uri,))
         self.thread.start()
 
-    def disconnect_sockets(self):
+    def stop_socket(self):
         self.shutdown.send('')  # trigger socket thread shutdown
         self.thread.join()
         self.thread = None

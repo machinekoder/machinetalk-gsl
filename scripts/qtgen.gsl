@@ -259,8 +259,8 @@ private slots:
 .      endif
 .    endif
 .  else
-    bool connectSockets();
-    void disconnectSockets();
+    bool startSocket();
+    void stopSocket();
 
 .    if (count(incoming) > 0)
     void socketMessageReceived(QList<QByteArray> messageList);
@@ -509,7 +509,7 @@ void $(class.name:lower,Pascal)::clear$(Name)Topics()
 .  if !defined(socket.class)
 
 /** Connects the 0MQ sockets */
-bool $(class.name:lower,Pascal)::connectSockets()
+bool $(class.name:lower,Pascal)::startSocket()
 {
     m_socket = m_context->createSocket(ZMQSocket::TYP_$(TYPE), this);
     m_socket->setLinger(0);
@@ -545,7 +545,7 @@ bool $(class.name:lower,Pascal)::connectSockets()
 }
 
 /** Disconnects the 0MQ sockets */
-void $(class.name:lower,Pascal)::disconnectSockets()
+void $(class.name:lower,Pascal)::stopSocket()
 {
     if (m_socket != NULL)
     {

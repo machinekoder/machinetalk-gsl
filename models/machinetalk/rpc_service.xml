@@ -35,7 +35,7 @@
   <fsm name = "fsm" initial = "down">
     <state name = "down" inherit = "defaults">
         <event name = "connect" next = "up">
-          <action name = "connect sockets" />
+          <action name = "start socket" />
         </event>
     </state>
     <state name = "up">
@@ -43,7 +43,7 @@
         <action name = "send ping acknowledge" />
       </event>
       <event name = "disconnect" next = "down">
-        <action name = "disconnect sockets" />
+        <action name = "stop socket" />
       </event>
     </state>
   </fsm>

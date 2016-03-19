@@ -47,14 +47,14 @@
   <fsm name = "fsm" initial = "down">
     <state name = "down" inherit = "defaults">
         <event name = "connect" next = "up">
-          <action name = "connect sockets" />
+          <action name = "start socket" />
           <action name = "start heartbeat timer" />
         </event>
     </state>
     <state name = "up">
       <event name = "disconnect" next = "down">
         <action name = "stop heartbeat timer" />
-        <action name = "disconnect sockets" />
+        <action name = "stop socket" />
       </event>
       <event name = "tick" next = "up">
         <action name = "send ping" />

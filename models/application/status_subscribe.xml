@@ -53,7 +53,7 @@
   <fsm name = "fsm" initial = "down">
     <state name = "down">
       <event name = "connect" next = "trying">
-        <action name = "connect sockets" />
+        <action name = "start socket" />
       </event>
     </state>
 
@@ -67,8 +67,8 @@
     <state name = "up" inherit = "defaults">
       <event name = "timeout" next = "trying">
         <action name = "stop heartbeat timer" />
-        <action name = "disconnect sockets" />
-        <action name = "connect sockets" />
+        <action name = "stop socket" />
+        <action name = "start socket" />
       </event>
       <event name = "tick" next = "up">
         <action name = "reset heartbeat timer" />
@@ -82,10 +82,10 @@
     <state name = "defaults">
       <event name = "disconnect" next = "down">
         <action name = "stop heartbeat timer" />
-        <action name = "disconnect sockets" />
+        <action name = "stop socket" />
       </event>
     </state>
   </fsm>
 
-  
+
 </class>

@@ -49,7 +49,7 @@
     <fsm name = "fsm" initial = "down">
       <state name = "down">
         <event name = "connect" next = "trying">
-          <action name = "connect sockets" />
+          <action name = "start socket" />
           <action name = "reset heartbeat liveness" />
           <action name = "send ping" />
           <action name = "start heartbeat timer" />
@@ -65,8 +65,8 @@
 
       <state name = "up" inherit = "defaults">
         <event name = "timeout" next = "trying">
-          <action name = "disconnect sockets" />
-          <action name = "connect sockets" />
+          <action name = "stop socket" />
+          <action name = "start socket" />
           <action name = "send ping" />
         </event>
         <event name = "refresh" next = "up">
@@ -83,7 +83,7 @@
       <state name = "defaults">
         <event name = "disconnect" next = "down">
           <action name = "stop heartbeat timer" />
-          <action name = "disconnect sockets" />
+          <action name = "stop socket" />
         </event>
       </state>
     </fsm>
