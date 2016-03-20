@@ -48,7 +48,7 @@ class $(class.name:lower,Pascal) : public QObject
     Q_PROPERTY(State state READ state NOTIFY stateChanged)
     Q_PROPERTY(QString errorString READ errorString NOTIFY errorStringChanged)
 .for timer
-    Q_PROPERTY(int $(name)Period READ $(name)Period WRITE set$(Name)Period NOTIFY $(name)PeriodChanged)
+    Q_PROPERTY(int $(name)Interval READ $(name)Interval WRITE set$(Name)Interval NOTIFY $(name)IntervalChanged)
 .endfor
     Q_ENUMS(State)
 
@@ -92,9 +92,9 @@ public:
     }
 .for timer
 
-    int $(name)Period() const
+    int $(name)Interval() const
     {
-        return m_timerPeriod;
+        return m_timerInterval;
     }
 .endfor
 
@@ -130,13 +130,13 @@ public slots:
     }
 .for timer
 
-    void set$(Name)Period(int $(name)Period)
+    void set$(Name)Interval(int $(name)Interval)
     {
-        if (m_$(name)Period == $(name)Period)
+        if (m_$(name)Interval == $(name)Interval)
             return;
 
-        m_$(name)Period = $(name)Period;
-        emit $(name)PeriodChanged($(name)Period);
+        m_$(name)Interval = $(name)Interval;
+        emit $(name)IntervalChanged($(name)Interval);
     }
 .endfor
 
@@ -215,7 +215,7 @@ private:
 .for timer
 
     QTimer     *m_$(name)Timer;
-    int         m_$(name)Period;
+    int         m_$(name)Interval;
 .  if (defined(liveness))
     int         m_$(name)Liveness;
     int         m_$(name)ResetLiveness;
@@ -319,7 +319,7 @@ signals:
     void stateChanged($(class.name:lower,Pascal)::State state);
     void errorStringChanged(QString errorString);
 .for timer
-    void $(name)PeriodChanged(int $(name)Period);
+    void $(name)IntervalChanged(int $(name)Interval);
 .endfor
     void readyChanged(bool ready);
     // fsm
@@ -373,7 +373,7 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
     m_errorString("")
 .for timer
     ,m_$(name)Timer(new QTimer(this)),
-    m_$(name)Period($(period)),
+    m_$(name)Interval($(interval)),
 .  if (defined(liveness))
     m_$(name)Liveness(0),
     m_$(name)ResetLiveness($(liveness))
@@ -587,9 +587,9 @@ void $(class.name:lower,Pascal)::reset$(Name)Timer()
         m_$(name)Timer->stop();
     }
 
-    if (m_$(name)Period > 0)
+    if (m_$(name)Interval > 0)
     {
-        m_$(name)Timer->setInterval(m_$(name)Period);
+        m_$(name)Timer->setInterval(m_$(name)Interval);
         m_$(name)Timer->start();
     }
 }
@@ -690,7 +690,7 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     $(ws)if (rx->has_pparams())
     $(ws){
         $(ws)pb::ProtocolParameters pparams = rx->pparams();
-        $(ws)m_timerPeriod = pparams.keepalive_timer();
+        $(ws)m_timerInterval = pparams.keepalive_timer();
     $(ws)}
 .      endfor
 .

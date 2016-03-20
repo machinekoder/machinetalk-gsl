@@ -78,7 +78,7 @@ class $(class.name:lower,Pascal)(object):
 
         # $(Name)
         self.$(name)_lock = threading.Lock()
-        self.$(name)_period = $(period)
+        self.$(name)_interval = $(interval)
         self.$(name)_timer = None
         self.$(name)_active = False
 .  if (defined(liveness))
@@ -362,8 +362,8 @@ class $(class.name:lower,Pascal)(object):
             self.$(name)_timer.cancel()
             self.$(name)_timer = None
 
-        if self.$(name)_period > 0:
-            self.$(name)_timer = threading.Timer(self.$(name)_period / 1000.0,
+        if self.$(name)_interval > 0:
+            self.$(name)_timer = threading.Timer(self.$(name)_interval / 1000.0,
                                                  self.$(name)_timer_tick)
             self.$(name)_timer.start()
         self.$(name)_lock.release()
@@ -442,7 +442,7 @@ class $(class.name:lower,Pascal)(object):
 .      for pparams
         $(ws)if rx.HasField('pparams'):
             $(ws)interval = rx.pparams.keepalive_timer
-            $(ws)self.timer_period = interval
+            $(ws)self.timer_interval = interval
 .      endfor
 .
 .      for note
@@ -553,7 +553,7 @@ class $(class.name:lower,Pascal)(object):
 .-     add protocol parameters
 .      for pparams
         pparams = tx.pparams
-        pparams.keepalive_timer = self.timer_period
+        pparams.keepalive_timer = self.timer_interval
 .      endfor
         for receiver in ids:
             self.send_$(socket.name)_message(receiver, pb.MT_$(NAME:c), tx)

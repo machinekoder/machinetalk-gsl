@@ -29,7 +29,7 @@
 
   <timer
       name = "heartbeat"
-      period = "0" >
+      interval = "0" >
     For sending pings to subscribers.
     <tick>
       <event name = "tick" when = "up" />
