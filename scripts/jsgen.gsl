@@ -346,7 +346,7 @@ $(class.name:lower,Pascal).prototype._$(name)MessageReceived = function(rx) {
 .      for pparams
     $(ws)if (rx.pparams != null) {
         $(ws)interval = rx.pparams.keepalive_timer;
-        $(ws)this.timerInterval = interval;
+        $(ws)this.heartbeatInterval = interval;
     $(ws)}
 .      endfor
 .

@@ -553,7 +553,7 @@ class $(class.name:lower,Pascal)(object):
 .-     add protocol parameters
 .      for pparams
         pparams = tx.pparams
-        pparams.keepalive_timer = self.timer_interval
+        pparams.keepalive_timer = self.heartbeat_interval
 .      endfor
         for receiver in ids:
             self.send_$(socket.name)_message(receiver, pb.MT_$(NAME:c), tx)

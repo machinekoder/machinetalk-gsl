@@ -94,7 +94,7 @@ public:
 
     int $(name)Interval() const
     {
-        return m_timerInterval;
+        return m_$(name)Interval;
     }
 .endfor
 
@@ -690,7 +690,7 @@ void $(class.name:lower,Pascal)::socketMessageReceived(QList<QByteArray> message
     $(ws)if (rx->has_pparams())
     $(ws){
         $(ws)pb::ProtocolParameters pparams = rx->pparams();
-        $(ws)m_timerInterval = pparams.keepalive_timer();
+        $(ws)m_heartbeatInterval = pparams.keepalive_timer();
     $(ws)}
 .      endfor
 .
