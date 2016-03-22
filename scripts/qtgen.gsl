@@ -202,7 +202,7 @@ private:
 .  if defined(socket.class)
     $(socket.class:lower,Pascal) *m_$(name)Channel;
 .  else
-    SocketNotifierZMQContext *m_context;
+    PollingZMQContext *m_context;
     ZMQSocket  *m_socket;
 .  endif
 .endfor
@@ -448,7 +448,7 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
 .
 .for socket where !defined(socket.class)
 
-    m_context = new SocketNotifierZMQContext(this, 1);
+    m_context = new PollingZMQContext(this, 1);
     connect(m_context, SIGNAL(notifierError(int,QString)),
             this, SLOT(socketError(int,QString)));
     m_context->start();
