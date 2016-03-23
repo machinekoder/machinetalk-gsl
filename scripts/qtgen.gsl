@@ -452,11 +452,8 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
 
 $(class.name:lower,Pascal)::~$(class.name:lower,Pascal)()
 {
-    if (m_ready)
-    {
-        stop();
-    }
 .for socket where !defined(socket.class)
+    stopSocket();
 
     if (m_context != NULL)
     {
