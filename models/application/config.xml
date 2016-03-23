@@ -56,14 +56,13 @@
   <fsm name = "fsm" initial = "down">
     <state name = "down">
       <event name = "connect" next = "trying">
-        <action name = "add pins" />
-        <action name = "start halrcmd channel" />
+        <action name = "start config channel" />
       </event>
     </state>
 
     <state name = "trying" inherit = "defaults">
       <event name = "config up" next = "listing">
-        <action name = "send config list application" />
+        <action name = "send list applications" />
       </event>
     </state>
 
@@ -96,8 +95,7 @@
 
     <state name = "defaults">
       <event name = "disconnect" next = "down">
-        <action name = "stop halrcmd channel" />
-        <action name = "stop halrcomp channel" />
+        <action name = "stop config channel" />
       </event>
     </state>
   </fsm>
