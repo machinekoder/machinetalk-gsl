@@ -19,10 +19,7 @@
     <outgoing name="emc task plan pause" public="true" />
     <outgoing name="emc task plan step" public="true" />
     <outgoing name="emc task plan resume" public="true" />
-    <outgoing name="emc spindle brake engage" public="true" />
-    <outgoing name="emc spindle brake release" public="true" />
     <outgoing name="emc set debug" public="true" />
-    <outgoing name="emc traj set scale" public="true" />
     <outgoing name="emc coolant flood on" public="true" />
     <outgoing name="emc coolant flood off" public="true" />
     <outgoing name="emc axis home" public="true" />
@@ -30,13 +27,12 @@
     <outgoing name="emc axis abort" public="true" />
     <outgoing name="emc axis incr jog" public="true" />
     <outgoing name="emc tool load tool table" public="true" />
-    <outgoing name="emc traj set max velocity" public="true" />
     <outgoing name="emc task plan execute" public="true" />
     <outgoing name="emc coolant mist on" public="true" />
     <outgoing name="emc coolant mist off" public="true" />
     <outgoing name="emc task plan init" public="true" />
     <outgoing name="emc task plan open" public="true" />
-    <outgoing name="emc task plan set optional estop" public="true" />
+    <outgoing name="emc task plan set optional stop" public="true" />
     <outgoing name="emc task set mode" public="true" />
     <outgoing name="emc task set state" public="true" />
     <outgoing name="emc traj set so enable" public="true" />
@@ -64,11 +60,9 @@
     <outgoing name="emc axis set min position limit" public="true" />
     <outgoing name="emc axis unhome" public="true" />
 
-    <incoming name="emccmd executed">
-    </incoming>
+    <incoming name="emccmd executed" />
 
-    <incoming name="emccmd completed">
-    </incoming>
+    <incoming name="emccmd completed" />
 
     <incoming name="error" public="true">
       <note />
