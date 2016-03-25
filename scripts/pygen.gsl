@@ -112,7 +112,7 @@ class $(class.name:lower,Pascal)(object):
 .-     make sure we assign only once
 .      if (!defined(on_$(name:c)))
 .        on_$(name:c) = 1
-        self.fsm.on$(name:c) = self.on_fsm_$(name:c)
+        self.fsm.onafter$(name:c) = self.on_fsm_$(name:c)
 .      endif
 .    endfor
 .-   entry and exit
