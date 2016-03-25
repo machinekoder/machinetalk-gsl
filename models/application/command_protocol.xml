@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Command Protocol" module = "Application">
+<protocol name = "Command Protocol" module = "Application">
   The Command protocol can be used to send commands to the CNC stack
   of a running Machinekit instance.
 
@@ -448,6 +448,9 @@
 
   </message>
 
-  <include filename = "command.xml" />
+  <system name="Command">
+    Application Command components.
+    <include filename = "command.xml" />
+  </system>
 
-</class>
+</protocol>

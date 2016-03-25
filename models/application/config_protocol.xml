@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Config Protocol" module = "Application">
+<protocol name = "Config Protocol" module = "Application">
   The config protocol can be used to remotely retrieve user interfaces
   from a Machinetalk config-server.
 
@@ -52,4 +52,9 @@
 
   </message>
 
-</class>
+  <system name="Config">
+    Application Config components.
+    <include filename="config.xml" />
+  </system>
+
+</protocol>

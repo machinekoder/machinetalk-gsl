@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Status Protocol" module = "Application">
+<protocol name = "Status Protocol" module = "Application">
   The Status protocol can be used to synchronize the EMC status of a
   machine.
 
@@ -30,4 +30,9 @@
 
   </message>
 
-</class>
+  <system name="Status">
+    Application Status components.
+    <include filename="status.xml"/>
+  </system>
+
+</protocol>

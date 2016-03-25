@@ -1,5 +1,5 @@
 .for message  where (defined(inherit)) as dest
-.  for class.data where (name = dest.inherit) as src
+.  for protocol.data where (name = dest.inherit) as src
 .    for field
 .      copy field to dest
 .    endfor

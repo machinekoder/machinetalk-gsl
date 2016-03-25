@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Error Protocol" module = "Application">
+<protocol name = "Error Protocol" module = "Application">
   The error protocol is used to retrieve error messages from the CNC stack.
 
   <message name = "emc nml error">
@@ -48,6 +48,9 @@
     Ping from host.
   </message>
 
-  <include filename = "error.xml" />
+  <system name="Error">
+    Application Error components.
+    <include filename="error.xml" />
+  </system>
 
-</class>
+</protocol>

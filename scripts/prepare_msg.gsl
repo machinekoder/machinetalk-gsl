@@ -1,14 +1,16 @@
 .- copies fields from protocol messages to socket messages
 .
 .for protocol
-.  class.load_file("models/" + filename)
+.  protocol.load_file("models/$(class.module:Pascal,lower)/" + filename, error)
 .endfor
 .
-.for class as proto
+.for protocol as proto
+.  for proto.protocol
 .  for message
 .    copy message to class
 .  endfor
 .  delete proto
+.  endfor
 .endfor
 .
 .

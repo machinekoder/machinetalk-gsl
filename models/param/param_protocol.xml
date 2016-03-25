@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Param Protocol" module = "Param">
+<protocol name = "Param Protocol" module = "Param">
   The Parameter Protocol can be used to synchronize two key value storage databases.
 
   <message name = "full update">
@@ -36,6 +36,10 @@
 
   </message>
 
-  <include filename = "param_client.xml" />
-  <include filename = "param_server.xml" />
-</class>
+  <system name="Param">
+    Param components.
+    <include filename = "param_client.xml" />
+    <include filename = "param_server.xml" />
+  </system>
+
+</protocol>

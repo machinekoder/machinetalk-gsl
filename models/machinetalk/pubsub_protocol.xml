@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Pub-Sub Protocol" module = "Machinetalk">
+<protocol name = "Pub-Sub Protocol" module = "Machinetalk">
   The Machintalk Pub-Sub Protocol provides a realiable channel for
   Publish-Subscribe based interfaces.
 
@@ -34,7 +34,10 @@
 
   </message>
 
-  <include filename = "subscribe.xml" />
-  <include filename = "publish.xml" />
+  <system name="Publish-Subscribe">
+    Publish-Subscribe components.
+    <include filename = "subscribe.xml" />
+    <include filename = "publish.xml" />
+  </system>
 
-</class>
+</protocol>
