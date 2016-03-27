@@ -29,34 +29,34 @@
 
   <timer
       name = "heartbeat"
-      interval = "0" >
+      interval = "2500" >
     For sending pings to subscribers.
     <tick>
-      <event name = "tick" when = "up" />
+      <event name = "heartbeat tick" when = "up" />
     </tick>
   </timer>
 
   <trigger name = "start">
-    <event name = "connect" when = "down"/>
+    <event name = "start" when = "down"/>
   </trigger>
 
   <trigger name = "stop">
-    <event name = "disconnect" when = "up"/>
+    <event name = "stop" when = "up"/>
   </trigger>
 
   <fsm name = "fsm" initial = "down">
     <state name = "down" inherit = "defaults">
-        <event name = "connect" next = "up">
+        <event name = "start" next = "up">
           <action name = "start socket" />
           <action name = "start heartbeat timer" />
         </event>
     </state>
     <state name = "up">
-      <event name = "disconnect" next = "down">
+      <event name = "stop" next = "down">
         <action name = "stop heartbeat timer" />
         <action name = "stop socket" />
       </event>
-      <event name = "tick" next = "up">
+      <event name = "heartbeat tick" next = "up">
         <action name = "send ping" />
         <action name = "reset heartbeat timer" />
       </event>

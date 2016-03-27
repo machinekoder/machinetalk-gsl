@@ -6,12 +6,12 @@
     The sync channel is used to issue sync commands to the server.
 
     <state name = "trying">
-      <event name = "sync trying" when = "syncing" />
-      <event name = "sync trying" when = "synced" />
+      <event name = "sync state trying" when = "syncing" />
+      <event name = "sync state trying" when = "synced" />
     </state>
 
     <state name = "up">
-      <event name = "sync up" when = "trying" />
+      <event name = "sync state up" when = "trying" />
     </state>
 
     <outgoing name = "*">
@@ -33,10 +33,10 @@
     The sub channel is used to received status updates from the server.
 
     <state name = "trying">
-      <event name = "sub trying" when = "synced" />
+      <event name = "sub state trying" when = "synced" />
     </state>
     <state name = "up">
-      <event name = "sub up" when = "syncing" />
+      <event name = "sub state up" when = "syncing" />
     </state>
 
     <incoming name = "*">
@@ -67,52 +67,54 @@
   </socket>
 
   <trigger name = "start">
-    <event name = "connect" when = "down"/>
+    <event name = "start" when = "down"/>
   </trigger>
 
   <trigger name = "stop">
-    <event name = "disconnect" when = "trying"/>
-    <event name = "disconnect" when = "syncing"/>
-    <event name = "disconnect" when = "synced"/>
+    <event name = "stop" when = "trying"/>
+    <event name = "stop" when = "syncing"/>
+    <event name = "stop" when = "synced"/>
   </trigger>
 
 
   <fsm name = "fsm" initial = "down">
-      <state name = "down" inherit = "defaults">
-        <event name = "connect" next = "trying">
+      <state name = "down">
+        <event name = "start" next = "trying">
           <action name = "start sync channel" />
           <action name = "start pub channel" />
         </event>
       </state>
-      <state name = "trying">
-        <event name = "sync up" next = "syncing">
+
+      <state name = "trying" inherit = "defaults">
+        <event name = "sync state up" next = "syncing">
           <action name = "send sync" />
           <action name = "start sub channel" />
         </event>
-        <event name = "disconnect" next = "down">
+      </state>
+
+      <state name = "syncing" inherit = "defaults">
+        <event name = "sync state trying" next = "trying">
+          <action name = "stop sub channel" />
+        </event>
+        <event name = "sub state up" next = "synced">
+          <action name = "synced" />
+        </event>
+      </state>
+
+      <state name = "synced" inherit = "defaults">
+        <event name = "sub state trying" next = "syncing">
+          <action name = "send sync" />
+        </event>
+        <event name = "sync state trying" next = "trying">
+          <action name = "stop sub channel" />
+        </event>
+      </state>
+
+      <state name = "defaults">
+        <event name = "stop" next = "down">
           <action name = "stop sync channel" />
           <action name = "stop sub channel" />
           <action name = "stop pub channel" />
-        </event>
-      </state>
-      <state name = "syncing">
-        <event name = "sync trying" next = "trying">
-          <action name = "stop sub channel" />
-        </event>
-        <event name = "sub up" next = "synced">
-          <action name = "synced" />
-        </event>
-        <event name = "disconnect" next = "down">
-        </event>
-      </state>
-      <state name = "synced">
-        <event name = "sub trying" next = "syncing">
-          <action name = "send sync" />
-        </event>
-        <event name = "sync trying" next = "trying">
-          <action name = "stop sub channel" />
-        </event>
-        <event name = "disconnect" next = "down">
         </event>
       </state>
     </fsm>

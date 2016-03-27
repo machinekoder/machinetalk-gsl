@@ -6,7 +6,7 @@
 
     <incoming name = "*">
       Any message from publiser.
-      <event name = "message received" when = "up"/>
+      <event name = "any message received" when = "up"/>
     </incoming>
 
     <incoming name = "ping" ignore = "true">
@@ -15,7 +15,7 @@
 
     <incoming name = "full update">
       A full update message from the publisher.
-      <event name = "connected" when = "trying" />
+      <event name = "full update msg received" when = "trying" />
       <pparams />
     </incoming>
 
@@ -31,57 +31,57 @@
       liveness = "2" >
     For monitoring if the connection is alive.
     <tick>
-      <event name = "tick" when = "up" />
+      <event name = "heartbeat tick" when = "up" />
     </tick>
     <timeout>
-      <event name = "timeout" when = "up" />
+      <event name = "heartbeat timeout" when = "up" />
     </timeout>
   </timer>
 
   <trigger name = "start">
-    <event name = "connect" when = "down"/>
+    <event name = "start" when = "down"/>
   </trigger>
 
   <trigger name = "stop">
-    <event name = "disconnect" when = "trying"/>
-    <event name = "disconnect" when = "up"/>
+    <event name = "stop" when = "trying"/>
+    <event name = "stop" when = "up"/>
   </trigger>
 
   <fsm name = "fsm" initial = "down">
     <state name = "down">
-      <event name = "connect" next = "trying">
+      <event name = "start" next = "trying">
         <action name = "start socket" />
       </event>
     </state>
 
     <state name = "trying" inherit = "defaults">
-      <event name = "connected" next = "up">
+      <event name = "full update msg received" next = "up">
         <action name = "reset heartbeat liveness" />
         <action name = "start heartbeat timer" />
       </event>
-      <event name = "disconnect" next = "down">
+      <event name = "stop" next = "down">
         <action name = "stop heartbeat timer" />
         <action name = "stop socket" />
       </event>
     </state>
 
     <state name = "up" inherit = "defaults">
-      <event name = "timeout" next = "trying">
+      <event name = "heartbeat timeout" next = "trying">
         <action name = "stop heartbeat timer" />
         <action name = "stop socket" />
         <action name = "start socket" />
       </event>
-      <event name = "tick" next = "up">
+      <event name = "heartbeat tick" next = "up">
         <action name = "reset heartbeat timer" />
       </event>
-      <event name = "message received" next = "up">
+      <event name = "any message received" next = "up">
         <action name = "reset heartbeat liveness" />
         <action name = "reset heartbeat timer" />
       </event>
     </state>
 
     <state name = "defaults">
-      <event name = "disconnect" next = "down">
+      <event name = "stop" next = "down">
         <action name = "stop heartbeat timer" />
         <action name = "stop socket" />
       </event>
