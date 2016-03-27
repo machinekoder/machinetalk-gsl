@@ -1,3 +1,4 @@
+.- prepares as socket fsm
 .for fsm
 .  for state where (defined(inherit)) as dest
 .  for fsm.state where (name = dest.inherit) as src
