@@ -1,0 +1,52 @@
+.-use graphviz dot and svg to get a nice looking diagram
+.for system
+.close
+.originalfile = fullpath
+.system.load_file(fullpath)
+.
+.for nta
+.  for template where (aligned <> "true")
+.    fullpath = path + "/$(protocol.name:Pascal,lower)_$(system.name:Pascal,lower)_$(template->name:).dot"
+.    output fullpath
+digraph diagram {
+    graph [fontname = "helvetica"];
+    node [fontname = "helvetica"];
+    edge [fontname = "helvetica"];
+    rankdir = LR;
+    size = 20;
+    overlap = scalexy;
+    sep="+30,30";
+    splines = false;
+    node [shape = circle];
+.    for location
+       $(location.id) [label=""];
+.    endfor
+.    for transition
+.    label = ""
+.    if defined(transition->label)
+.      label = "$(transition->label)"
+.    endif
+       $(transition->source.ref) -> $(transition->target.ref) [label = "$(label)"];
+.    endfor
+}
+.    close
+.    x = proc.new("neato -Tsvg -O " + fullpath, ".")
+.    x.run()
+.    nta.load_file(fullpath + ".svg")
+.    for nta.svg
+.      for g
+.        for g
+.          for ellipse
+.            for template.location where (id = "$(g->title)")
+.            location.x = "$(math.floor(cx * 1))"
+.            location.y = "$(math.floor(cy * 1))"
+.            endfor
+.          endfor
+.        endfor
+.      endfor
+.      delete svg
+.    endfor
+.  endfor
+.  nta.save(originalfile)
+.endfor
+.endfor

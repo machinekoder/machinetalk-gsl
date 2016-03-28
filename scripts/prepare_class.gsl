@@ -1,0 +1,8 @@
+.- adds base classes to system
+.for class
+.  for socket where (defined(socket.class))
+.  x = system.load_file("models/$(module:Pascal,lower)/$(socket.class:c).xml")
+.  x.name = "$(class.name:) $(socket.name:)"
+.  x->socket.name = "$(socket.name)"
+.  endfor
+.endfor

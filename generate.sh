@@ -6,6 +6,7 @@ mk_dirs () {
     mkdir -p generated/python/$dir
     mkdir -p generated/nodejs/$dir
     mkdir -p generated/qt/$dir
+    mkdir -p generated/uppaal/$dir
 }
 
 clean_dirs() {
@@ -30,6 +31,7 @@ protocol () {
     dir=$1
     name=$2
     gsl -script:scripts/docgen.gsl models/$dir/$name.xml
+    gsl -script:scripts/uppaalgen.gsl models/$dir/$name.xml
 }
 
 mk_dirs machinetalk

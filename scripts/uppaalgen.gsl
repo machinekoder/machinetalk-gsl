@@ -1,0 +1,546 @@
+.###  This whole script runs in template mode.
+.#
+.template 1
+.gsl from "scripts/inherit_msg.gsl"
+.for system
+.  for include
+.    system.load_file("models/$(protocol.module:Pascal,lower)/" + filename)
+.  endfor
+.endfor
+.for system
+.path = "generated/uppaal/$(protocol.module:Pascal,lower)"
+.fullpath = path + "/$(protocol.name:Pascal,lower)_$(system.name:Pascal,lower).xml"
+.output fullpath
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+
+<nta>
+<!-- File automatically generated with machinetalk-gsl. Any modification will be overwritten. -->
+.gsl from "scripts/prepare_class.gsl"
+.for class
+.  gsl from "scripts/prepare_fsm.gsl"
+.  gsl from "scripts/prepare_socket.gsl"
+.endfor
+
+<declaration>// Place global declarations here.
+// messages
+.for class
+// $(class.name)
+broadcast chan $(class.name:c)_any_msg_received;
+broadcast chan $(class.name:c)_any_msg_sent;
+.  for socket
+// $(class.name) $(name)
+.    for incoming
+.      if (name <> "*")
+broadcast chan $(socket.name:c)_$(name:c)_c;
+broadcast chan $(class.name:c)_$(name:c)_received;
+.      endif
+.    endfor
+.    for outgoing
+.      if (name <> "*")
+chan $(class.name:c)_send_$(name:c);
+broadcast chan $(class.name:c)_$(name:c)_sent;
+.      endif
+.    endfor
+.  endfor
+.endfor
+
+// timer
+.for class
+.  for timer
+// $(class.name) $(name)
+chan $(class.name:c)_start_$(name:c)_timer;
+chan $(class.name:c)_stop_$(name:c)_timer;
+chan $(class.name:c)_reset_$(name:c)_timer;
+chan $(class.name:c)_$(name:c)_tick;
+.    if defined(liveness)
+chan $(class.name:c)_reset_$(name:c)_liveness;
+chan $(class.name:c)_$(name:c)_timeout;
+.    endif
+.  endfor
+.endfor
+
+// socket
+.for class
+.  for socket
+// $(class.name) $(name)
+chan $(class.name:c)_start_$(name:c);
+chan $(class.name:c)_stop_$(name:c);
+.  endfor
+.endfor
+
+// starter
+.for class
+chan $(class.name:c)_start;
+chan $(class.name:c)_stop;
+.endfor
+
+</declaration>
+.- id counter
+.id = 0
+.
+.for class
+.
+.- triggers
+.-  <template aligned="false">
+.-    <name>$(class.name:lower,Pascal)_$(socket.name:lower,Pascal)_Triggers</name>
+.-    <parameter>bool Stop</parameter>
+.-    <declaration>// Place local declarations here.</declaration>
+.-
+.-    <location id="waiting">
+.-      <name>Waiting</name>
+.-    </location>
+.-
+.-.  for trigger
+.-    <location id="trigger">
+.-      <name>$(Name)</name>
+.-    </location>
+.-.    for event
+.-    <location id="trigger">
+.-      <name>$(Name)</name>
+.-    </location>
+.-.    endfor
+.-.  endfor
+.-  </template>
+
+.- channels
+.  for socket
+
+  <template aligned="false">
+    <name>$(class.name:lower,Pascal)_$(socket.name:lower,Pascal)</name>
+.-    <parameter>bool Stop</parameter>
+    <declaration>// Place local declarations here.</declaration>
+
+.    for class.fsm
+.      for state
+    <location id="$(name:c)">
+      <name>$(Name)</name>
+    </location>
+.        id = id + 1
+.      endfor
+.      for state
+.        for event
+.          x = 0
+    <location id="$(state.name:c)_$(event.name:c)0">
+      <name>$(state.name:c)_$(event.name:c)0</name>
+      <committed/>
+    </location>
+.          for action
+.            x = x + 1
+    <location id="$(state.name:c)_$(event.name:c)$(x)">
+      <name>$(state.name:c)_$(event.name:c)$(x)</name>
+      <committed/>
+    </location>
+.          endfor
+.        endfor
+.      endfor
+    <init ref="$(initial:c)"/>
+.      for state
+.        for event
+.          x = 0
+.          for action
+.            x = x + 1
+    <transition>
+      <source ref="$(state.name:c)_$(event.name:c)$(x-1)"/>
+      <target ref="$(state.name:c)_$(event.name:c)$(x)"/>
+      <label kind="synchronisation">$(class.name:c)_$(action.name:c)!</label>
+    </transition>
+.          endfor
+    <transition>
+      <source ref="$(state.name:c)"/>
+      <target ref="$(state.name:c)_$(event.name:c)0"/>
+      <label kind="synchronisation">$(class.name:c)_$(event.name:c)?</label>
+    </transition>
+    <transition>
+      <source ref="$(state.name:c)_$(event.name:c)$(x)"/>
+      <target ref="$(next:c)"/>
+    </transition>
+.        endfor
+.      endfor
+.    endfor
+  </template>
+.  endfor
+.
+.- socket
+.  for socket
+
+  <template aligned="false">
+    <name>$(class.name:lower,Pascal)_$(socket.name:lower,Pascal)_Socket</name>
+.-    <parameter>bool Stop</parameter>
+    <declaration>// Place local declarations here.</declaration>
+
+    <location id="stopped">
+      <name>Stopped</name>
+    </location>
+
+    <location id="started">
+      <name>Started</name>
+    </location>
+.    for outgoing where (name <> "*")
+
+    <location id="$(class.name:c)_send_$(name:c)_1">
+      <name>$(class.name:c)_send_$(name:c)_1</name>
+      <committed/>
+    </location>
+
+    <location id="$(class.name:c)_send_$(name:c)_2">
+      <name>$(class.name:c)_send_$(name:c)_2</name>
+      <committed/>
+    </location>
+
+    <location id="$(class.name:c)_send_$(name:c)_3">
+      <name>$(class.name:c)_send_$(name:c)_3</name>
+      <committed/>
+    </location>
+.    endfor
+.
+.    for incoming where (name <> "*")
+
+    <location id="$(class.name:c)_$(name:c)_received_1">
+      <name>$(class.name:c)_$(name:c)_received_1</name>
+      <committed/>
+    </location>
+
+    <location id="$(class.name:c)_$(name:c)_received_2">
+      <name>$(class.name:c)_$(name:c)_received_2</name>
+      <committed/>
+    </location>
+.    endfor
+
+    <init ref="stopped"/>
+.    for outgoing where (name <> "*")
+
+    <transition>
+      <source ref="started"/>
+      <target ref="$(class.name:c)_send_$(name:c)_1"/>
+      <label kind="synchronisation">$(class.name:c)_send_$(name:c)?</label>
+    </transition>
+
+    <transition>
+      <source ref="$(class.name:c)_send_$(name:c)_1"/>
+      <target ref="$(class.name:c)_send_$(name:c)_2"/>
+      <label kind="synchronisation">$(socket.name:c)_$(name:c)_c!</label>
+    </transition>
+
+    <transition>
+      <source ref="$(class.name:c)_send_$(name:c)_2"/>
+      <target ref="$(class.name:c)_send_$(name:c)_3"/>
+      <label kind="synchronisation">$(class.name:c)_$(name:c)_sent!</label>
+    </transition>
+
+    <transition>
+      <source ref="$(class.name:c)_send_$(name:c)_3"/>
+      <target ref="started"/>
+      <label kind="synchronisation">$(class.name:c)_any_msg_sent!</label>
+    </transition>
+.    endfor
+.
+.    for incoming where (name <> "*")
+
+    <transition>
+      <source ref="started"/>
+      <target ref="$(class.name:c)_$(name:c)_received_1"/>
+      <label kind="synchronisation">$(socket.name:c)_$(name:c)_c?</label>
+    </transition>
+
+    <transition>
+      <source ref="$(class.name:c)_$(name:c)_received_1"/>
+      <target ref="$(class.name:c)_$(name:c)_received_2"/>
+      <label kind="synchronisation">$(class.name:c)_$(name:c)_received!</label>
+    </transition>
+
+    <transition>
+      <source ref="$(class.name:c)_$(name:c)_received_2"/>
+      <target ref="started"/>
+      <label kind="synchronisation">$(class.name:c)_any_msg_received!</label>
+    </transition>
+.    endfor
+    <transition>
+      <source ref="stopped"/>
+      <target ref="started"/>
+      <label kind="synchronisation">$(class.name:c)_start_$(socket.name)?</label>
+    </transition>
+
+    <transition>
+      <source ref="started"/>
+      <target ref="stopped"/>
+      <label kind="synchronisation">$(class.name:c)_stop_$(socket.name)?</label>
+    </transition>
+  </template>
+.  endfor
+.
+.  for timer
+.- noe that aligned attribute prevents alignment
+    <template aligned="true">
+        <name>$(class.name:lower,Pascal)_$(timer.name:lower,Pascal)_Timer</name>
+        <parameter>int T
+.    if defined(liveness)
+, int L
+.    endif
+        </parameter>
+
+        <declaration>int x = 0; // timer count
+.    if defined(liveness)
+int l = 0; // liveness count
+.    endif
+        </declaration>
+
+        <location id="$(class.name:c)_$(timer.name:c)_timer_id31" x="-85" y="68">
+            <committed/>
+        </location>
+
+        <location id="$(class.name:c)_$(timer.name:c)_timer_id32" x="-238" y="-238">
+            <name x="-254" y="-272">Disabled</name>
+        </location>
+
+        <location id="$(class.name:c)_$(timer.name:c)_timer_id33" x="144" y="-8">
+            <name x="127" y="-68">Waiting</name>
+            <label kind="invariant" x="127" y="25">x &lt;= T</label>
+        </location>
+
+        <location id="$(class.name:c)_$(timer.name:c)_timer_id34" x="-382" y="59">
+            <name x="-425" y="17">Expired</name>
+        </location>
+
+        <init ref="$(class.name:c)_$(timer.name:c)_timer_id32"/>
+
+.    if defined(liveness)
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id33"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id33"/>
+            <label kind="synchronisation" x="-42" y="110">$(class.name:c)_reset_$(name:c)_liveness?</label>
+            <label kind="assignment" x="25" y="127">l := L</label>
+            <nail x="85" y="110"/>
+            <nail x="0" y="93"/>
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id34"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id34"/>
+            <label kind="synchronisation" x="-603" y="42">$(class.name:c)_reset_$(name:c)_liveness?</label>
+            <label kind="assignment" x="-535" y="68">l := L</label>
+            <nail x="-476" y="119"/>
+            <nail x="-484" y="8"/>
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id32"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id32"/>
+            <label kind="synchronisation" x="-289" y="-348">$(class.name:c)_reset_$(name:c)_liveness?</label>
+            <label kind="assignment" x="-255" y="-323">l := L</label>
+            <nail x="-331" y="-323"/>
+            <nail x="-144" y="-323"/>
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id31"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id34"/>
+            <label kind="guard" x="-238" y="128">l == 0</label>
+            <label kind="synchronisation" x="-264" y="102">$(class.name:c)_$(name:c)_timeout!</label>
+            <nail x="-221" y="102"/>
+        </transition>
+.    endif
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id33"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id31"/>
+            <label kind="guard" x="-51" y="25">x == T</label>
+.    if defined(liveness)
+            <label kind="assignment" x="-34" y="59">l := l-1</label>
+.    endif
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id31"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id34"/>
+.    if defined(liveness)
+            <label kind="guard" x="-221" y="25">l != 0</label>
+.    endif
+            <label kind="synchronisation" x="-229" y="51">$(class.name:c)_$(name:c)_tick!</label>
+            <nail x="-102" y="51"/>
+            <nail x="-204" y="42"/>
+            <nail x="-289" y="51"/>
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id33"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id33"/>
+            <label kind="assignment" x="127" y="93">x := x+1</label>
+            <nail x="221" y="119"/>
+            <nail x="110" y="119"/>
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id32"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id32"/>
+            <label kind="synchronisation">$(class.name:c)_stop_$(name:c)_timer?</label>
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id34"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id32"/>
+            <label kind="synchronisation" x="-391" y="-85">$(class.name:c)_stop_$(name:c)_timer?</label>
+            <nail x="-306" y="-34"/>
+            <nail x="-289" y="-127"/>
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id33"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id32"/>
+            <label kind="synchronisation" x="136" y="-170">$(class.name:c)_stop_$(name:c)_timer?</label>
+            <nail x="212" y="-102"/>
+            <nail x="76" y="-170"/>
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id32"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id33"/>
+            <label kind="synchronisation" x="59" y="-136">$(class.name:c)_start_$(name:c)_timer?</label>
+            <label kind="assignment" x="42" y="-110">x := 0</label>
+            <nail x="144" y="-93"/>
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id33"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id33"/>
+            <label kind="synchronisation" x="238" y="-34">$(class.name:c)_reset_$(name:c)_timer?</label>
+            <label kind="assignment" x="238" y="-17">x := 0</label>
+            <nail x="230" y="-77"/>
+            <nail x="229" y="59"/>
+        </transition>
+
+        <transition>
+            <source ref="$(class.name:c)_$(timer.name:c)_timer_id34"/>
+            <target ref="$(class.name:c)_$(timer.name:c)_timer_id33"/>
+            <label kind="synchronisation" x="-110" y="-59">$(class.name:c)_reset_$(name:c)_timer?</label>
+            <label kind="assignment" x="-84" y="-34">x := 0</label>
+            <nail x="-246" y="-34"/>
+            <nail x="-17" y="-34"/>
+        </transition>
+    </template>
+.  endfor
+.endfor
+
+.-starter
+  <template aligned="false">
+    <name>Starter</name>
+.-    <parameter>bool Stop</parameter>
+    <declaration>// Place local declarations here.</declaration>
+
+    <location id="started_0">
+      <name>Started</name>
+    </location>
+
+    <location id="stopped_0">
+      <name>Stopped</name>
+    </location>
+
+.x = 0
+.for class
+.x = x + 1
+    <location id="started_$(x)">
+      <name>started_$(x)</name>
+      <committed/>
+    </location>
+
+    <location id="stopped_$(x)">
+      <name>stopped_$(x)</name>
+      <committed/>
+    </location>
+
+.endfor
+
+    <init ref="started_0"/>
+.x = 0
+.for class
+.x = x + 1
+
+    <transition>
+      <source ref="started_$(x-1)"/>
+      <target ref="started_$(x)"/>
+      <label kind="synchronisation" >$(class.name:c)_start!</label>
+    </transition>
+
+    <transition>
+      <source ref="stopped_$(x-1)"/>
+      <target ref="stopped_$(x)"/>
+      <label kind="synchronisation" >$(class.name:c)_stop!</label>
+    </transition>
+.endfor
+
+    <transition>
+      <source ref="started_$(x)"/>
+      <target ref="stopped_0"/>
+    </transition>
+
+    <transition>
+      <source ref="stopped_$(x)"/>
+      <target ref="started_0"/>
+    </transition>
+  </template>
+
+  <system>// Place template instantiations here.
+starter = Starter();
+.for class
+.  for socket
+$(class.name:c) = $(class.name:lower,Pascal)_$(socket.name:lower,Pascal)();
+$(class.name:c)_socket = $(class.name:lower,Pascal)_$(socket.name:lower,Pascal)_Socket();
+.  endfor
+.  for timer
+.    if defined(liveness)
+$(class.name:c)_$(timer.name:c)_timer = $(class.name:lower,Pascal)_$(timer.name:lower,Pascal)_Timer($(liveness), $(interval));
+.    else
+$(class.name:c)_$(timer.name:c)_timer = $(class.name:lower,Pascal)_$(timer.name:lower,Pascal)_Timer($(interval));
+.    endif
+.  endfor
+.endfor
+
+// List one or more p,rocesses to be composed into a system.
+system
+starter
+.for class
+.  for socket
+,$(class.name:c)
+,$(class.name:c)_socket
+.  endfor
+.  for timer
+,$(class.name:c)_$(timer.name:c)_timer
+.  endfor
+.endfor
+;
+  </system>
+
+  <queries>
+    <query>
+      <formula>A[] not deadlock
+      </formula>
+      <comment>Check for deadlocks
+      </comment>
+    </query>
+.for class
+.  for timer where defined(timer.liveness)
+
+    <query>
+      <formula>A[] $(class.name:c)_$(name:c)_timer.l &gt;= 0
+      </formula>
+      <comment>Check $(class.name:) $(name:) timer liveness
+      </comment>
+    </query>
+.  endfor
+.  for fsm
+.    for state
+    <query>
+      <formula>E&lt;&gt; $(class.name:c).$(Name)
+      </formula>
+      <comment>Check if $(class.name:) state $(Name) is reached
+      </comment>
+    </query>
+.    endfor
+.  endfor
+.endfor
+  </queries>
+</nta>
+.endfor
+.gsl from "scripts/optimize_uppaal.gsl"
+.endtemplate
