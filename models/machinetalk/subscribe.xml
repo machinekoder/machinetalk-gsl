@@ -6,7 +6,7 @@
 
     <incoming name = "*">
       Any message from publiser.
-      <event name = "any message received" when = "up"/>
+      <event name = "any msg received" when = "up"/>
     </incoming>
 
     <incoming name = "ping" ignore = "true">
@@ -15,7 +15,7 @@
 
     <incoming name = "full update">
       A full update message from the publisher.
-      <event name = "full update msg received" when = "trying" />
+      <event name = "full update received" when = "trying" />
       <pparams />
     </incoming>
 
@@ -55,13 +55,9 @@
     </state>
 
     <state name = "trying" inherit = "defaults">
-      <event name = "full update msg received" next = "up">
+      <event name = "full update received" next = "up">
         <action name = "reset heartbeat liveness" />
         <action name = "start heartbeat timer" />
-      </event>
-      <event name = "stop" next = "down">
-        <action name = "stop heartbeat timer" />
-        <action name = "stop socket" />
       </event>
     </state>
 
@@ -74,7 +70,7 @@
       <event name = "heartbeat tick" next = "up">
         <action name = "reset heartbeat timer" />
       </event>
-      <event name = "any message received" next = "up">
+      <event name = "any msg received" next = "up">
         <action name = "reset heartbeat liveness" />
         <action name = "reset heartbeat timer" />
       </event>
