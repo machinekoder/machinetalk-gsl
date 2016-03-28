@@ -67,6 +67,7 @@
         <event name = "heartbeat timeout" next = "trying">
           <action name = "stop socket" />
           <action name = "start socket" />
+          <action name = "reset heartbeat liveness" />
           <action name = "send ping" />
         </event>
         <event name = "heartbeat tick" next = "trying">
@@ -81,6 +82,7 @@
         <event name = "heartbeat timeout" next = "trying">
           <action name = "stop socket" />
           <action name = "start socket" />
+          <action name = "reset heartbeat liveness" />
           <action name = "send ping" />
         </event>
         <event name = "heartbeat tick" next = "up">
