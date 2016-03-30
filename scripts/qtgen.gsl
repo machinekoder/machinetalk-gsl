@@ -18,12 +18,16 @@
 #define $(class.NAME:c)_H
 #include <QObject>
 #include <QStateMachine>
+.if defined(class->socket.class)
+#include <QQmlParserStatus>
+.endif
 #include <nzmqt/nzmqt.hpp>
 #include <machinetalk/protobuf/message.pb.h>
 #include <google/protobuf/text_format.h>
 .for socket where (defined(socket.class))
 #include <$(socket.module:Pascal,lower)/$(socket.class:Pascal,lower).h>
 .endfor
+
 
 #if defined(Q_OS_IOS)
 namespace gpb = google_public::protobuf;
@@ -36,8 +40,14 @@ using namespace nzmqt;
 namespace $(class.module:lower,Pascal) {
 
 class $(class.name:lower,Pascal) : public QObject
+.if defined(class->socket.class)
+,public QQmlParserStatus
+.endif
 {
     Q_OBJECT
+.if defined(class->socket.class)
+    Q_INTERFACES(QQmlParserStatus)
+.endif
     Q_PROPERTY(bool ready READ ready WRITE setReady NOTIFY readyChanged)
 .for socket
     Q_PROPERTY(QString $(name)Uri READ $(name)Uri WRITE set$(Name)Uri NOTIFY $(name)UriChanged)
@@ -61,6 +71,21 @@ public:
 .  endfor
     };
 .endfor
+.
+.if defined(class->socket.class)
+
+    void classBegin() {}
+    /** componentComplete is executed when the QML component is fully loaded */
+    void componentComplete()
+    {
+        m_componentCompleted = true;
+
+        if (m_ready == true)    // the component was set to ready before it was completed
+        {
+            start();
+        }
+    }
+.endif
 .
 .for socket
 
@@ -145,6 +170,13 @@ public slots:
 
         m_ready = ready;
         emit readyChanged(ready);
+.if defined(class->socket.class)
+
+        if (m_componentCompleted == false)
+        {
+            return;
+        }
+.endif
 
         if (m_ready)
         {
@@ -155,6 +187,7 @@ public slots:
             stop();
         }
     }
+
 .
 .for socket
 .  if (count(outgoing) > 0)
@@ -189,8 +222,10 @@ protected:
 .endfor
 
 private:
+.if defined(class->socket.class)
+    bool m_componentCompleted;
+.endif
     bool m_ready;
-    QString m_socketUri;
     QString m_debugName;
 
 .for socket
@@ -200,6 +235,7 @@ private:
 .  if defined(socket.class)
     $(socket.module:lower,Pascal)::$(socket.class:lower,Pascal) *m_$(name)Channel;
 .  else
+    QString m_socketUri;
     PollingZMQContext *m_context;
     ZMQSocket  *m_socket;
 .  endif
@@ -207,6 +243,7 @@ private:
 .
 
     State         m_state;
+    State         m_previousState;
     QStateMachine *m_fsm;
     QString       m_errorString;
 .
@@ -280,6 +317,9 @@ private slots:
 .for fsm
 .  for state
     void fsm$(Name)Entered();
+.    for event
+    void fsm$(state.Name)$(Name:Pascal)Event();
+.    endfor
 .  endfor
 .endfor
 
@@ -325,10 +365,8 @@ signals:
 .  for state
 .    for event
 .-     make sure we assign only once
-.      if (!defined(fsm$(Name:Pascal)))
-.        fsm$(Name:Pascal) = 1
-    void fsm$(Name:Pascal)();
-.      endif
+    void fsm$(state.Name)$(Name:Pascal)();
+    void fsm$(state.Name)$(Name:Pascal)Queued();
 .    endfor
 .  endfor
 .endfor
@@ -357,18 +395,23 @@ namespace $(class.module:lower,Pascal) {
 /** Generic $(class.name:) implementation */
 $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
     QObject(parent),
+.if defined(class->socket.class)
+    QQmlParserStatus(),
+    m_componentCompleted(false),
+.endif
     m_ready(false),
-    m_socketUri(""),
     m_debugName("$(class.name:)"),
 .for socket
 .  if defined(socket.class)
     m_$(name)Channel(NULL),
 .  else
+    m_socketUri(""),
     m_context(NULL),
     m_socket(NULL),
 .  endif
 .endfor
     m_state($(class->fsm.Initial)),
+    m_previousState($(class->fsm.Initial)),
     m_fsm(NULL),
     m_errorString("")
 .for timer
@@ -392,7 +435,7 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
 .  endif
 .  if (count(incoming) > 0)
     connect(m_$(name)Channel, &$(socket.module:lower,Pascal)::$(socket.class:lower,Pascal)::socketMessageReceived,
-            this, &$(class.name:lower,Pascal)::process$(Name)ChannelMessage);
+            this, &$(class.name:lower,Pascal)::process$(Name)ChannelMessage, Qt::QueuedConnection);
 .  endif
 .endfor
 .
@@ -406,16 +449,16 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
     m_fsm = new QStateMachine(this);
 .  for state
     QState *$(name:Camel)State = new QState(m_fsm);
-    connect($(name:Camel)State, &QState::entered, this, &$(class.name:lower,Pascal)::fsm$(Name:Pascal)Entered);
+    connect($(name:Camel)State, &QState::entered, this, &$(class.name:lower,Pascal)::fsm$(Name:Pascal)Entered, Qt::QueuedConnection);
 .-   entry and exit
 .    for entry
 .      for action
-    connect($(state.name:Camel)State, &QState::entered, this, &$(class.name:lower,Pascal)::$(name:Camel));
+    connect($(state.name:Camel)State, &QState::entered, this, &$(class.name:lower,Pascal)::$(name:Camel), Qt::QueuedConnection);
 .      endfor
 .    endfor
 .    for exit
 .      for action
-    connect($(state.name:Camel)State, &QState::exited, this, &$(class.name:lower,Pascal)::$(name:Camel));
+    connect($(state.name:Camel)State, &QState::exited, this, &$(class.name:lower,Pascal)::$(name:Camel), Qt::QueuedConnection);
 .      endfor
 .    endfor
 .  endfor
@@ -424,19 +467,17 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
 
 .  for state
 .    for event
-    $(state.name:Camel)State->addTransition(this, &$(class.name:lower,Pascal)::fsm$(Name:Pascal), $(next:Camel)State);
+    connect(this, &$(class.name:lower,Pascal)::fsm$(state.Name)$(Name:Pascal),
+            this, &$(class.name:lower,Pascal)::fsm$(state.Name)$(Name:Pascal)Queued, Qt::QueuedConnection);
+    $(state.name:Camel)State->addTransition(this, &$(class.name:lower,Pascal)::fsm$(state.Name)$(Name:Pascal)Queued, $(next:Camel)State);
 .    endfor
 .  endfor
 
 .  for state
 .    for event
 .-     make sure we assign only once
-.      if (!defined(signal$(Name:Pascal)))
-.        signal$(Name:Pascal) = 1
-.      for action
-    connect(this, &$(class.name:lower,Pascal)::fsm$(event.name:Pascal), this, &$(class.name:lower,Pascal)::$(action.name:Camel));
-.      endfor
-.      endif
+    connect(this, &$(class.name:lower,Pascal)::fsm$(state.Name)$(event.name:Pascal), 
+            this, &$(class.name:lower,Pascal)::fsm$(state.Name)$(event.name:Pascal)Event, Qt::QueuedConnection);
 .    endfor
 .  endfor
 .endfor
@@ -518,7 +559,7 @@ bool $(class.name:lower,Pascal)::startSocket()
 .    if (count(incoming) > 0)
 
     connect(m_socket, &ZMQSocket::messageReceived,
-            this, &$(class.name:lower,Pascal)::processSocketMessage);
+            this, &$(class.name:lower,Pascal)::processSocketMessage, Qt::QueuedConnection);
 .    endif
 
 .    if (type = "SUB")
@@ -606,7 +647,7 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
 .      for event
          if (m_state == $(when:Pascal))
          {
-             emit fsm$(name:Pascal)();
+             emit fsm$(when:Pascal)$(name:Pascal)();
          }
 .      endfor
 .    endfor
@@ -618,7 +659,7 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
 .    for event
     if (m_state == $(when:Pascal))
     {
-         emit fsm$(name:Pascal)();
+         emit fsm$(when:Pascal)$(name:Pascal)();
     }
 .    endfor
 .  endfor
@@ -701,7 +742,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(QList<QByteArray> messageL
 
     $(ws)if (m_state == $(when:Pascal))
     $(ws){
-        $(ws)emit fsm$(name:Pascal)();
+        $(ws)emit fsm$(when:Pascal)$(name:Pascal)();
     $(ws)}
 .      endfor
 .
@@ -790,7 +831,7 @@ void $(class.name:lower,Pascal)::send$(Name)Message(pb::ContainerType type, pb::
 
     $(ws)if (m_state == $(when:Pascal))
     $(ws){
-        $(ws)emit fsm$(Name:Pascal)();
+        $(ws)emit fsm$(when:Pascal)$(Name:Pascal)();
     $(ws)}
 .    endfor
 .    if (name <> "*")
@@ -844,15 +885,29 @@ void $(class.name:lower,Pascal)::socketError(int errorNum, const QString &errorM
 
 void $(class.name:lower,Pascal)::fsm$(Name)Entered()
 {
-    if (m_state != $(name:Pascal))
+    if (m_previousState != $(name:Pascal))
     {
 #ifdef QT_DEBUG
-    DEBUG_TAG(1, m_debugName, "$(NAME)");
+    DEBUG_TAG(1, m_debugName, "State $(NAME)");
 #endif
-        m_state = $(name:Pascal);
+        m_previousState = $(name:Pascal);
         emit stateChanged(m_state);
     }
 }
+.    for event
+
+void $(class.name:lower,Pascal)::fsm$(state.Name)$(Name:Pascal)Event()
+{
+#ifdef QT_DEBUG
+    DEBUG_TAG(1, m_debugName, "Event $(NAME)");
+#endif
+
+    m_state = $(Next);
+.      for action
+    $(action.name:Camel)();
+.      endfor
+}
+.    endfor
 .  endfor
 .endfor
 .
@@ -867,7 +922,7 @@ void $(class.name:lower,Pascal)::$(name)ChannelStateChanged($(socket.module:lowe
 .     for event
         if (m_state == $(when:Pascal))
         {
-            emit fsm$(name:Pascal)();
+            emit fsm$(when:Pascal)$(name:Pascal)();
         }
 .     endfor
     }
@@ -882,7 +937,7 @@ void $(class.name:lower,Pascal)::$(name:Camel)()
 {
 .  for event
     if (m_state == $(when:Pascal)) {
-        emit fsm$(name:Pascal)();
+        emit fsm$(when:Pascal)$(name:Pascal)();
     }
 .  endfor
 }
