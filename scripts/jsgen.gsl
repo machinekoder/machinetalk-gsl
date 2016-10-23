@@ -10,7 +10,6 @@ var EventEmitter = require('events').EventEmitter;
 var StateMachine = require('javascript-state-machine').StateMachine;
 var util = require('util');
 var zmq = require('zmq');
-var _ = require('underscore');
 var protobufMessage = require('machinetalk-protobuf').message;
 var Container = protobufMessage.Container;
 var ContainerType = protobufMessage.ContainerType;
