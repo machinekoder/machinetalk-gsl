@@ -28,10 +28,12 @@
 
     <outgoing name = "halrcomp bind" public = "true">
       Bind the HAL remote component.
+      <event name="halrcomp bind msg sent" when="bind" />
     </outgoing>
 
     <outgoing name = "halrcomp set" public = "true">
       Update a HAL pin.
+      <event name="halrcomp set msg sent" when="synced" />
     </outgoing>
 
     <incoming name = "halrcomp bind confirm">
@@ -79,15 +81,18 @@
 
   </socket>
 
-  <slot name = "bind" />
+  <slot name = "bind component" />
   <slot name = "add pins" />
   <slot name = "remove pins" />
   <slot name = "unsync pins" />
-  <slot name = "set synced" />
-  <slot name = "clear synced" />
+  <slot name = "set connected" />
+  <slot name = "set error" />
+  <slot name = "set disconnected" />
+  <slot name = "set connecting" />
+  <slot name = "set timeout" />
 
   <trigger name = "no bind">
-    <event name = "no bind" when = "binding" />
+    <event name = "no bind" when = "bind" />
   </trigger>
 
   <trigger name = "start">
@@ -108,11 +113,24 @@
           <action name = "add pins" />
           <action name = "start halrcmd channel" />
         </event>
+        <entry>
+          <action name = "set disconnected" />
+        </entry>
+        <exit>
+          <action name = "set connecting" />
+        </exit>
       </state>
 
       <state name = "trying" inherit = "defaults">
-        <event name = "halrcmd up" next = "binding">
-          <action name = "bind" />
+        <event name = "halrcmd up" next = "bind">
+          <action name = "bind component" />
+        </event>
+      </state>
+
+      <state name="bind">
+        <event name="halrcomp bind msg sent" next="binding" />
+        <event name="no bind" next="syncing">
+          <action name = "start halrcomp channel" />
         </event>
       </state>
 
@@ -122,9 +140,6 @@
         </event>
         <event name = "bind rejected" next = "error">
           <action name = "stop halrcmd channel" />
-        </event>
-        <event name = "no bind" next = "syncing">
-          <action name = "start halrcomp channel" />
         </event>
         <event name = "halrcmd trying" next = "trying">
         </event>
@@ -145,24 +160,27 @@
       <state name = "synced" inherit = "defaults">
         <event name = "halrcomp trying" next = "syncing">
           <action name = "unsync pins" />
+          <action name = "set timeout" />
         </event>
         <event name = "halrcmd trying" next = "trying">
           <action name = "stop halrcomp channel" />
           <action name = "unsync pins" />
+          <action name = "set timeout" />
         </event>
         <event name = "set rejected" next = "error">
           <action name = "stop halrcomp channel" />
           <action name = "stop halrcmd channel" />
         </event>
+        <event name="halrcomp set msg sent" next="synced" />
         <entry>
-          <action name = "set synced" />
+          <action name = "set connected" />
         </entry>
-        <exit>
-          <action name = "clear synced" />
-        </exit>
       </state>
 
       <state name = "error" inherit = "defaults">
+        <entry>
+          <action name = "set error" />
+        </entry>
       </state>
 
       <state name = "defaults">
