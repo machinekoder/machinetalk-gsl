@@ -5,6 +5,7 @@ mk_dirs () {
     mkdir -p generated/doc/$dir
     mkdir -p generated/python/$dir
     mkdir -p generated/nodejs/$dir
+    mkdir -p generated/js/$dir
     mkdir -p generated/qt/$dir
     mkdir -p generated/uppaal/$dir
 }
@@ -14,6 +15,7 @@ clean_dirs() {
     rm -f generated/doc/$dir/*
     rm -f generated/python/$dir/*
     rm -f generated/nodejs/$dir/*
+    rm -f generated/js/$dir/*
     rm -f generated/qt/$dir/*
     rm -f generated/uppaal/$dir/*
 }
@@ -24,6 +26,7 @@ component () {
     gsl -script:scripts/pygen.gsl models/$dir/$name.xml
     gsl -script:scripts/qtgen.gsl models/$dir/$name.xml
     gsl -script:scripts/jsgen.gsl models/$dir/$name.xml
+    gsl -script:scripts/js2gen.gsl models/$dir/$name.xml
     gsl -script:scripts/dotgen.gsl models/$dir/$name.xml
 }
 
