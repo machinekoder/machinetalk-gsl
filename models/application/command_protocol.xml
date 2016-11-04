@@ -82,6 +82,15 @@
 
   </message>
 
+  <message name = "emc traj set rapid scale" inherit="command">
+    Set the scale for the trajectory also known as feed override.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "scale" requirement = "MUST" />
+    </field>
+
+  </message>
+
   <message name = "emc coolant flood on" inherit="command">
     Enable the coolant flood.
 

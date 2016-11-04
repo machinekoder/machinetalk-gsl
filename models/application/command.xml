@@ -41,6 +41,7 @@
     <outgoing name="emc traj set max velocity" public="true" />
     <outgoing name="emc traj set mode" public="true" />
     <outgoing name="emc traj set scale" public="true" />
+    <outgoing name="emc traj set rapid scale" public="true" />
     <outgoing name="emc traj set spindle scale" public="true" />
     <outgoing name="emc traj set teleop enable" public="true" />
     <outgoing name="emc traj set teleop vector" public="true" />
