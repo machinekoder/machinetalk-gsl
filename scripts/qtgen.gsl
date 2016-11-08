@@ -363,7 +363,7 @@ signals:
 .for socket
 .  if (count(incoming) > 0)
 .    if (type = "SUB")
-    void $(name)MessageReceived(QByteArray topic, pb::Container *rx);
+    void $(name)MessageReceived(const QByteArray &topic, pb::Container *rx);
 .    else
     void $(name)MessageReceived(pb::Container *rx);
 .    endif
