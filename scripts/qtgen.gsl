@@ -49,6 +49,12 @@ class $(class.name:lower,Pascal) : public QObject
 .for timer
     Q_PROPERTY(int $(name)Interval READ $(name)Interval WRITE set$(Name)Interval NOTIFY $(name)IntervalChanged)
 .endfor
+.- timer of channel
+.for socket
+.  for timer
+    Q_PROPERTY(int $(socket.name:lower,Camel)$(Name)Interval READ $(socket.name:lower,Camel)$(Name)Interval WRITE set$(socket.name:lower,Pascal)$(Name)Interval NOTIFY $(socket.name:lower,Camel)$(Name)IntervalChanged)
+.  endfor
+.endfor
     Q_ENUMS(State)
 
 public:
@@ -111,6 +117,16 @@ public:
         return m_$(name)Interval;
     }
 .endfor
+.- timer of channels
+.for socket
+.  for timer
+
+    int $(socket.name:lower,Camel)$(Name)Interval() const
+    {
+        return m_$(socket.name:lower,Camel)Channel->$(name)Interval();
+    }
+.  endfor
+.endfor
 
     bool ready() const
     {
@@ -144,14 +160,24 @@ public slots:
     }
 .for timer
 
-    void set$(Name)Interval(int $(name)Interval)
+    void set$(Name)Interval(int interval)
     {
-        if (m_$(name)Interval == $(name)Interval)
+        if (m_$(name)Interval == interval)
             return;
 
-        m_$(name)Interval = $(name)Interval;
-        emit $(name)IntervalChanged($(name)Interval);
+        m_$(name)Interval = interval;
+        emit $(name)IntervalChanged(interval);
     }
+.endfor
+.- timer of channels
+.for socket
+.  for timer
+
+    void set$(socket.name:lower,Pascal)$(Name)Interval(int interval)
+    {
+        m_$(socket.name:lower,Camel)Channel->set$(Name)Interval(interval);
+    }
+.  endfor
 .endfor
 
     void setReady(bool ready)
@@ -348,7 +374,13 @@ signals:
     void stateChanged($(class.name:lower,Pascal)::State state);
     void errorStringChanged(QString errorString);
 .for timer
-    void $(name)IntervalChanged(int $(name)Interval);
+    void $(name)IntervalChanged(int interval);
+.endfor
+.- timer of channel
+.for socket
+.  for timer
+    void $(socket.name:lower,Camel)$(Name)IntervalChanged(int interval);
+.  endfor
 .endfor
     void readyChanged(bool ready);
     // fsm
@@ -443,8 +475,17 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
     m_$(name)Timer->setSingleShot(true);
     connect(m_$(name)Timer, &QTimer::timeout, this, &$(class.name:lower,Pascal)::$(name)TimerTick);
 .endfor
+.- timer of channels
+.for socket
+.  for timer
 
+    connect(m_$(socket.name:lower,Camel)Channel, &$(socket.module:Pascal,lower)::$(socket.class:lower,Pascal)::$(name)IntervalChanged,
+            this, &$(class.name:lower,Pascal)::$(socket.name:lower,Camel)$(Name)IntervalChanged);
+.  endfor
+.endfor
+.
 .for fsm
+
     m_fsm = new QStateMachine(this);
 .  for state
     QState *$(name:Camel)State = new QState(m_fsm);

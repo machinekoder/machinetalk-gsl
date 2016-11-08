@@ -6,6 +6,9 @@
 .       socket.type = s.type
 .       socket.nature = s.nature
 .    endfor
+.    for c.timer as t
+.       copy t to socket
+.    endfor
 .    delete c
 .  endfor
 .endfor
