@@ -466,7 +466,7 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
 .  endif
 .  if (count(incoming) > 0)
     connect(m_$(name)Channel, &$(socket.module:Pascal,lower)::$(socket.class:lower,Pascal)::socketMessageReceived,
-            this, &$(class.name:lower,Pascal)::process$(Name)ChannelMessage, Qt::QueuedConnection);
+            this, &$(class.name:lower,Pascal)::process$(Name)ChannelMessage);
 .  endif
 .endfor
 .
@@ -599,7 +599,7 @@ bool $(class.name:lower,Pascal)::startSocket()
 .    if (count(incoming) > 0)
 
     connect(m_socket, &ZMQSocket::messageReceived,
-            this, &$(class.name:lower,Pascal)::processSocketMessage, Qt::QueuedConnection);
+            this, &$(class.name:lower,Pascal)::processSocketMessage);
 .    endif
 
 .    if (type = "SUB")
