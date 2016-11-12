@@ -39,7 +39,7 @@
       Shutdown Machinekit host.
     </outgoing>
 
-    <incoming name = "error" public = "true">
+    <incoming name = "error" public = "false">
       Error on launchercmd channel.
       <note />
     </incoming>

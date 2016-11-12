@@ -68,7 +68,7 @@
 
     <incoming name="emccmd completed" />
 
-    <incoming name="error" public="true">
+    <incoming name="error" public="false">
       <note />
     </incoming>
 
