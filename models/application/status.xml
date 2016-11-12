@@ -10,6 +10,9 @@
     <state name = "trying">
       <event name = "status trying" when = "up" />
     </state>
+    <state name = "trying">
+      <event name = "status trying" when = "syncing" />
+    </state>
     <state name = "up">
       <event name = "status up" when = "trying" />
     </state>
@@ -32,6 +35,10 @@
     <event name = "disconnect" when = "up"/>
   </trigger>
 
+  <trigger name = "channels synced">
+    <event name = "channels synced" when = "syncing" />
+  </trigger>
+
   <fsm name = "fsm" initial = "down">
     <state name = "down">
       <event name = "connect" next = "trying">
@@ -41,7 +48,14 @@
     </state>
 
     <state name = "trying" inherit = "defaults">
-      <event name = "status up" next = "up">
+      <event name = "status up" next = "syncing">
+      </event>
+    </state>
+
+    <state name = "syncing" inherit = "defaults">
+      <event name = "channels synced" next = "up">
+      </event>
+      <event name = "status trying" next = "trying">
       </event>
     </state>
 
