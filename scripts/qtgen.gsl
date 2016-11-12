@@ -305,9 +305,9 @@ private slots:
 .    endif
 .    if (count(incoming) > 0)
 .      if (type = "SUB")
-    void process$(Name)ChannelMessage(const QByteArray &topic, pb::Container *rx);
+    void process$(Name)ChannelMessage(const QByteArray &topic, const pb::Container &rx);
 .      else
-    void process$(Name)ChannelMessage(pb::Container *rx);
+    void process$(Name)ChannelMessage(const pb::Container &rx);
 .      endif
 .    endif
 .  else
@@ -343,9 +343,9 @@ private slots:
 .for socket
 .  for incoming where (defined(public) & (public = "true"))
 .    if (socket.type = "SUB")
-    virtual void $(name:Camel)Received(const QByteArray &topic, pb::Container *rx) = 0;
+    virtual void $(name:Camel)Received(const QByteArray &topic, const pb::Container &rx) = 0;
 .    else
-    virtual void $(name:Camel)Received(pb::Container *rx) = 0;
+    virtual void $(name:Camel)Received(const pb::Container &rx) = 0;
 .    endif
 .  endfor
 .endfor
@@ -363,9 +363,9 @@ signals:
 .for socket
 .  if (count(incoming) > 0)
 .    if (type = "SUB")
-    void $(name)MessageReceived(const QByteArray &topic, pb::Container *rx);
+    void $(name)MessageReceived(const QByteArray &topic, const pb::Container &rx);
 .    else
-    void $(name)MessageReceived(pb::Container *rx);
+    void $(name)MessageReceived(const pb::Container &rx);
 .    endif
 .  endif
 .endfor
@@ -711,15 +711,15 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
 /** Processes all message received on $(name:) */
 .  if defined(socket.class)
 .    if (type = "SUB")
-void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(const QByteArray &topic, pb::Container *rx)
+void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(const QByteArray &topic, const pb::Container &rx)
 .    else
-void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(pb::Container *rx)
+void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(const pb::Container &rx)
 .    endif
 {
 .  else
 void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &messageList)
 {
-    pb::Container *rx = &m_$(name)Rx;
+    pb::Container &rx = m_$(name)Rx;
 .    if (type = "SUB")
     QByteArray topic;
 
@@ -730,14 +730,14 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 
     // we only handle the first two messges
     topic = messageList.at(0);
-    rx->ParseFromArray(messageList.at(1).data(), messageList.at(1).size());
+    rx.ParseFromArray(messageList.at(1).data(), messageList.at(1).size());
 .    else
-    rx->ParseFromArray(messageList.at(0).data(), messageList.at(0).size());
+    rx.ParseFromArray(messageList.at(0).data(), messageList.at(0).size());
 .    endif
 
 #ifdef QT_DEBUG
     std::string s;
-    gpb::TextFormat::PrintToString(*rx, &s);
+    gpb::TextFormat::PrintToString(rx, &s);
     DEBUG_TAG(3, m_debugName, "server message" << QString::fromStdString(s));
 #endif
 .  endif
@@ -748,7 +748,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .      if (name <> "*")
 .        ws = "    "
     // react to $(name) message
-    if (rx->type() == pb::MT_$(NAME:c))
+    if (rx.type() == pb::MT_$(NAME:c))
     {
 .      else
 .        ws = ""
@@ -760,9 +760,9 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .      endfor
 .
 .      for pparams
-    $(ws)if (rx->has_pparams())
+    $(ws)if (rx.has_pparams())
     $(ws){
-        $(ws)pb::ProtocolParameters pparams = rx->pparams();
+        $(ws)pb::ProtocolParameters pparams = rx.pparams();
         $(ws)m_heartbeatInterval = pparams.keepalive_timer();
     $(ws)}
 .      endfor
@@ -771,9 +771,9 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 
     $(ws)// update error string with note
     $(ws)m_errorString = "";
-    $(ws)for (int i = 0; i < rx->note_size(); ++i)
+    $(ws)for (int i = 0; i < rx.note_size(); ++i)
     $(ws){
-        $(ws)m_errorString.append(QString::fromStdString(rx->note(i)) + "\\n");
+        $(ws)m_errorString.append(QString::fromStdString(rx.note(i)) + "\\n");
     $(ws)}
     $(ws)emit errorStringChanged(m_errorString);
 .      endfor
