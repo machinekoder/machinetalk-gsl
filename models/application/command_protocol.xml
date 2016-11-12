@@ -142,6 +142,35 @@
 
   </message>
 
+  <message name = "emc tool update tool table" inherit="command">
+    Updates the tool table with new data entries.
+
+    <field name = "emc_command_params" message = "EmcCommandParameters" requirement = "MUST">
+      <field name = "tool_table" message = "EmcToolData" requirement = "MUST" quantity = "0+" >
+        <field name = "index" requirement = "MUST" />
+        <field name = "id" requirement = "MUST" />
+        <field name = "pocket" requirement = "MUST" />
+        <field name = "diameter" requirement = "MUST" />
+        <field name = "backangle" requirement = "MUST" />
+        <field name = "frontangle" requirement = "MUST" />
+        <field name = "orientation" requirement = "MUST" />
+        <field name = "comment" requirement = "MUST" />
+        <field name = "offset" message = "Position" requirement = "MUST">
+          <field name = "x" requirement = "MUST" />
+          <field name = "y" requirement = "MUST" />
+          <field name = "z" requirement = "MUST" />
+          <field name = "a" requirement = "MUST" />
+          <field name = "b" requirement = "MUST" />
+          <field name = "c" requirement = "MUST" />
+          <field name = "u" requirement = "MUST" />
+          <field name = "v" requirement = "MUST" />
+          <field name = "w" requirement = "MUST" />
+        </field>
+      </field>
+    </field>
+
+  </message>
+
   <message name = "emc traj set max velocity" inherit="command">
     Sets the maximum trajectory velocity.
 
@@ -431,6 +460,11 @@
     <field message = "EmcCommandParameters" name = "emc_command_params" requirement = "MUST">
       <field name = "index" requirement = "MUST" />
     </field>
+
+  </message>
+
+  <message name = "shutdown" inherit="command">
+    Shutdown mkwrapper.
 
   </message>
 
