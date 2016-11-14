@@ -20,7 +20,7 @@ digraph $(class.name:c) {
 .  for state where (name = fsm.initial)
     { node [shape = circle, style=filled, fillcolor=black, label="", size=8]; initial_state; }
     node [shape = Mrecord];
-    initial_state -> $(name) [arrowhead="open"];
+    initial_state -> "$(name)" [arrowhead="open"];
 .  endfor
 .endfor
 .for fsm
@@ -44,7 +44,7 @@ digraph $(class.name:c) {
 .    if (exit <> "")
 .      exit = "exit /$(exit:)"
 .    endif
-       $(state.name) [label = <$(state.name) | {$(entry:)<br></br>$(exit:)}>]
+       "$(state.name)" [label = <$(state.name) | {$(entry:)<br></br>$(exit:)}>]
 .
 .    for event
 .
