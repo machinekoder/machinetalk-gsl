@@ -353,9 +353,12 @@ private slots:
 .for slot
     virtual void $(name:Camel)() = 0;
 .endfor
+.
+.for trigger
+    void $(name:Camel)Slot(); // $(name) trigger
+.endfor
 
 signals:
-
 .for socket
     void $(name)UriChanged(QString uri);
 .endfor
@@ -392,6 +395,10 @@ signals:
     void fsm$(state.Name)$(Name:Pascal)Queued();
 .    endfor
 .  endfor
+.endfor
+    // trigger signals
+.for trigger
+    void $(name:Camel)Signal(QPrivateSignal dummy);
 .endfor
 };
 }; // namespace $(class.module:Pascal,lower)
@@ -528,6 +535,11 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
     connect(m_context, &PollingZMQContext::pollError,
             this, &$(class.name:lower,Pascal)::socketError);
     m_context->start();
+.endfor
+
+.for trigger
+     connect(this, &$(class.name:lower,Pascal)::$(name:Camel)Signal,
+             this, &$(class.name:lower,Pascal)::$(name:Camel)Slot, Qt::QueuedConnection);
 .endfor
 }
 
@@ -974,6 +986,12 @@ void $(class.name:lower,Pascal)::$(name)ChannelStateChanged($(socket.module:Pasc
 
 /** $(name:) trigger */
 void $(class.name:lower,Pascal)::$(name:Camel)()
+{
+    emit $(name:Camel)Signal(QPrivateSignal());
+}
+
+/** $(name:) queued trigger function */
+void $(class.name:lower,Pascal)::$(name:Camel)Slot()
 {
 .  for event
     if (m_state == $(when:Pascal)) {
