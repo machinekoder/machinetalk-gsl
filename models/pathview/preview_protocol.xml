@@ -1,0 +1,26 @@
+<?xml version = "1.0" ?>
+<protocol name = "Error Protocol" module = "Application">
+  The error protocol is used to retrieve error messages from the CNC stack.
+
+  <message name = "preview">
+    Preview message from preview interpreter.
+
+    // TODO
+  </message>
+
+  <message name = "interp stat">
+    Status message from preview interpreter.
+
+    // TODO
+  </message>
+
+  <message name = "ping">
+    Ping from host.
+  </message>
+
+  <system name="Preview">
+    PathView Preview components.
+    <include filename="previewclient.xml" />
+  </system>
+
+</protocol>

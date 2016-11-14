@@ -41,6 +41,7 @@ mk_dirs machinetalk
 mk_dirs halremote
 mk_dirs param
 mk_dirs application
+mk_dirs pathview
 
 if [ "$1" = "components" ]; then
 component machinetalk rpc_client
@@ -60,6 +61,8 @@ component application error_subscribe
 component application command
 component application status
 component application status_subscribe
+component pathview previewclient
+component pathview preview_subscribe
 fi
 
 if [ "$1" = "protocols" ]; then
@@ -71,6 +74,7 @@ protocol application launcher_protocol
 protocol application config_protocol
 protocol application command_protocol
 protocol application status_protocol
+protocol application preview_protocol
 fi
 
 if [ "$1" = "clean" ]; then
@@ -78,4 +82,5 @@ clean_dirs machinetalk
 clean_dirs application
 clean_dirs halremote
 clean_dirs param
+clean_dirs pathview
 fi

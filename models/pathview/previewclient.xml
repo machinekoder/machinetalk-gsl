@@ -1,0 +1,101 @@
+<?xml version = "1.0" ?>
+<class name = "Preview Client Base" module = "PathView">
+  Preview Client
+
+  <protocol filename = "preview_protocol.xml" />
+
+  <socket name = "preview" class = "Preview Subscribe" module = "PathView">
+    The preview channel is used to receive preview messages from the preview interpreter.
+
+    <state name = "trying">
+      <event name = "preview trying" when = "up" />
+      <event name = "preview trying" when = "statustrying" />
+    </state>
+    <state name = "up">
+      <event name = "preview up" when = "trying" />
+      <event name = "preview up" when = "previewtrying" />
+    </state>
+
+    <incoming name = "preview" public = "true" />
+
+  </socket>
+
+  <socket name = "previewstatus" class = "Preview Subscribe" module = "PathView">
+    The previewstatus channel is used to receive status messages from the preview interpreter.
+
+    <state name = "trying">
+      <event name = "status trying" when = "up" />
+      <event name = "status trying" when = "previewtrying" />
+    </state>
+    <state name = "up">
+      <event name = "status up" when = "trying" />
+      <event name = "status up" when = "statustrying" />
+    </state>
+
+    <incoming name = "interp stat" public = "true" />
+
+  </socket>
+
+  <slot name = "set connected" />
+  <slot name = "clear connected" />
+
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "trying"/>
+    <event name = "disconnect" when = "up"/>
+  </trigger>
+
+  <fsm name = "fsm" initial = "down">
+    <state name = "down">
+        <event name = "connect" next = "trying">
+          <action name = "start preview channel" />
+          <action name = "start previewstatus channel" />
+        </event>
+    </state>
+
+    <state name = "trying" inherit = "defaults">
+        <event name = "status up" next = "previewtrying">
+        </event>
+        <event name = "preview up" next = "statustrying">
+        </event>
+    </state>
+
+    <state name = "previewtrying" inherit = "defaults">
+      <event name = "preview up" next = "up">
+      </event>
+      <event name = "status trying" next = "trying">
+      </event>
+    </state>
+
+    <state name = "statustrying" inherit = "defaults">
+      <event name = "status up" next = "up">
+      </event>
+      <event name = "preview trying" next = "trying">
+      </event>
+    </state>
+
+    <state name = "up" inherit = "defaults">
+      <event name = "preview trying" next = "previewtrying">
+      </event>
+      <event name = "status trying" next = "statustrying">
+      </event>
+      <entry>
+        <action name = "set connected" />
+      </entry>
+      <exit>
+        <action name = "clear connected" />
+      </exit>
+    </state>
+
+    <state name = "defaults">
+      <event name = "disconnect" next = "down">
+        <action name = "stop preview channel" />
+        <action name = "stop previewstatus channel" />
+      </event>
+    </state>
+  </fsm>
+
+</class>
