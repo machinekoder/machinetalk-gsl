@@ -95,6 +95,10 @@
     <event name = "no bind" when = "bind" />
   </trigger>
 
+  <trigger name = "pins synced">
+    <event name = "pins synced" when = "sync" />
+  </trigger>
+
   <trigger name = "start">
     <event name = "connect" when = "down"/>
   </trigger>
@@ -149,11 +153,16 @@
         <event name = "halrcmd trying" next = "trying">
           <action name = "stop halrcomp channel" />
         </event>
-        <event name = "halrcomp up" next = "synced">
+        <event name = "halrcomp up" next = "sync">
         </event>
         <event name = "sync failed" next = "error">
           <action name = "stop halrcomp channel" />
           <action name = "stop halrcmd channel" />
+        </event>
+      </state>
+
+      <state name = "sync">
+        <event name = "pins synced" next = "synced">
         </event>
       </state>
 
