@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Remote Component Base" module = "HAL Remote">
+<class name = "Remote Component Base" module = "HAL Remote" project="machinetalk" msg_prefix="MT">
   HAL Remote Component Client
 
   <abnf>

@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Config Base" module = "Application">
+<class name = "Config Base" module = "Application" project="machinetalk" msg_prefix="MT">
   Application Config Client
 
   <protocol filename = "config_protocol.xml" />

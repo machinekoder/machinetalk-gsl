@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Launcher Base" module = "Application">
+<class name = "Launcher Base" module = "Application" project="machinetalk" msg_prefix="MT">
   Application Launcher Client
 
   <protocol filename = "launcher_protocol.xml" />

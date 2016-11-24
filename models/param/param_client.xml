@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Param Client" module = "Param">
+<class name = "Param Client" module = "Param" project="machinetalk" msg_prefix="MT">
   Paramter Service Consumer
 
   <protocol filename = "param_protocol.xml" />

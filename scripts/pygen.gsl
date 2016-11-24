@@ -14,8 +14,8 @@ from fysom import Fysom
 from $(module:Pascal,lower).$(socket.class:Pascal,lower) import $(socket.class:lower,Pascal)
 .endfor
 
-import machinetalk.protobuf.types_pb2 as pb
-from machinetalk.protobuf.message_pb2 import Container
+import $(class.project:c).protobuf.types_pb2 as pb
+from $(class.project:c).protobuf.message_pb2 import Container
 
 
 class $(class.name:lower,Pascal)(object):
@@ -429,7 +429,7 @@ class $(class.name:lower,Pascal)(object):
 .      if (name <> "*")
 .        ws = "    "
         # react to $(name) message
-        if rx.type == pb.MT_$(NAME:c):
+        if rx.type == pb.$(class.msg_prefix + " " + name:upper,c):
 .      else
 .        ws = ""
         # react to any incoming message
@@ -525,7 +525,7 @@ class $(class.name:lower,Pascal)(object):
 .  for outgoing where ((count(event) > 0))
 .    if (name <> "*")
 .      ws = "    "
-        if msg_type == pb.MT_$(NAME:c):
+        if msg_type == pb.$(class.msg_prefix + " " + name:upper,c):
 .    else
 .      ws = ""
 .    endif
@@ -556,7 +556,7 @@ class $(class.name:lower,Pascal)(object):
         pparams.keepalive_timer = self.heartbeat_interval
 .      endfor
         for receiver in ids:
-            self.send_$(socket.name)_message(receiver, pb.MT_$(NAME:c), tx)
+            self.send_$(socket.name)_message(receiver, pb.$(class.msg_prefix + " " + name:upper,c), tx)
 .    else
 .      if defined(public)
     def send_$(name:c)(self, tx):
@@ -564,7 +564,7 @@ class $(class.name:lower,Pascal)(object):
     def send_$(name:c)(self):
         tx = self.$(socket.name)_tx
 .      endif
-        self.send_$(socket.name)_message(pb.MT_$(NAME:c), tx)
+        self.send_$(socket.name)_message(pb.$(class.msg_prefix + " " + name:upper,c), tx)
 .    endif
 .  endfor
 .endfor

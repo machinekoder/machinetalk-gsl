@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Sync Client" module = "Machinetalk">
+<class name = "Sync Client" module = "Machinetalk" project="machinetalk" msg_prefix="MT">
   Sync Client
 
   <socket name = "sync" class = "RPC Client" module = "Machinetalk" type = "DEALER">

@@ -21,7 +21,7 @@
 #include <QQmlParserStatus>
 .endif
 #include <nzmqt/nzmqt.hpp>
-#include <machinetalk/protobuf/message.pb.h>
+#include <$(class.project:c)/protobuf/message.pb.h>
 #include <google/protobuf/text_format.h>
 .for socket where (defined(socket.class))
 #include <$(socket.module:Pascal,lower)/$(socket.class:Pascal,lower).h>
@@ -735,7 +735,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .      if (name <> "*")
 .        ws = "    "
     // react to $(name) message
-    if (rx.type() == pb::MT_$(NAME:c))
+    if (rx.type() == pb::$(class.msg_prefix + " " + name:upper,c))
     {
 .      else
 .        ws = ""
@@ -839,7 +839,7 @@ void $(class.name:lower,Pascal)::send$(Name)Message(pb::ContainerType type, pb::
     catch (const zmq::error_t &e) {
         QString errorString;
         errorString = QString("Error %1: ").arg(e.num()) + QString(e.what());
-        //updateState(SocketError, errorString);  TODO
+.-      TODO: updateState(SocketError, errorString);  TODO
         return;
     }
     tx.Clear();
@@ -848,7 +848,7 @@ void $(class.name:lower,Pascal)::send$(Name)Message(pb::ContainerType type, pb::
 .  for outgoing where ((count(event) > 0))
 .    if (name <> "*")
 .      ws = "    "
-    if (type == pb::MT_$(NAME:c))
+    if (type == pb::$(class.msg_prefix + " " + name:upper,c))
     {
 .    else
 .      ws = ""
@@ -880,7 +880,7 @@ void $(class.name:lower,Pascal)::send$(name:Pascal)(const QByteArray &topic)
 {
     pb::Container &tx = m_$(socket.name)Tx;
 .      endif
-    send$(socket.Name)Message(topic, pb::MT_$(NAME:c), tx);
+    send$(socket.Name)Message(topic, pb::$(class.msg_prefix + " " + name:upper,c), tx);
 }
 .    else
 .      if defined(public)
@@ -891,7 +891,7 @@ void $(class.name:lower,Pascal)::send$(name:Pascal)()
 {
     pb::Container &tx = m_$(socket.name)Tx;
 .      endif
-    send$(socket.Name)Message(pb::MT_$(NAME:c), tx);
+    send$(socket.Name)Message(pb::$(class.msg_prefix + " " + name:upper,c), tx);
 }
 .    endif
 .  endfor
@@ -902,7 +902,7 @@ void $(class.name:lower,Pascal)::socketError(int errorNum, const QString &errorM
 {
     QString errorString;
     errorString = QString("Error %1: ").arg(errorNum) + errorMsg;
-    //updateState(SocketError, errorString);  TODO
+.-  TODO: updateState(SocketError, errorString);  TODO
 }
 .  endif
 .endfor

@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Publish" module = "Machinetalk">
+<class name = "Publish" module = "Machinetalk" project="machinetalk" msg_prefix="MT">
   Publish
   <socket type = "XPUB" nature = "server" name = "socket">
     Alle messages are passed over this socket.
