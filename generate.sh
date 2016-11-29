@@ -75,7 +75,7 @@ protocol application launcher_protocol
 protocol application config_protocol
 protocol application command_protocol
 protocol application status_protocol
-protocol application preview_protocol
+protocol pathview preview_protocol
 fi
 
 if [ "$1" = "clean" ]; then
