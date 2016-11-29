@@ -5,13 +5,50 @@
   <message name = "preview">
     Preview message from preview interpreter.
 
-    // TODO
+    <field name = "preview" message = "Preview" requirement = "MUST" quantity = "1+">
+      <field name = "type" requirement = "MUST"/>
+      <field name = "line_number" requirement = "MAY"/>
+      <field name = "filename" requirement = "MAY"/>
+      <field name = "pos" message = "Position" requirement = "MUST">
+        <field name = "x" requirement = "MUST" />
+        <field name = "y" requirement = "MUST" />
+        <field name = "z" requirement = "MUST" />
+        <field name = "a" requirement = "MUST" />
+        <field name = "b" requirement = "MUST" />
+        <field name = "c" requirement = "MUST" />
+        <field name = "u" requirement = "MUST" />
+        <field name = "v" requirement = "MUST" />
+        <field name = "w" requirement = "MUST" />
+      </field>
+      <field name = "first_axis" requirement = "MAY"/>
+      <field name = "first_end" requirement = "MAY"/>
+      <field name = "second_axis" requirement = "MAY"/>
+      <field name = "second_end" requirement = "MAY"/>
+      <field name = "rotation" requirement = "MAY"/>
+      <field name = "axis_end_point" requirement = "MAY"/>
+      <field name = "xy_rotation" requirement = "MAY"/>
+      <field name = "plane" requirement = "MAY"/>
+      <field name = "rate" requirement = "MAY"/>
+      <field name = "feed_mode" requirement = "MAY"/>
+      <field name = "time" requirement = "MAY"/>
+      <field name = "text" requirement = "MAY"/>
+      <field name = "angular_units" requirement = "MAY"/>
+      <field name = "length_units" requirement = "MAY"/>
+      <field name = "probetype" requirement = "MAY"/>
+      <field name = "kins" requirement = "MAY"/>
+      <field name = "axis_mask" requirement = "MAY"/>
+      <field name = "g5x_index" requirement = "MAY"/>
+      <field name = "stype" requirement = "MAY"/>
+      <field name = "cmdstring" requirement = "MAY"/>
+      <field name = "call_leve" requirement = "MAY"/>
+    </field>
   </message>
 
   <message name = "interp stat">
     Status message from preview interpreter.
 
-    // TODO
+    <field name = "interp_state" requirement = "MUST"/>
+    <field name = "note" requirement = "MAY" quantityv = "0+"/>
   </message>
 
   <message name = "ping">
