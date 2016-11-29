@@ -64,9 +64,9 @@
     <outgoing name="emc axis unhome" public="true" />
     <outgoing name="shutdown" public="true" />
 
-    <incoming name="emccmd executed" />
+    <incoming name="emccmd executed" public="true"/>
 
-    <incoming name="emccmd completed" />
+    <incoming name="emccmd completed" public="true"/>
 
     <incoming name="error" public="false">
       <note />
