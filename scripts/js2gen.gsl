@@ -321,7 +321,7 @@ class $(class.name:Pascal) {
 .      if (name <> "*")
 .        ws = "  "
     // react to $(name) message
-    if (rx.type === ContainerType.MT_$(NAME:c)) {
+    if (rx.type === ContainerType.$(class.msg_prefix + " " + name:upper,c)) {
 .      else
 .        ws = ""
     // react to any incoming message
@@ -421,7 +421,7 @@ class $(class.name:Pascal) {
 .  for outgoing where ((count(event) > 0))
 .    if (name <> "*")
 .      ws = "  "
-    if (type === ContainerType.MT_$(NAME:c))
+    if (type === ContainerType.$(class.msg_prefix + " " + name:upper,c))
     {
 .    else
 .      ws = ""
@@ -449,7 +449,7 @@ class $(class.name:Pascal) {
   send$(name:Pascal)(topic) {
     const tx = new Container();
 .      endif
-    this.send$(socket.Name)Message(topic, ContainerType.MT_$(NAME:c), tx);
+    this.send$(socket.Name)Message(topic, ContainerType.$(class.msg_prefix + " " + name:upper,c), tx);
   }
 .    else
 .      if defined(public)
@@ -458,7 +458,7 @@ class $(class.name:Pascal) {
   send$(name:Pascal)() {
     const tx = new Container();
 .      endif
-    this.send$(socket.Name)Message(ContainerType.MT_$(NAME:c), tx);
+    this.send$(socket.Name)Message(ContainerType.$(class.msg_prefix + " " + name:upper,c), tx);
   }
 .    endif
 .  endfor

@@ -10,7 +10,7 @@ var EventEmitter = require('events').EventEmitter;
 var StateMachine = require('javascript-state-machine').StateMachine;
 var util = require('util');
 var zmq = require('zmq');
-var protobufMessage = require('machinetalk-protobuf').message;
+var protobufMessage = require('$(project:c)-protobuf').message;
 var Container = protobufMessage.Container;
 var ContainerType = protobufMessage.ContainerType;
 .for socket where (defined(socket.class))
@@ -30,7 +30,7 @@ function $(class.name:lower,Pascal)(debugname, debuglevel) {
 
     // $(Name)
 .  if defined(socket.class)
-    this.$(name)Channel = new $(socket.class:lower,Pascal)(debugname + ' $(name:)', 
+    this.$(name)Channel = new $(socket.class:lower,Pascal)(debugname + ' $(name:)',
                                                            debuglevel);
 .    if (count(state) > 0)
     this.$(name)Channel.on('stateChanged', this.$(name)ChannelStateChanged.bind(this));
@@ -332,7 +332,7 @@ $(class.name:lower,Pascal).prototype._$(name)MessageReceived = function(rx) {
 .      if (name <> "*")
 .        ws = "    "
     // react to $(name) message
-    if (rx.type == ContainerType.MT_$(NAME:c)) {
+    if (rx.type == ContainerType.$(class.msg_prefix + " " + name:upper,c)) {
 .      else
 .        ws = ""
     // react to any incoming message
@@ -435,7 +435,7 @@ $(class.name:lower,Pascal).prototype.send$(name:Pascal)Message = function(type, 
 .  for outgoing where ((count(event) > 0))
 .    if (name <> "*")
 .      ws = "    "
-    if (type == ContainerType.MT_$(NAME:c))
+    if (type == ContainerType.$(class.msg_prefix + " " + name:upper,c))
     {
 .    else
 .      ws = ""
@@ -462,7 +462,7 @@ $(class.name:lower,Pascal).prototype.send$(name:Pascal) = function(topic, tx) {
 $(class.name:lower,Pascal).prototype.send$(name:Pascal) = function(topic) {
     tx = this.$(socket.name)Tx;
 .      endif
-    this.send$(socket.Name)Message(topic, ContainerType.MT_$(NAME:c), tx);
+    this.send$(socket.Name)Message(topic, ContainerType.$(class.msg_prefix + " " + name:upper,c), tx);
 };
 .    else
 .      if defined(public)
@@ -471,7 +471,7 @@ $(class.name:lower,Pascal).prototype.send$(name:Pascal) = function(tx) {
 $(class.name:lower,Pascal).prototype.send$(name:Pascal) = function() {
     tx = this.$(socket.name)Tx
 .      endif
-    this.send$(socket.Name)Message(ContainerType.MT_$(NAME:c), tx);
+    this.send$(socket.Name)Message(ContainerType.$(class.msg_prefix + " " + name:upper,c), tx);
 };
 .    endif
 .  endfor
