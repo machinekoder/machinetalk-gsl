@@ -5,7 +5,7 @@
 .path = "generated/doc/$(protocol.module:Pascal,lower)"
 .output path + "/$(protocol.name:Pascal,lower).md"
 .
-.mtname = "../machinetalk-protobuf.md"
+.mtname = "../$(project:c)-protobuf.md"
 .
 .macro recurse_field (scp, msg, indent)
 .  for my.scp.field
@@ -17,21 +17,21 @@
 .    endif
 .    msgWord = ((my.msg = "Container") ?? "The" ? "Each")
 .    if (defined(field.message))
-$(my.indent)* $(msgWord) [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message [$(REQUIREMENT)](https://www.ietf.org/rfc/rfc2119.txt) carry $(qTerm) [$(field.message:)]($(mtname)#pb.$(field.message:)) message$(qS).  
+$(my.indent)* $(msgWord) [$(my.msg:)]($(mtname)#$(project:c).$(my.msg:)) message [$(REQUIREMENT)](https://www.ietf.org/rfc/rfc2119.txt) carry $(qTerm) [$(field.message:)]($(mtname)#$(project:c).$(field.message:)) message$(qS).
 .      if (defined(field.synced) & (field.synced = "true"))
 $(my.indent) This message is used for syncing. That means that all fields defined in
-$(my.indent) [$(field.message:)]($(mtname)#pb.$(field.message:)) MAY be carried by this message.
+$(my.indent) [$(field.message:)]($(mtname)#$(project:c).$(field.message:)) MAY be carried by this message.
 .      else
 .         recurse_field(field, field.message, "  " + my.indent)
 .      endif
 .    else
-$(my.indent)* $(msgWord) [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message [$(REQUIREMENT)](https://www.ietf.org/rfc/rfc2119.txt) carry $(qTerm) [$(name:)]($(mtname)#pb.$(my.msg:).$(name:)) field$(qS).
+$(my.indent)* $(msgWord) [$(my.msg:)]($(mtname)#$(project:c).$(my.msg:)) message [$(REQUIREMENT)](https://www.ietf.org/rfc/rfc2119.txt) carry $(qTerm) [$(name:)]($(mtname)#$(project:c).$(my.msg:).$(name:)) field$(qS).
 .    endif
 .  endfor
 .  for my.scp.oneof
-$(my.indent)* $(msgWord) [$(my.msg:)]($(mtname)#pb.$(my.msg:)) message [$(REQUIREMENT)](https://www.ietf.org/rfc/rfc2119.txt) carry one of the following fields
+$(my.indent)* $(msgWord) [$(my.msg:)]($(mtname)#$(project:c).$(my.msg:)) message [$(REQUIREMENT)](https://www.ietf.org/rfc/rfc2119.txt) carry one of the following fields
 .    for field
-$(my.indent)$("  ")* [$(name:)]($(mtname)#pb.$(my.msg:).$(name:))
+$(my.indent)$("  ")* [$(name:)]($(mtname)#$(project:c).$(my.msg:).$(name:))
 .    endfor
 .  endfor
 .endmacro

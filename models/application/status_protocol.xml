@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<protocol name = "Status Protocol" module = "Application">
+<protocol name = "Status Protocol" module = "Application" project = "Machinetalk">
   The Status protocol can be used to synchronize the EMC status of a
   machine.
 

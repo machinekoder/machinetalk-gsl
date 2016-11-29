@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<protocol name = "Launcher Protocol" module = "Application">
+<protocol name = "Launcher Protocol" module = "Application" project = "Machinetalk">
   The Launcher protocol can be used to remotely start, stop and
   monitor machinekit instances.
 

@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<protocol name = "HAL Remote Protocol" module = "HAL Remote">
+<protocol name = "HAL Remote Protocol" module = "HAL Remote" project = "Machinetalk">
   The HAL Remote protocol can be used to remotely interact with a HAL
   instance.
 

@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<protocol name = "Error Protocol" module = "Application">
+<protocol name = "Error Protocol" module = "Application" project = "Machinetalk">
   The error protocol is used to retrieve error messages from the CNC stack.
 
   <message name = "emc nml error">

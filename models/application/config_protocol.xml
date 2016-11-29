@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<protocol name = "Config Protocol" module = "Application">
+<protocol name = "Config Protocol" module = "Application" project = "Machinetalk">
   The config protocol can be used to remotely retrieve user interfaces
   from a Machinetalk config-server.
 
