@@ -1,4 +1,56 @@
 .- prepares as socket fsm
+.- import scxml
+.for scxml where defined(filename)
+.  class.load_file("models/$(class.module:Pascal,lower)/" + filename)
+.  delete scxml
+.endfor
+.
+.- convert SCXML to fsm
+.for scxml
+.  new class.fsm
+.    define fsm.name = scxml.name
+.    define fsm.initial = scxml.initial
+.    for scxml.state as s
+.      new fsm.state
+.        define state.name = s.id
+.        for s.transition as t
+.          new state.event
+.            define event.name = t.event
+.            define event.next = t.target
+.            for t.raise as r
+.              new event.action
+.                define action.name = r.event
+.              endnew
+.            endfor
+.          endnew
+.        endfor
+.
+.        for s.onentry as o
+.          new state.entry
+.            for o.raise as r
+.              new entry.action
+.                define action.name = r.event
+.              endnew
+.            endfor
+.          endnew
+.        endfor
+.
+.        for s.onexit as o
+.          new state.exit
+.            for o.raise as r
+.              new exit.action
+.                define action.name = r.event
+.              endnew
+.            endfor
+.          endnew
+.        endfor
+.
+.      endnew
+.    endfor
+.  endnew
+.endfor
+.
+.- prepare fsm
 .for fsm
 .  for state where (defined(inherit)) as dest
 .  for fsm.state where (name = dest.inherit) as src
@@ -10,6 +62,7 @@
 .    endnew
 .  endfor
 .  endfor
+.
 .  for parents
 .    for fsm.state where (name = parents.name)
 .      delete state
