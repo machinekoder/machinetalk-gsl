@@ -2,7 +2,7 @@
 .#
 .template 1
 .gsl from "scripts/inherit_msg.gsl"
-.path = "generated/doc/$(protocol.module:Pascal,lower)"
+.path = "generated/doc/$(project:c)/$(protocol.module:Pascal,lower)"
 .output path + "/$(protocol.name:Pascal,lower).md"
 .
 .mtname = "../$(project:c)-protobuf.md"

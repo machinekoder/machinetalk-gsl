@@ -1,7 +1,7 @@
 .- prepares as socket fsm
 .- import scxml
 .for scxml where defined(filename)
-.  class.load_file("models/$(class.module:Pascal,lower)/" + filename)
+.  class.load_file("models/$(class.project:c)/$(class.module:Pascal,lower)/" + filename)
 .  delete scxml
 .endfor
 .

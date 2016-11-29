@@ -4,7 +4,7 @@
 .#
 .template 1
 .gsl from "scripts/prepare_fsm.gsl"
-.path = "generated/fsm/$(class.module:Pascal,lower)"
+.path = "generated/fsm/$(project:c)/$(class.module:Pascal,lower)"
 .output path + "/$(class.name:Pascal,lower)_fsm.scxml"
 <?xml version="1.0" encoding="UTF-8"?>
 .for fsm

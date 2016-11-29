@@ -38,50 +38,50 @@ protocol () {
     gsl -script:scripts/uppaalgen.gsl models/$dir/$name.xml
 }
 
-mk_dirs common
-mk_dirs halremote
-mk_dirs param
-mk_dirs application
-mk_dirs pathview
+mk_dirs machinetalk/common
+mk_dirs machinetalk/halremote
+mk_dirs machinetalk/param
+mk_dirs machinetalk/application
+mk_dirs machinetalk/pathview
 
 if [ "$1" = "components" ]; then
-component common rpc_client
-component common rpc_service
-component common subscribe
-component common publish
-component common sync_client
-component halremote halrcomp
-component halremote halrcomp_subscribe
-component param param_client
-component param param_server
-component application launcher
-component application launcher_subscribe
-component application config
-component application error
-component application error_subscribe
-component application command
-component application status
-component application status_subscribe
-component pathview previewclient
-component pathview preview_subscribe
+component machinetalk/common rpc_client
+component machinetalk/common rpc_service
+component machinetalk/common subscribe
+component machinetalk/common publish
+component machinetalk/common sync_client
+component machinetalk/halremote halrcomp
+component machinetalk/halremote halrcomp_subscribe
+component machinetalk/param param_client
+component machinetalk/param param_server
+component machinetalk/application launcher
+component machinetalk/application launcher_subscribe
+component machinetalk/application config
+component machinetalk/application error
+component machinetalk/application error_subscribe
+component machinetalk/application command
+component machinetalk/application status
+component machinetalk/application status_subscribe
+component machinetalk/pathview previewclient
+component machinetalk/pathview preview_subscribe
 fi
 
 if [ "$1" = "protocols" ]; then
-protocol common rpc_protocol
-protocol common pubsub_protocol
-protocol halremote halremote_protocol
-protocol param param_protocol
-protocol application launcher_protocol
-protocol application config_protocol
-protocol application command_protocol
-protocol application status_protocol
-protocol pathview preview_protocol
+protocol machinetalk/common rpc_protocol
+protocol machinetalk/common pubsub_protocol
+protocol machinetalk/halremote halremote_protocol
+protocol machinetalk/param param_protocol
+protocol machinetalk/application launcher_protocol
+protocol machinetalk/application config_protocol
+protocol machinetalk/application command_protocol
+protocol machinetalk/application status_protocol
+protocol machinetalk/pathview preview_protocol
 fi
 
 if [ "$1" = "clean" ]; then
-clean_dirs common
-clean_dirs application
-clean_dirs halremote
-clean_dirs param
-clean_dirs pathview
+clean_dirs machinetalk/common
+clean_dirs machinetalk/application
+clean_dirs machinetalk/halremote
+clean_dirs machinetalk/param
+clean_dirs machinetalk/pathview
 fi
