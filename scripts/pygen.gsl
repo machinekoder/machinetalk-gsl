@@ -60,6 +60,8 @@ class $(class.name:lower,Pascal)(object):
 .    if (nature = "server")
         self._$(name)_port = 0
         self._$(name)_port_event = threading.Event()  # sync event for port
+        self._$(name)_dsn = ''
+        self._$(name)_dsn_event = threading.Event()  # sync event for dsn
 .    endif
 .    if ((type = "SUB") | (type = "XPUB"))
         self.$(name)_topics = set()
@@ -179,6 +181,11 @@ class $(class.name:lower,Pascal)(object):
     def $(name)_port(self):
         self._$(name)_port_event.wait()
         return self._$(name)_port
+
+    @property
+    def $(name)_dsn(self):
+        self._$(name)_dsn_event.wait()
+        return self._$(name)_dsn
 .endfor
 .
 .for socket where (defined(socket.class))
@@ -195,7 +202,11 @@ class $(class.name:lower,Pascal)(object):
 
     @property
     def $(name)_port(self):
-       return self.$(name)_channel.socket_port
+        return self.$(name)_channel.socket_port
+
+    @property
+    def $(name)_dsn(self):
+        return self.$(name)_channel.socket_dsn
 .  endif
 .endfor
 .
@@ -253,6 +264,8 @@ class $(class.name:lower,Pascal)(object):
         else:
             self._$(name)_port = socket.bind_to_random_port(uri)
             self._$(name)_port_event.set()  # set sync for port
+        self._$(name)_dsn =socket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
+        self._$(name)_dsn_event.set()
 .    endif
 .
 .    if (count(incoming) > 0)
@@ -283,7 +296,7 @@ class $(class.name:lower,Pascal)(object):
                 return  # shutdown signal
 .    if (count(outgoing) > 0)
             if pipe in s:
-.      if (type = "XPUB")
+.      if ((type = "XPUB") | (type = "ROUTER"))
                 socket.send_multipart(pipe.recv_multipart(), zmq.NOBLOCK)
 .      else
                 socket.send(pipe.recv(), zmq.NOBLOCK)
@@ -582,5 +595,5 @@ class $(class.name:lower,Pascal)(object):
 .     endfor
 .  endfor
 .endfor
-
+.
 .endtemplate
