@@ -1,8 +1,8 @@
 <?xml version = "1.0" ?>
-<class name = "Sync Client" module = "Machinetalk" project="machinetalk" msg_prefix="MT">
+<class name = "Sync Client" module = "Common" project="machinetalk" msg_prefix="MT">
   Sync Client
 
-  <socket name = "sync" class = "RPC Client" module = "Machinetalk" type = "DEALER">
+  <socket name = "sync" class = "RPC Client" module = "Common" type = "DEALER">
     The sync channel is used to issue sync commands to the server.
 
     <state name = "trying">
@@ -29,7 +29,7 @@
 
   </socket>
 
-  <socket name = "sub" class = "Subscribe" module = "Machinetalk" type = "SUB">
+  <socket name = "sub" class = "Subscribe" module = "Common" type = "SUB">
     The sub channel is used to received status updates from the server.
 
     <state name = "trying">
@@ -53,7 +53,7 @@
 
   </socket>
 
-  <socket name = "pub" class = "Publish" module = "Machinetalk" type = "PUB">
+  <socket name = "pub" class = "Publish" module = "Common" type = "PUB">
     The pub channel is used to publish status updates to to the server.
 
     <outgoing name = "*">

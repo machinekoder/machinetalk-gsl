@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<protocol name = "Pub-Sub Protocol" module = "Machinetalk" project = "Machinetalk">
+<protocol name = "Pub-Sub Protocol" module = "Common" project = "Machinetalk">
   The Machintalk Pub-Sub Protocol provides a realiable channel for
   Publish-Subscribe based interfaces.
 

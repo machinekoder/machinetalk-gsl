@@ -14,7 +14,7 @@
 
   <protocol filename = "halremote_protocol.xml" />
 
-  <socket name = "halrcmd" class = "RPC Client" module = "Machinetalk">
+  <socket name = "halrcmd" class = "RPC Client" module = "Common">
     The halrcmd channel is used to bind HAL remote components and to update pins.
 
     <state name = "trying">

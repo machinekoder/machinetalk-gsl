@@ -4,7 +4,7 @@
 
   <protocol filename = "command_protocol.xml" />
 
-  <socket name="command" class="RPC Client" module="Machinetalk">
+  <socket name="command" class="RPC Client" module="Common">
     The command channel is used to issue commands to mklauncher.
 
     <state name="trying">

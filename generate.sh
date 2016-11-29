@@ -38,18 +38,18 @@ protocol () {
     gsl -script:scripts/uppaalgen.gsl models/$dir/$name.xml
 }
 
-mk_dirs machinetalk
+mk_dirs common
 mk_dirs halremote
 mk_dirs param
 mk_dirs application
 mk_dirs pathview
 
 if [ "$1" = "components" ]; then
-component machinetalk rpc_client
-component machinetalk rpc_service
-component machinetalk subscribe
-component machinetalk publish
-component machinetalk sync_client
+component common rpc_client
+component common rpc_service
+component common subscribe
+component common publish
+component common sync_client
 component halremote halrcomp
 component halremote halrcomp_subscribe
 component param param_client
@@ -67,8 +67,8 @@ component pathview preview_subscribe
 fi
 
 if [ "$1" = "protocols" ]; then
-protocol machinetalk rpc_protocol
-protocol machinetalk pubsub_protocol
+protocol common rpc_protocol
+protocol common pubsub_protocol
 protocol halremote halremote_protocol
 protocol param param_protocol
 protocol application launcher_protocol
@@ -79,7 +79,7 @@ protocol pathview preview_protocol
 fi
 
 if [ "$1" = "clean" ]; then
-clean_dirs machinetalk
+clean_dirs common
 clean_dirs application
 clean_dirs halremote
 clean_dirs param

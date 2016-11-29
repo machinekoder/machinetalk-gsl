@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<protocol name = "RPC Protocol" module = "Machinetalk" project="Machinetalk">
+<protocol name = "RPC Protocol" module = "Common" project="Machinetalk">
   The Machinetalk RPC Protocol provides a realiable RPC interface for Machinetalk.
   It is designed with as RESTful interface.
 
