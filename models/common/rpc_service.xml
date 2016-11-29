@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "RPC Service" module = "Common" project="machinetalk" msg_prefix="MT">
+<class name = "RPC Service" module = "Common" project="Machinetalk" msg_prefix="MT">
   RPC/Service
 
   <socket type = "ROUTER" nature = "server" name="socket">

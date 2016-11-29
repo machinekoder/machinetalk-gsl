@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Halrcomp Subscribe" module = "HAL Remote" project="machinetalk" msg_prefix="MT">
+<class name = "Halrcomp Subscribe" module = "HAL Remote" project="Machinetalk" msg_prefix="MT">
   Subscribe channel for HAL remote.
 
   <socket type = "SUB" nature = "client" name = "socket">

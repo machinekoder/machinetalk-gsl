@@ -1,5 +1,5 @@
 <?xml version = "1.0" ?>
-<class name = "Status Subscribe" module = "Application" project="machinetalk" msg_prefix="MT">
+<class name = "Status Subscribe" module = "Application" project="Machinetalk" msg_prefix="MT">
   Subscribe channel for Status.
 
   <protocol filename = "status_protocol.xml" />
