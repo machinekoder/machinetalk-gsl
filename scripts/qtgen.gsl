@@ -210,17 +210,17 @@ public slots:
 .  if (count(outgoing) > 0)
 
 .    if (type = "PUB")
-    void send$(Name)Message(const QByteArray &topic, $(project:c)::ContainerType type, $(project:c)::Container &tx);
+    void send$(Name)Message(const QByteArray &topic, ContainerType type, Container &tx);
 .    else
-    void send$(Name)Message($(project:c)::ContainerType type, $(project:c)::Container &tx);
+    void send$(Name)Message(ContainerType type, Container &tx);
 .    endif
 .  endif
 .
 .  for outgoing where ((name <> "*") & (defined(public)))
 .    if (socket.type = "PUB")
-    void send$(name:Pascal)(const QByteArray &topic, $(project:c)::Container &tx);
+    void send$(name:Pascal)(const QByteArray &topic, Container &tx);
 .    else
-    void send$(name:Pascal)($(project:c)::Container &tx);
+    void send$(name:Pascal)(Container &tx);
 .    endif
 .  endfor
 .endfor
@@ -275,10 +275,10 @@ private:
     // more efficient to reuse a protobuf Messages
 .for socket
 .  if (count(incoming) > 0)
-    $(project:c)::Container m_$(name)Rx;
+    Container m_$(name)Rx;
 .  endif
 .  if (count(outgoing) > 0)
-    $(project:c)::Container m_$(name)Tx;
+    Container m_$(name)Tx;
 .  endif
 .endfor
 
@@ -304,9 +304,9 @@ private slots:
 .    endif
 .    if (count(incoming) > 0)
 .      if (type = "SUB")
-    void process$(Name)ChannelMessage(const QByteArray &topic, const $(project:c)::Container &rx);
+    void process$(Name)ChannelMessage(const QByteArray &topic, const Container &rx);
 .      else
-    void process$(Name)ChannelMessage(const $(project:c)::Container &rx);
+    void process$(Name)ChannelMessage(const Container &rx);
 .      endif
 .    endif
 .  else
@@ -348,9 +348,9 @@ private slots:
 .for socket
 .  for incoming where (defined(public) & (public = "true"))
 .    if (socket.type = "SUB")
-    virtual void $(name:Camel)Received(const QByteArray &topic, const $(project:c)::Container &rx) = 0;
+    virtual void $(name:Camel)Received(const QByteArray &topic, const Container &rx) = 0;
 .    else
-    virtual void $(name:Camel)Received(const $(project:c)::Container &rx) = 0;
+    virtual void $(name:Camel)Received(const Container &rx) = 0;
 .    endif
 .  endfor
 .endfor
@@ -368,9 +368,9 @@ signals:
 .for socket
 .  if (count(incoming) > 0)
 .    if (type = "SUB")
-    void $(name)MessageReceived(const QByteArray &topic, const $(project:c)::Container &rx);
+    void $(name)MessageReceived(const QByteArray &topic, const Container &rx);
 .    else
-    void $(name)MessageReceived(const $(project:c)::Container &rx);
+    void $(name)MessageReceived(const Container &rx);
 .    endif
 .  endif
 .endfor
@@ -701,15 +701,15 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
 /** Processes all message received on $(name:) */
 .  if defined(socket.class)
 .    if (type = "SUB")
-void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(const QByteArray &topic, const $(project:c)::Container &rx)
+void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(const QByteArray &topic, const Container &rx)
 .    else
-void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(const $(project:c)::Container &rx)
+void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(const Container &rx)
 .    endif
 {
 .  else
 void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &messageList)
 {
-    $(project:c)::Container &rx = m_$(name)Rx;
+    Container &rx = m_$(name)Rx;
 .    if (type = "SUB")
     QByteArray topic;
 
@@ -738,7 +738,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .      if (name <> "*")
 .        ws = "    "
     // react to $(name) message
-    if (rx.type() == $(project:c)::$(class.msg_prefix + " " + name:upper,c))
+    if (rx.type() == $(class.msg_prefix + " " + name:upper,c))
     {
 .      else
 .        ws = ""
@@ -752,7 +752,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .      for pparams
     $(ws)if (rx.has_pparams())
     $(ws){
-        $(ws)$(project:c)::ProtocolParameters pparams = rx.pparams();
+        $(ws)ProtocolParameters pparams = rx.pparams();
         $(ws)m_heartbeatInterval = pparams.keepalive_timer();
     $(ws)}
 .      endfor
@@ -805,9 +805,9 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .for socket where (count(outgoing) > 0)
 
 .  if (type = "PUB")
-void $(class.name:lower,Pascal)::send$(Name)Message(const QByteArray &topic, $(project:c)::ContainerType type, $(project:c)::Container &tx)
+void $(class.name:lower,Pascal)::send$(Name)Message(const QByteArray &topic, ContainerType type, Container &tx)
 .  else
-void $(class.name:lower,Pascal)::send$(Name)Message($(project:c)::ContainerType type, $(project:c)::Container &tx)
+void $(class.name:lower,Pascal)::send$(Name)Message(ContainerType type, Container &tx)
 .  endif
 {
 .  if !defined(socket.class)
@@ -851,7 +851,7 @@ void $(class.name:lower,Pascal)::send$(Name)Message($(project:c)::ContainerType 
 .  for outgoing where ((count(event) > 0))
 .    if (name <> "*")
 .      ws = "    "
-    if (type == $(project:c)::$(class.msg_prefix + " " + name:upper,c))
+    if (type == $(class.msg_prefix + " " + name:upper,c))
     {
 .    else
 .      ws = ""
@@ -876,25 +876,25 @@ void $(class.name:lower,Pascal)::send$(Name)Message($(project:c)::ContainerType 
 
 .    if (socket.type = "PUB")
 .      if defined(public)
-void $(class.name:lower,Pascal)::send$(name:Pascal)(const QByteArray &topic, $(project:c)::Container &tx)
+void $(class.name:lower,Pascal)::send$(name:Pascal)(const QByteArray &topic, Container &tx)
 {
 .      else
 void $(class.name:lower,Pascal)::send$(name:Pascal)(const QByteArray &topic)
 {
-    $(project:c)::Container &tx = m_$(socket.name)Tx;
+    Container &tx = m_$(socket.name)Tx;
 .      endif
-    send$(socket.Name)Message(topic, $(project:c)::$(class.msg_prefix + " " + name:upper,c), tx);
+    send$(socket.Name)Message(topic, $(class.msg_prefix + " " + name:upper,c), tx);
 }
 .    else
 .      if defined(public)
-void $(class.name:lower,Pascal)::send$(name:Pascal)($(project:c)::Container &tx)
+void $(class.name:lower,Pascal)::send$(name:Pascal)(Container &tx)
 {
 .      else
 void $(class.name:lower,Pascal)::send$(name:Pascal)()
 {
-    $(project:c)::Container &tx = m_$(socket.name)Tx;
+    Container &tx = m_$(socket.name)Tx;
 .      endif
-    send$(socket.Name)Message($(project:c)::$(class.msg_prefix + " " + name:upper,c), tx);
+    send$(socket.Name)Message($(class.msg_prefix + " " + name:upper,c), tx);
 }
 .    endif
 .  endfor
