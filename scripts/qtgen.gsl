@@ -22,7 +22,6 @@
 .endif
 #include <nzmqt/nzmqt.hpp>
 #include <$(project:c)/protobuf/message.pb.h>
-#include <google/protobuf/text_format.h>
 .for socket where (defined(socket.class))
 #include <$(socket.module:Pascal,lower)/$(socket.class:Pascal,lower).h>
 .endfor
@@ -417,6 +416,7 @@ signals:
 **
 ****************************************************************************/
 #include "$(class.name:Pascal,lower).h"
+#include <google/protobuf/text_format.h>
 #include "debughelper.h"
 
 #if defined(Q_OS_IOS)
