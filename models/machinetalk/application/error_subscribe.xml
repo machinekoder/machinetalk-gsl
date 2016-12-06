@@ -21,7 +21,7 @@
 
   <timer
       name = "heartbeat"
-      interval = "0"
+      interval = "2500"
       liveness = "2" >
     For monitoring if the connection is alive.
     <tick>
