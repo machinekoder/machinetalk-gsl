@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="connect" target="up">
+            <raise event="start paramcmd channel"/>
+            <raise event="start param channel"/>
+        </transition>
+    </state>
+    <state id="up">
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop paramcmd channel"/>
+            <raise event="stop param channel"/>
+        </transition>
+    </state>
+</scxml>

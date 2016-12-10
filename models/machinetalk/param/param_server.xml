@@ -23,19 +23,5 @@
     </outgoing>
   </socket>
 
-  <fsm name = "fsm" initial = "down">
-    <state name = "down">
-      <event name = "connect" next = "up">
-        <action name = "start paramcmd channel" />
-        <action name = "start param channel" />
-      </event>
-    </state>
-
-    <state name = "up">
-      <event name = "disconnect" next = "down">
-        <action name = "stop paramcmd channel" />
-        <action name = "stop param channel" />
-      </event>
-    </state>
-  </fsm>
+  <scxml filename="paramserver_fsm.scxml"/>
 </class>

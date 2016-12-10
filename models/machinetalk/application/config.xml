@@ -53,51 +53,5 @@
     <event name = "disconnect" when = "loading"/>
   </trigger>
 
-  <fsm name = "fsm" initial = "down">
-    <state name = "down">
-      <event name = "connect" next = "trying">
-        <action name = "start config channel" />
-      </event>
-    </state>
-
-    <state name = "trying" inherit = "defaults">
-      <event name = "config up" next = "listing">
-        <action name = "send list applications" />
-      </event>
-    </state>
-
-    <state name = "listing" inherit = "defaults">
-      <event name = "application retrieved" next = "up">
-      </event>
-      <event name = "config trying" next = "trying">
-      </event>
-    </state>
-
-    <state name = "up" inherit = "defaults">
-      <event name = "config trying" next = "trying">
-      </event>
-      <event name = "load application" next = "loading">
-      </event>
-      <entry>
-        <action name = "sync config" />
-      </entry>
-      <exit>
-        <action name = "unsync config" />
-      </exit>
-    </state>
-
-    <state name = "loading" inherit = "defaults">
-      <event name = "application loaded" next = "up">
-      </event>
-      <event name = "config trying" next = "trying">
-      </event>
-    </state>
-
-    <state name = "defaults">
-      <event name = "disconnect" next = "down">
-        <action name = "stop config channel" />
-      </event>
-    </state>
-  </fsm>
-
+  <scxml filename="configbase_fsm.scxml"/>
 </class>

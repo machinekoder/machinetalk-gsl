@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="start" target="trying">
+            <raise event="start socket"/>
+        </transition>
+    </state>
+    <state id="trying">
+        <transition type="external" event="full update received" target="up">
+            <raise event="reset heartbeat liveness"/>
+            <raise event="start heartbeat timer"/>
+        </transition>
+        <transition type="external" event="stop" target="down">
+            <raise event="stop heartbeat timer"/>
+            <raise event="stop socket"/>
+        </transition>
+    </state>
+    <state id="up">
+        <transition type="external" event="heartbeat timeout" target="trying">
+            <raise event="stop heartbeat timer"/>
+            <raise event="stop socket"/>
+            <raise event="start socket"/>
+        </transition>
+        <transition type="external" event="heartbeat tick" target="up">
+            <raise event="reset heartbeat timer"/>
+        </transition>
+        <transition type="external" event="any msg received" target="up">
+            <raise event="reset heartbeat liveness"/>
+            <raise event="reset heartbeat timer"/>
+        </transition>
+        <transition type="external" event="stop" target="down">
+            <raise event="stop heartbeat timer"/>
+            <raise event="stop socket"/>
+        </transition>
+    </state>
+</scxml>

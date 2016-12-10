@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="connect" target="trying">
+            <raise event="update topics"/>
+            <raise event="start status channel"/>
+        </transition>
+    </state>
+    <state id="trying">
+        <transition type="external" event="status up" target="syncing">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop status channel"/>
+        </transition>
+    </state>
+    <state id="syncing">
+        <transition type="external" event="channels synced" target="up">
+        </transition>
+        <transition type="external" event="status trying" target="trying">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop status channel"/>
+        </transition>
+    </state>
+    <state id="up">
+        <transition type="external" event="status trying" target="trying">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop status channel"/>
+        </transition>
+        <onentry>
+            <raise event="sync status"/>
+        </onentry>
+        <onexit>
+            <raise event="unsync status"/>
+        </onexit>
+    </state>
+</scxml>

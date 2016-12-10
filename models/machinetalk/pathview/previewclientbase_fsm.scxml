@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="connect" target="trying">
+            <raise event="start preview channel"/>
+            <raise event="start previewstatus channel"/>
+        </transition>
+    </state>
+    <state id="trying">
+        <transition type="external" event="status up" target="previewtrying">
+        </transition>
+        <transition type="external" event="preview up" target="statustrying">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop preview channel"/>
+            <raise event="stop previewstatus channel"/>
+        </transition>
+    </state>
+    <state id="previewtrying">
+        <transition type="external" event="preview up" target="up">
+        </transition>
+        <transition type="external" event="status trying" target="trying">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop preview channel"/>
+            <raise event="stop previewstatus channel"/>
+        </transition>
+    </state>
+    <state id="statustrying">
+        <transition type="external" event="status up" target="up">
+        </transition>
+        <transition type="external" event="preview trying" target="trying">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop preview channel"/>
+            <raise event="stop previewstatus channel"/>
+        </transition>
+    </state>
+    <state id="up">
+        <transition type="external" event="preview trying" target="previewtrying">
+        </transition>
+        <transition type="external" event="status trying" target="statustrying">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop preview channel"/>
+            <raise event="stop previewstatus channel"/>
+        </transition>
+        <onentry>
+            <raise event="set connected"/>
+        </onentry>
+        <onexit>
+            <raise event="clear connected"/>
+        </onexit>
+    </state>
+</scxml>

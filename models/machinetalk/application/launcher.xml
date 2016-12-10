@@ -79,47 +79,5 @@
     <event name = "disconnect" when = "synced"/>
   </trigger>
 
-  <fsm name = "fsm" initial = "down">
-    <state name = "down">
-        <event name = "connect" next = "trying">
-          <action name = "start launchercmd channel" />
-        </event>
-    </state>
-
-    <state name = "trying" inherit = "defaults">
-        <event name = "launchercmd up" next = "syncing">
-          <action name = "start launcher channel" />
-        </event>
-    </state>
-
-    <state name = "syncing" inherit = "defaults">
-      <event name = "launchercmd trying" next = "trying">
-        <action name = "stop launcher channel" />
-      </event>
-      <event name = "launcher up" next = "synced">
-      </event>
-    </state>
-
-    <state name = "synced" inherit = "defaults">
-      <event name = "launcher trying" next = "syncing">
-      </event>
-      <event name = "launchercmd trying" next = "trying">
-        <action name = "stop launcher channel" />
-      </event>
-      <entry>
-        <action name = "sync status" />
-      </entry>
-      <exit>
-        <action name = "unsync status" />
-      </exit>
-    </state>
-
-    <state name = "defaults">
-      <event name = "disconnect" next = "down">
-        <action name = "stop launchercmd channel" />
-        <action name = "stop launcher channel" />
-      </event>
-    </state>
-  </fsm>
-
+  <scxml filename="launcherbase_fsm.scxml"/>
 </class>

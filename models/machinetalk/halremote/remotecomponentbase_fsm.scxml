@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="connect" target="trying">
+            <raise event="add pins"/>
+            <raise event="start halrcmd channel"/>
+        </transition>
+        <onentry>
+            <raise event="set disconnected"/>
+        </onentry>
+        <onexit>
+            <raise event="set connecting"/>
+        </onexit>
+    </state>
+    <state id="trying">
+        <transition type="external" event="halrcmd up" target="bind">
+            <raise event="bind component"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop halrcmd channel"/>
+            <raise event="stop halrcomp channel"/>
+            <raise event="remove pins"/>
+        </transition>
+    </state>
+    <state id="bind">
+        <transition type="external" event="halrcomp bind msg sent" target="binding">
+        </transition>
+        <transition type="external" event="no bind" target="syncing">
+            <raise event="start halrcomp channel"/>
+        </transition>
+    </state>
+    <state id="binding">
+        <transition type="external" event="bind confirmed" target="syncing">
+            <raise event="start halrcomp channel"/>
+        </transition>
+        <transition type="external" event="bind rejected" target="error">
+            <raise event="stop halrcmd channel"/>
+        </transition>
+        <transition type="external" event="halrcmd trying" target="trying">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop halrcmd channel"/>
+            <raise event="stop halrcomp channel"/>
+            <raise event="remove pins"/>
+        </transition>
+    </state>
+    <state id="syncing">
+        <transition type="external" event="halrcmd trying" target="trying">
+            <raise event="stop halrcomp channel"/>
+        </transition>
+        <transition type="external" event="halrcomp up" target="sync">
+        </transition>
+        <transition type="external" event="sync failed" target="error">
+            <raise event="stop halrcomp channel"/>
+            <raise event="stop halrcmd channel"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop halrcmd channel"/>
+            <raise event="stop halrcomp channel"/>
+            <raise event="remove pins"/>
+        </transition>
+    </state>
+    <state id="sync">
+        <transition type="external" event="pins synced" target="synced">
+        </transition>
+    </state>
+    <state id="synced">
+        <transition type="external" event="halrcomp trying" target="syncing">
+            <raise event="unsync pins"/>
+            <raise event="set timeout"/>
+        </transition>
+        <transition type="external" event="halrcmd trying" target="trying">
+            <raise event="stop halrcomp channel"/>
+            <raise event="unsync pins"/>
+            <raise event="set timeout"/>
+        </transition>
+        <transition type="external" event="set rejected" target="error">
+            <raise event="stop halrcomp channel"/>
+            <raise event="stop halrcmd channel"/>
+        </transition>
+        <transition type="external" event="halrcomp set msg sent" target="synced">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop halrcmd channel"/>
+            <raise event="stop halrcomp channel"/>
+            <raise event="remove pins"/>
+        </transition>
+        <onentry>
+            <raise event="set connected"/>
+        </onentry>
+    </state>
+    <state id="error">
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop halrcmd channel"/>
+            <raise event="stop halrcomp channel"/>
+            <raise event="remove pins"/>
+        </transition>
+        <onentry>
+            <raise event="set error"/>
+        </onentry>
+    </state>
+</scxml>

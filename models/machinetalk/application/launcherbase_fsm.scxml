@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="connect" target="trying">
+            <raise event="start launchercmd channel"/>
+        </transition>
+    </state>
+    <state id="trying">
+        <transition type="external" event="launchercmd up" target="syncing">
+            <raise event="start launcher channel"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop launchercmd channel"/>
+            <raise event="stop launcher channel"/>
+        </transition>
+    </state>
+    <state id="syncing">
+        <transition type="external" event="launchercmd trying" target="trying">
+            <raise event="stop launcher channel"/>
+        </transition>
+        <transition type="external" event="launcher up" target="synced">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop launchercmd channel"/>
+            <raise event="stop launcher channel"/>
+        </transition>
+    </state>
+    <state id="synced">
+        <transition type="external" event="launcher trying" target="syncing">
+        </transition>
+        <transition type="external" event="launchercmd trying" target="trying">
+            <raise event="stop launcher channel"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop launchercmd channel"/>
+            <raise event="stop launcher channel"/>
+        </transition>
+        <onentry>
+            <raise event="sync status"/>
+        </onentry>
+        <onexit>
+            <raise event="unsync status"/>
+        </onexit>
+    </state>
+</scxml>

@@ -48,54 +48,5 @@
     <event name = "disconnect" when = "up"/>
   </trigger>
 
-  <fsm name = "fsm" initial = "down">
-    <state name = "down">
-        <event name = "connect" next = "trying">
-          <action name = "start preview channel" />
-          <action name = "start previewstatus channel" />
-        </event>
-    </state>
-
-    <state name = "trying" inherit = "defaults">
-        <event name = "status up" next = "previewtrying">
-        </event>
-        <event name = "preview up" next = "statustrying">
-        </event>
-    </state>
-
-    <state name = "previewtrying" inherit = "defaults">
-      <event name = "preview up" next = "up">
-      </event>
-      <event name = "status trying" next = "trying">
-      </event>
-    </state>
-
-    <state name = "statustrying" inherit = "defaults">
-      <event name = "status up" next = "up">
-      </event>
-      <event name = "preview trying" next = "trying">
-      </event>
-    </state>
-
-    <state name = "up" inherit = "defaults">
-      <event name = "preview trying" next = "previewtrying">
-      </event>
-      <event name = "status trying" next = "statustrying">
-      </event>
-      <entry>
-        <action name = "set connected" />
-      </entry>
-      <exit>
-        <action name = "clear connected" />
-      </exit>
-    </state>
-
-    <state name = "defaults">
-      <event name = "disconnect" next = "down">
-        <action name = "stop preview channel" />
-        <action name = "stop previewstatus channel" />
-      </event>
-    </state>
-  </fsm>
-
+  <scxml filename="previewclientbase_fsm.scxml"/>
 </class>

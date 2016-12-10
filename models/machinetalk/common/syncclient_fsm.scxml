@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="start" target="trying">
+            <raise event="start sync channel"/>
+            <raise event="start pub channel"/>
+        </transition>
+    </state>
+    <state id="trying">
+        <transition type="external" event="sync state up" target="syncing">
+            <raise event="send sync"/>
+            <raise event="start sub channel"/>
+        </transition>
+        <transition type="external" event="stop" target="down">
+            <raise event="stop sync channel"/>
+            <raise event="stop sub channel"/>
+            <raise event="stop pub channel"/>
+        </transition>
+    </state>
+    <state id="syncing">
+        <transition type="external" event="sync state trying" target="trying">
+            <raise event="stop sub channel"/>
+        </transition>
+        <transition type="external" event="sub state up" target="synced">
+            <raise event="synced"/>
+        </transition>
+        <transition type="external" event="stop" target="down">
+            <raise event="stop sync channel"/>
+            <raise event="stop sub channel"/>
+            <raise event="stop pub channel"/>
+        </transition>
+    </state>
+    <state id="synced">
+        <transition type="external" event="sub state trying" target="syncing">
+            <raise event="send sync"/>
+        </transition>
+        <transition type="external" event="sync state trying" target="trying">
+            <raise event="stop sub channel"/>
+        </transition>
+        <transition type="external" event="stop" target="down">
+            <raise event="stop sync channel"/>
+            <raise event="stop sub channel"/>
+            <raise event="stop pub channel"/>
+        </transition>
+    </state>
+</scxml>

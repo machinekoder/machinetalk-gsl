@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="connect" target="connecting">
+            <raise event="start paramcmd channel"/>
+            <raise event="start param channel"/>
+        </transition>
+    </state>
+    <state id="connecting">
+        <transition type="external" event="paramcmd up" target="syncing">
+        </transition>
+        <transition type="external" event="param up" target="trying">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop paramcmd channel"/>
+            <raise event="stop param channel"/>
+            <raise event="remove keys"/>
+        </transition>
+    </state>
+    <state id="syncing">
+        <transition type="external" event="param up" target="up">
+        </transition>
+        <transition type="external" event="paramcmd trying" target="connecting">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop paramcmd channel"/>
+            <raise event="stop param channel"/>
+            <raise event="remove keys"/>
+        </transition>
+    </state>
+    <state id="trying">
+        <transition type="external" event="paramcmd up" target="up">
+        </transition>
+        <transition type="external" event="param trying" target="connecting">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop paramcmd channel"/>
+            <raise event="stop param channel"/>
+            <raise event="remove keys"/>
+        </transition>
+    </state>
+    <state id="up">
+        <transition type="external" event="paramcmd trying" target="trying">
+        </transition>
+        <transition type="external" event="param trying" target="syncing">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop paramcmd channel"/>
+            <raise event="stop param channel"/>
+            <raise event="remove keys"/>
+        </transition>
+        <onentry>
+            <raise event="set synced"/>
+        </onentry>
+        <onexit>
+            <raise event="clear synced"/>
+            <raise event="unsync keys"/>
+        </onexit>
+    </state>
+</scxml>

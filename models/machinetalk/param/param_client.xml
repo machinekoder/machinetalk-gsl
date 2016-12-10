@@ -59,56 +59,5 @@
     <event name = "disconnect" when = "up"/>
   </trigger>
 
-  <fsm name = "fsm" initial = "down">
-    Both channels down.
-      <state name = "down">
-        <event name = "connect" next = "connecting">
-          <action name = "start paramcmd channel" />
-          <action name = "start param channel" />
-        </event>
-      </state>
-
-      <state name = "connecting" inherit = "defaults">
-        No channel up.
-        <event name = "paramcmd up" next = "syncing" />
-        <event name = "param up" next = "trying" />
-      </state>
-
-      <state name = "syncing" inherit = "defaults">
-        Paramcmd channel up, Param trying.
-        <event name = "param up" next = "up">
-        </event>
-        <event name = "paramcmd trying" next = "connecting" />
-      </state>
-
-      <state name = "trying" inherit = "defaults">
-        Param channel up, Paramcmd trying.
-        <event name = "paramcmd up" next = "up">
-          </event>
-        <event name = "param trying" next = "connecting" />
-      </state>
-
-      <state name = "up" inherit = "defaults">
-        Both channels up.
-        <event name = "paramcmd trying" next = "trying">
-        </event>
-        <event name = "param trying" next = "syncing">
-        </event>
-        <entry>
-          <action name = "set synced" />
-        </entry>
-        <exit>
-            <action name = "clear synced" />
-            <action name = "unsync keys" />
-        </exit>
-      </state>
-
-      <state name = "defaults">
-        <event name = "disconnect" next = "down">
-          <action name = "stop paramcmd channel" />
-          <action name = "stop param channel" />
-          <action name = "remove keys" />
-        </event>
-      </state>
-    </fsm>
+  <scxml filename="paramclient_fsm.scxml"/>
 </class>

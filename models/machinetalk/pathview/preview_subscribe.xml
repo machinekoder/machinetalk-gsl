@@ -23,28 +23,5 @@
     <event name = "connected" when = "trying"/>
   </trigger>
 
-  <fsm name = "fsm" initial = "down">
-    <state name = "down">
-      <event name = "connect" next = "trying">
-        <action name = "start socket" />
-        <action name = "connected" />
-      </event>
-    </state>
-
-    <state name = "trying" inherit = "defaults">
-      <event name = "connected" next = "up">
-      </event>
-    </state>
-
-    <state name = "up" inherit = "defaults">
-      <event name = "message received" next = "up">
-      </event>
-    </state>
-
-    <state name = "defaults">
-      <event name = "disconnect" next = "down">
-        <action name = "stop socket" />
-      </event>
-    </state>
-  </fsm>
+  <scxml filename="previewsubscribe_fsm.scxml"/>
 </class>

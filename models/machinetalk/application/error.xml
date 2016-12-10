@@ -36,35 +36,5 @@
     <event name = "disconnect" when = "up"/>
   </trigger>
 
-  <fsm name = "fsm" initial = "down">
-    <state name = "down">
-        <event name = "connect" next = "trying">
-          <action name = "update topics" />
-          <action name = "start error channel" />
-        </event>
-    </state>
-
-    <state name = "trying" inherit = "defaults">
-        <event name = "error up" next = "up">
-        </event>
-    </state>
-
-    <state name = "up" inherit = "defaults">
-      <event name = "error trying" next = "trying">
-      </event>
-      <entry>
-        <action name = "set connected" />
-      </entry>
-      <exit>
-        <action name = "clear connected" />
-      </exit>
-    </state>
-
-    <state name = "defaults">
-      <event name = "disconnect" next = "down">
-        <action name = "stop error channel" />
-      </event>
-    </state>
-  </fsm>
-
+  <scxml filename="errorbase_fsm.scxml"/>
 </class>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="connect" target="trying">
+            <raise event="start socket"/>
+            <raise event="connected"/>
+        </transition>
+    </state>
+    <state id="trying">
+        <transition type="external" event="connected" target="up">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop socket"/>
+        </transition>
+    </state>
+    <state id="up">
+        <transition type="external" event="message received" target="up">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop socket"/>
+        </transition>
+    </state>
+</scxml>

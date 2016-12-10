@@ -39,42 +39,5 @@
     <event name = "channels synced" when = "syncing" />
   </trigger>
 
-  <fsm name = "fsm" initial = "down">
-    <state name = "down">
-      <event name = "connect" next = "trying">
-        <action name = "update topics" />
-        <action name = "start status channel" />
-      </event>
-    </state>
-
-    <state name = "trying" inherit = "defaults">
-      <event name = "status up" next = "syncing">
-      </event>
-    </state>
-
-    <state name = "syncing" inherit = "defaults">
-      <event name = "channels synced" next = "up">
-      </event>
-      <event name = "status trying" next = "trying">
-      </event>
-    </state>
-
-    <state name = "up" inherit = "defaults">
-      <event name = "status trying" next = "trying">
-      </event>
-      <entry>
-        <action name = "sync status" />
-      </entry>
-      <exit>
-        <action name = "unsync status" />
-      </exit>
-    </state>
-
-    <state name = "defaults">
-      <event name = "disconnect" next = "down">
-        <action name = "stop status channel" />
-      </event>
-    </state>
-  </fsm>
-
+  <scxml filename="statusbase_fsm.scxml"/>
 </class>

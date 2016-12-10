@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="start" target="up">
+            <raise event="start socket"/>
+        </transition>
+    </state>
+    <state id="up">
+        <transition type="external" event="ping received" target="up">
+            <raise event="send ping acknowledge"/>
+        </transition>
+        <transition type="external" event="stop" target="down">
+            <raise event="stop socket"/>
+        </transition>
+    </state>
+</scxml>

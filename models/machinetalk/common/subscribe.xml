@@ -47,40 +47,5 @@
     <event name = "stop" when = "up"/>
   </trigger>
 
-  <fsm name = "fsm" initial = "down">
-    <state name = "down">
-      <event name = "start" next = "trying">
-        <action name = "start socket" />
-      </event>
-    </state>
-
-    <state name = "trying" inherit = "defaults">
-      <event name = "full update received" next = "up">
-        <action name = "reset heartbeat liveness" />
-        <action name = "start heartbeat timer" />
-      </event>
-    </state>
-
-    <state name = "up" inherit = "defaults">
-      <event name = "heartbeat timeout" next = "trying">
-        <action name = "stop heartbeat timer" />
-        <action name = "stop socket" />
-        <action name = "start socket" />
-      </event>
-      <event name = "heartbeat tick" next = "up">
-        <action name = "reset heartbeat timer" />
-      </event>
-      <event name = "any msg received" next = "up">
-        <action name = "reset heartbeat liveness" />
-        <action name = "reset heartbeat timer" />
-      </event>
-    </state>
-
-    <state name = "defaults">
-      <event name = "stop" next = "down">
-        <action name = "stop heartbeat timer" />
-        <action name = "stop socket" />
-      </event>
-    </state>
-  </fsm>
+  <scxml filename="subscribe_fsm.scxml"/>
 </class>

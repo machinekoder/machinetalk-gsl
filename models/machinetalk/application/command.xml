@@ -86,35 +86,5 @@
     <event name = "disconnect" when = "up"/>
   </trigger>
 
-  <fsm name="fsm" initial="down">
-    <state name="down">
-        <event name="connect" next="trying">
-          <action name="start command channel" />
-        </event>
-    </state>
-
-    <state name="trying" inherit="defaults">
-      <event name="command up" next="up">
-      </event>
-    </state>
-
-    <state name="up" inherit="defaults">
-      <event name="command trying" next="trying">
-      </event>
-      <entry>
-        <action name="set connected" />
-      </entry>
-      <exit>
-        <action name="clear connected" />
-      </exit>
-    </state>
-
-    <state name="defaults">
-      <event name="disconnect" next="down">
-        <action name="stop command channel" />
-        <action name="clear connected" />
-      </event>
-    </state>
-  </fsm>
-
+  <scxml filename="commandbase_fsm.scxml"/>
 </class>

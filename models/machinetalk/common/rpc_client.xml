@@ -49,58 +49,5 @@
       <event name = "stop" when = "up"/>
     </trigger>
 
-    <fsm name = "fsm" initial = "down">
-      <state name = "down">
-        <event name = "start" next = "trying">
-          <action name = "start socket" />
-          <action name = "reset heartbeat liveness" />
-          <action name = "send ping" />
-          <action name = "start heartbeat timer" />
-        </event>
-      </state>
-
-      <state name = "trying" inherit = "defaults">
-        <event name = "any msg received" next = "up">
-          <action name = "reset heartbeat liveness" />
-          <action name = "reset heartbeat timer" />
-        </event>
-        <event name = "heartbeat timeout" next = "trying">
-          <action name = "stop socket" />
-          <action name = "start socket" />
-          <action name = "reset heartbeat liveness" />
-          <action name = "send ping" />
-        </event>
-        <event name = "heartbeat tick" next = "trying">
-          <action name = "send ping" />
-        </event>
-        <event name = "any msg sent" next = "trying" >
-          <action name = "reset heartbeat timer" />
-        </event>
-      </state>
-
-      <state name = "up" inherit = "defaults">
-        <event name = "heartbeat timeout" next = "trying">
-          <action name = "stop socket" />
-          <action name = "start socket" />
-          <action name = "reset heartbeat liveness" />
-          <action name = "send ping" />
-        </event>
-        <event name = "heartbeat tick" next = "up">
-          <action name = "send ping" />
-        </event>
-        <event name = "any msg received" next = "up">
-          <action name = "reset heartbeat liveness" />
-        </event>
-        <event name = "any msg sent" next = "up" >
-          <action name = "reset heartbeat timer" />
-        </event>
-      </state>
-
-      <state name = "defaults">
-        <event name = "stop" next = "down">
-          <action name = "stop heartbeat timer" />
-          <action name = "stop socket" />
-        </event>
-      </state>
-    </fsm>
+   <scxml filename="rpcclient_fsm.scxml"/>
 </class>

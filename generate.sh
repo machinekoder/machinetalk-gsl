@@ -8,7 +8,6 @@ mk_dirs () {
     mkdir -p generated/js/$dir
     mkdir -p generated/qt/$dir
     mkdir -p generated/uppaal/$dir
-    mkdir -p generated/fsm/$dir
 }
 
 clean_dirs() {

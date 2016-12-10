@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+    <state id="down">
+        <transition type="external" event="connect" target="trying">
+            <raise event="start config channel"/>
+        </transition>
+    </state>
+    <state id="trying">
+        <transition type="external" event="config up" target="listing">
+            <raise event="send list applications"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop config channel"/>
+        </transition>
+    </state>
+    <state id="listing">
+        <transition type="external" event="application retrieved" target="up">
+        </transition>
+        <transition type="external" event="config trying" target="trying">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop config channel"/>
+        </transition>
+    </state>
+    <state id="up">
+        <transition type="external" event="config trying" target="trying">
+        </transition>
+        <transition type="external" event="load application" target="loading">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop config channel"/>
+        </transition>
+        <onentry>
+            <raise event="sync config"/>
+        </onentry>
+        <onexit>
+            <raise event="unsync config"/>
+        </onexit>
+    </state>
+    <state id="loading">
+        <transition type="external" event="application loaded" target="up">
+        </transition>
+        <transition type="external" event="config trying" target="trying">
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <raise event="stop config channel"/>
+        </transition>
+    </state>
+</scxml>
