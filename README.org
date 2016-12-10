@@ -7,6 +7,7 @@
   Currently machinetalk-gsl supports following languages:
   - Python
   - Qt/C++
+  - JavaScript
   - Node.js
   - Markdown and Graphviz
 
@@ -38,7 +39,7 @@
    information follow the tutorials at [[https://github.com/imatix/gsl#starting-with-gsl]]
 
    I found it most useful to use GNU Emacs to edit the gsl
-   files. Put the editor into the major for the corresponding language
+   files. Put the editor into the major-mode for the corresponding language
    (e.g. =python-mode=) and enable the following minor mode by issuing
    =gsl-mode=.
 
