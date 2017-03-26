@@ -7,7 +7,7 @@
 
     <incoming name = "*">
       Any message from publiser.
-      <event name = "message received" when = "up"/>
+      <event name = "any msg received" when = "up"/>
     </incoming>
 
     <incoming name = "ping" ignore = "true">
@@ -16,7 +16,7 @@
 
     <incoming name = "launcher full update">
       A full update message from the publisher.
-      <event name = "connected" when = "trying" />
+      <event name = "full update received" when = "trying" />
       <pparams />
     </incoming>
 
@@ -32,20 +32,20 @@
       liveness = "2" >
     For monitoring if the connection is alive.
     <tick>
-      <event name = "tick" when = "up" />
+      <event name = "heartbeat tick" when = "up" />
     </tick>
     <timeout>
-      <event name = "timeout" when = "up" />
+      <event name = "heartbeat timeout" when = "up" />
     </timeout>
   </timer>
 
   <trigger name = "start">
-    <event name = "connect" when = "down"/>
+    <event name = "start" when = "down"/>
   </trigger>
 
   <trigger name = "stop">
-    <event name = "disconnect" when = "trying"/>
-    <event name = "disconnect" when = "up"/>
+    <event name = "stop" when = "trying"/>
+    <event name = "stop" when = "up"/>
   </trigger>
 
   <scxml filename="../common/subscribe_fsm.scxml"/>
