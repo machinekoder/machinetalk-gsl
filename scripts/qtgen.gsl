@@ -26,8 +26,7 @@
 #include <$(socket.module:Pascal,lower)/$(socket.class:Pascal,lower).h>
 .endfor
 
-namespace $(class.project:Pascal,lower) {
-namespace $(class.module:Pascal,lower) {
+namespace $(class.project:Pascal,lower) { namespace $(class.module:Pascal,lower) {
 
 class $(class.name:lower,Pascal)
     : public QObject
@@ -399,8 +398,8 @@ signals:
 .  endfor
 .endfor
 };
-} // namespace $(class.module:Pascal,lower)
-} // namespace $(class.project:Pascal,lower)
+
+} } // namespace $(class.project:Pascal,lower)::$(class.module:Pascal,lower)
 #endif //$(class.NAME:c)_H
 .endtemplate
 .
@@ -428,8 +427,7 @@ namespace gpb = google::protobuf;
 
 using namespace nzmqt;
 
-namespace $(class.project:Pascal,lower) {
-namespace $(class.module:Pascal,lower) {
+namespace $(class.project:Pascal,lower) { namespace $(class.module:Pascal,lower) {
 
 /** Generic $(class.name:) implementation */
 $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent)
@@ -994,6 +992,6 @@ void $(class.name:lower,Pascal)::$(name:Camel)()
 .  endfor
 }
 .endfor
-} // namespace $(class.module:Pascal,lower)
-} // namespace $(class.project:Pascal,lower)
+
+} } // namespace $(class.project:Pascal,lower)::$(class.module:Pascal,lower)
 .endtemplate
