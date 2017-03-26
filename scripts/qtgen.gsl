@@ -29,9 +29,10 @@
 namespace $(class.project:Pascal,lower) {
 namespace $(class.module:Pascal,lower) {
 
-class $(class.name:lower,Pascal) : public QObject
+class $(class.name:lower,Pascal)
+    : public QObject
 .if defined(class->socket.class)
-,public QQmlParserStatus
+    , public QQmlParserStatus
 .endif
 {
     Q_OBJECT
@@ -431,32 +432,32 @@ namespace $(class.project:Pascal,lower) {
 namespace $(class.module:Pascal,lower) {
 
 /** Generic $(class.name:) implementation */
-$(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent) :
-    QObject(parent),
+$(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent)
+    : QObject(parent)
 .if defined(class->socket.class)
-    QQmlParserStatus(),
-    m_componentCompleted(false),
+    , QQmlParserStatus()
+    , m_componentCompleted(false)
 .endif
-    m_ready(false),
-    m_debugName("$(class.name:)"),
+    , m_ready(false)
+    , m_debugName("$(class.name:)")
 .for socket
 .  if defined(socket.class)
-    m_$(name)Channel(nullptr),
+    , m_$(name)Channel(nullptr)
 .  else
-    m_socketUri(""),
-    m_context(nullptr),
-    m_socket(nullptr),
+    , m_socketUri("")
+    , m_context(nullptr)
+    , m_socket(nullptr)
 .  endif
 .endfor
-    m_state($(class->fsm.Initial)),
-    m_previousState($(class->fsm.Initial)),
-    m_errorString("")
+    , m_state($(class->fsm.Initial))
+    , m_previousState($(class->fsm.Initial))
+    , m_errorString("")
 .for timer
-    ,m_$(name)Timer(new QTimer(this)),
-    m_$(name)Interval($(interval)),
+    , m_$(name)Timer(new QTimer(this))
+    , m_$(name)Interval($(interval))
 .  if (defined(liveness))
-    m_$(name)Liveness(0),
-    m_$(name)ResetLiveness($(liveness))
+    , m_$(name)Liveness(0)
+    , m_$(name)ResetLiveness($(liveness))
 .  endif
 .endfor
 {
