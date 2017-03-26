@@ -1,31 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" xmlns:qt="http://www.qt.io/2015/02/scxml-ext" name="fsm" qt:editorversion="4.2.1" initial="down">
+    <qt:editorinfo initialGeometry="-190;-100;-20;-20;40;40"/>
     <state id="down">
+        <qt:editorinfo geometry="-94.29;0;-60;-50;120;100" scenegeometry="-94.29;0;-154.29;-50;120;100"/>
         <transition type="external" event="connect" target="trying">
+            <qt:editorinfo endTargetFactors="15.44;36.21" startTargetFactors="18.83;68.10" movePoint="-41.68;1.19"/>
             <raise event="update topics"/>
             <raise event="start status channel"/>
         </transition>
     </state>
     <state id="trying">
+        <qt:editorinfo geometry="-11.85;514.27;-60;-50;120;100" scenegeometry="-11.85;514.27;-71.85;464.27;120;100"/>
         <transition type="external" event="status up" target="syncing">
+            <qt:editorinfo movePoint="-5.95;-48.82"/>
         </transition>
         <transition type="external" event="disconnect" target="down">
+            <qt:editorinfo endTargetFactors="79.53;79.31" startTargetFactors="56.74;12.93" movePoint="59.54;-22.63"/>
             <raise event="stop status channel"/>
         </transition>
     </state>
     <state id="syncing">
-        <transition type="external" event="channels synced" target="up">
-        </transition>
+        <qt:editorinfo geometry="162.86;201.09;-60;-50;120;100" scenegeometry="162.86;201.09;102.86;151.09;120;100"/>
+        <transition type="external" event="channels synced" target="up"/>
         <transition type="external" event="status trying" target="trying">
+            <qt:editorinfo startTargetFactors="74.92;87.07" movePoint="95.27;-64.30"/>
         </transition>
         <transition type="external" event="disconnect" target="down">
+            <qt:editorinfo movePoint="98.84;-11.91"/>
             <raise event="stop status channel"/>
         </transition>
     </state>
     <state id="up">
+        <qt:editorinfo geometry="629.65;101.68;-60;-50;120;100" scenegeometry="629.65;101.68;569.65;51.68;120;100"/>
         <transition type="external" event="status trying" target="trying">
+            <qt:editorinfo startTargetFactors="13.24;82.22" movePoint="33.34;15.48"/>
         </transition>
         <transition type="external" event="disconnect" target="down">
+            <qt:editorinfo movePoint="11.91;-28.58"/>
             <raise event="stop status channel"/>
         </transition>
         <onentry>
