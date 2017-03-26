@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" initial="down">
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" name="fsm" qt:editorversion="4.2.1" xmlns:qt="http://www.qt.io/2015/02/scxml-ext" initial="down">
+    <qt:editorinfo initialGeometry="-190;-100;-20;-20;40;40"/>
     <state id="down">
+        <qt:editorinfo geometry="-80;0;-60;-50;120;100" scenegeometry="-80;0;-140;-50;120;100"/>
         <transition type="external" event="connect" target="trying">
             <raise event="add pins"/>
             <raise event="start halrcmd channel"/>
@@ -13,6 +15,7 @@
         </onexit>
     </state>
     <state id="trying">
+        <qt:editorinfo geometry="-168.53;141.41;-60;-50;120;100" scenegeometry="-168.53;141.41;-228.53;91.41;120;100"/>
         <transition type="external" event="halrcmd up" target="bind">
             <raise event="bind component"/>
         </transition>
@@ -23,21 +26,21 @@
         </transition>
     </state>
     <state id="bind">
-        <transition type="external" event="halrcomp bind msg sent" target="binding">
-        </transition>
+        <qt:editorinfo geometry="-38.20;216.66;-60;-50;120;100" scenegeometry="-38.20;216.66;-98.20;166.66;120;100"/>
+        <transition type="external" event="halrcomp bind msg sent" target="binding"/>
         <transition type="external" event="no bind" target="syncing">
             <raise event="start halrcomp channel"/>
         </transition>
     </state>
     <state id="binding">
+        <qt:editorinfo geometry="85;147.22;-60;-50;120;100" scenegeometry="85;147.22;25;97.22;120;100"/>
         <transition type="external" event="bind confirmed" target="syncing">
             <raise event="start halrcomp channel"/>
         </transition>
         <transition type="external" event="bind rejected" target="error">
             <raise event="stop halrcmd channel"/>
         </transition>
-        <transition type="external" event="halrcmd trying" target="trying">
-        </transition>
+        <transition type="external" event="halrcmd trying" target="trying"/>
         <transition type="external" event="disconnect" target="down">
             <raise event="stop halrcmd channel"/>
             <raise event="stop halrcomp channel"/>
@@ -45,11 +48,11 @@
         </transition>
     </state>
     <state id="syncing">
+        <qt:editorinfo geometry="206.73;75.24;-60;-50;120;100" scenegeometry="206.73;75.24;146.73;25.24;120;100"/>
         <transition type="external" event="halrcmd trying" target="trying">
             <raise event="stop halrcomp channel"/>
         </transition>
-        <transition type="external" event="halrcomp up" target="sync">
-        </transition>
+        <transition type="external" event="halrcomp up" target="sync"/>
         <transition type="external" event="sync failed" target="error">
             <raise event="stop halrcomp channel"/>
             <raise event="stop halrcmd channel"/>
@@ -61,10 +64,11 @@
         </transition>
     </state>
     <state id="sync">
-        <transition type="external" event="pins synced" target="synced">
-        </transition>
+        <qt:editorinfo geometry="112.76;-41.04;-60;-50;120;100" scenegeometry="112.76;-41.04;52.76;-91.04;120;100"/>
+        <transition type="external" event="pins synced" target="synced"/>
     </state>
     <state id="synced">
+        <qt:editorinfo geometry="135;-505.48;-206.64;-50;236.64;100" scenegeometry="135;-505.48;-71.64;-555.48;236.64;100"/>
         <transition type="external" event="halrcomp trying" target="syncing">
             <raise event="unsync pins"/>
             <raise event="set timeout"/>
@@ -78,8 +82,7 @@
             <raise event="stop halrcomp channel"/>
             <raise event="stop halrcmd channel"/>
         </transition>
-        <transition type="external" event="halrcomp set msg sent" target="synced">
-        </transition>
+        <transition type="external" event="halrcomp set msg sent" target="synced"/>
         <transition type="external" event="disconnect" target="down">
             <raise event="stop halrcmd channel"/>
             <raise event="stop halrcomp channel"/>
@@ -90,6 +93,7 @@
         </onentry>
     </state>
     <state id="error">
+        <qt:editorinfo geometry="-20.84;-118.18;-60;-50;120;100" scenegeometry="-20.84;-118.18;-80.84;-168.18;120;100"/>
         <transition type="external" event="disconnect" target="down">
             <raise event="stop halrcmd channel"/>
             <raise event="stop halrcomp channel"/>
