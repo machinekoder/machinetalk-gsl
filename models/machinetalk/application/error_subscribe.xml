@@ -13,7 +13,7 @@
     <incoming name = "ping" ignore = "true">
       The server sends pings every once in a while.
 
-      <event name = "any msg received" when = "up"/>
+      <event name = "ping received" when = "trying"/>
       <pparams />
     </incoming>
 
@@ -41,5 +41,6 @@
     <event name = "stop" when = "up"/>
   </trigger>
 
-  <scxml filename="../common/subscribe_fsm.scxml"/>
+  <scxml filename="./error_subscribe_fsm.scxml"/>
+
 </class>
