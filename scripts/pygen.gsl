@@ -28,32 +28,32 @@ class $(class.name:lower,Pascal)(object):
         # ZeroMQ
         context = zmq.Context()
         context.linger = 0
-        self.context = context
+        self._context = context
         # pipe to signalize a shutdown
-        self.shutdown = context.socket(zmq.PUSH)
-        self.shutdown_uri = b'inproc://shutdown-%s' % uuid.uuid4()
-        self.shutdown.bind(self.shutdown_uri)
+        self._shutdown = context.socket(zmq.PUSH)
+        self._shutdown_uri = b'inproc://shutdown-%s' % uuid.uuid4()
+        self._shutdown.bind(self._shutdown_uri)
 .  if (count(outgoing) > 0)
         # pipe for outgoing messages
-        self.pipe = context.socket(zmq.PUSH)
-        self.pipe_uri = b'inproc://pipe-%s' % uuid.uuid4()
-        self.pipe.bind(self.pipe_uri)
+        self._pipe = context.socket(zmq.PUSH)
+        self._pipe_uri = b'inproc://pipe-%s' % uuid.uuid4()
+        self._pipe.bind(self._pipe_uri)
 .  endif
-        self.thread = None  # socket worker tread
-        self.tx_lock = threading.Lock()  # lock for outgoing messages
+        self._thread = None  # socket worker tread
+        self._tx_lock = threading.Lock()  # lock for outgoing messages
 .endfor
 .
 .for socket
 
         # $(Name)
 .  if defined(socket.class)
-        self.$(name)_channel = $(socket.class:lower,Pascal)()
-        self.$(name)_channel.debugname = '%s - %s' % (self.debugname, '$(name:)')
+        self._$(name)_channel = $(socket.class:lower,Pascal)()
+        self._$(name)_channel.debugname = '%s - %s' % (self.debugname, '$(name:)')
 .    if (count(state) > 0)
-        self.$(name)_channel.state_changed_cb = self.$(name)_channel_state_changed
+        self._$(name)_channel.state_changed_cb = self.$(name)_channel_state_changed
 .    endif
 .    if (count(incoming) > 0)
-        self.$(name)_channel.socket_message_received_cb = self.$(name)_channel_message_received
+        self._$(name)_channel.socket_message_received_cb = self.$(name)_channel_message_received
 .    endif
 .  else
         self.$(name)_uri = ''
@@ -64,28 +64,28 @@ class $(class.name:lower,Pascal)(object):
         self._$(name)_dsn_event = threading.Event()  # sync event for dsn
 .    endif
 .    if ((type = "SUB") | (type = "XPUB"))
-        self.$(name)_topics = set()
+        self._$(name)_topics = set()
 .    endif
 .  endif
         # more efficient to reuse protobuf messages
 .  if (count(incoming) > 0)
-        self.$(name)_rx = Container()
+        self._$(name)_rx = Container()
 .  endif
 .  if (count(outgoing) > 0)
-        self.$(name)_tx = Container()
+        self._$(name)_tx = Container()
 .  endif
 .endfor
 .
 .for timer
 
         # $(Name)
-        self.$(name)_lock = threading.Lock()
-        self.$(name)_interval = $(interval)
-        self.$(name)_timer = None
-        self.$(name)_active = False
+        self._$(name)_lock = threading.Lock()
+        self._$(name)_interval = $(interval)
+        self._$(name)_timer = None
+        self._$(name)_active = False
 .  if (defined(liveness))
-        self.$(name)_liveness = 0
-        self.$(name)_reset_liveness = $(liveness)
+        self._$(name)_liveness = 0
+        self._$(name)_reset_liveness = $(liveness)
 .  endif
 .endfor
 
@@ -99,7 +99,7 @@ class $(class.name:lower,Pascal)(object):
 
 .for fsm
         # fsm
-        self.fsm = Fysom({'initial': '$(initial:c)',
+        self._fsm = Fysom({'initial': '$(initial:c)',
                           'events': [
 .  for state
 .    for event
@@ -109,25 +109,25 @@ class $(class.name:lower,Pascal)(object):
                           ]})
 
 .  for state
-        self.fsm.on$(name:c) = self.on_fsm_$(name:c)
+        self._fsm.on$(name:c) = self._on_fsm_$(name:c)
 .    for event
 .-     make sure we assign only once
 .      if (!defined(on_$(name:c)))
 .        on_$(name:c) = 1
-        self.fsm.onafter$(name:c) = self.on_fsm_$(name:c)
+        self._fsm.onafter$(name:c) = self._on_fsm_$(name:c)
 .      endif
 .    endfor
 .-   entry and exit
 .    for entry
-        self.fsm.onenter$(state.name:c) = self.on_fsm_$(state.name:c)_entry
+        self._fsm.onenter$(state.name:c) = self._on_fsm_$(state.name:c)_entry
 .    endfor
 .    for exit
-        self.fsm.onleave$(state.name:c) = self.on_fsm_$(state.name:c)_exit
+        self._fsm.onleave$(state.name:c) = self._on_fsm_$(state.name:c)_exit
 .    endfor
 .  endfor
 .  for state
 
-    def on_fsm_$(name:c)(self, e):
+    def _on_fsm_$(name:c)(self, e):
         del e
         if self.debuglevel > 0:
             print('[%s]: state $(NAME)' % self.debugname)
@@ -139,7 +139,7 @@ class $(class.name:lower,Pascal)(object):
 .      if (!defined(fsm_on_$(name:c)))
 .        fsm_on_$(name:c) = 1
 
-    def on_fsm_$(name:c)(self, e):
+    def _on_fsm_$(name:c)(self, e):
         del e
         if self.debuglevel > 0:
             print('[%s]: event $(NAME)' % self.debugname)
@@ -152,7 +152,7 @@ class $(class.name:lower,Pascal)(object):
 .-   entry and exit
 .    for entry
 
-    def on_fsm_$(state.name:c)_entry(self, e):
+    def _on_fsm_$(state.name:c)_entry(self, e):
         del e
         if self.debuglevel > 0:
             print('[%s]: state $(state.NAME) entry' % self.debugname)
@@ -163,7 +163,7 @@ class $(class.name:lower,Pascal)(object):
 .    endfor
 .    for exit
 
-    def on_fsm_$(state.name:c)_exit(self, e):
+    def _on_fsm_$(state.name:c)_exit(self, e):
         del e
         if self.debuglevel > 0:
             print('[%s]: state $(state.NAME) exit' % self.debugname)
@@ -192,21 +192,21 @@ class $(class.name:lower,Pascal)(object):
 
     @property
     def $(name)_uri(self):
-        return self.$(name)_channel.socket_uri
+        return self._$(name)_channel.socket_uri
 
     @$(name)_uri.setter
     def $(name)_uri(self, value):
-        self.$(name)_channel.socket_uri = value
+        self._$(name)_channel.socket_uri = value
 .
 .  if (defined(nature) & (nature = "server"))
 
     @property
     def $(name)_port(self):
-        return self.$(name)_channel.socket_port
+        return self._$(name)_channel.socket_port
 
     @property
     def $(name)_dsn(self):
-        return self.$(name)_channel.socket_dsn
+        return self._$(name)_channel.socket_dsn
 .  endif
 .endfor
 .
@@ -220,8 +220,8 @@ class $(class.name:lower,Pascal)(object):
 
     def $(name:c)(self):
 .  for event
-        if self.fsm.isstate('$(when:c)'):
-            self.fsm.$(name:c)()
+        if self._fsm.isstate('$(when:c)'):
+            self._fsm.$(name:c)()
 .  endfor
 .endfor
 .
@@ -230,29 +230,29 @@ class $(class.name:lower,Pascal)(object):
 
     def add_$(name)_topic(self, name):
 .    if defined(socket.class)
-        self.$(name)_channel.add_socket_topic(name)
+        self._$(name)_channel.add_socket_topic(name)
 .    else
-        self.$(name)_topics.add(name)
+        self._$(name)_topics.add(name)
 .    endif
 
     def remove_$(name)_topic(self, name):
 .    if defined(socket.class)
-        self.$(name)_channel.remove_socket_topic(name)
+        self._$(name)_channel.remove_socket_topic(name)
 .    else
-        self.$(name)_topics.remove(name)
+        self._$(name)_topics.remove(name)
 .    endif
 
     def clear_$(name)_topics(self):
 .    if defined(socket.class)
-        self.$(name)_channel.clear_socket_topics()
+        self._$(name)_channel.clear_socket_topics()
 .    else
-        self.$(name)_topics.clear()
+        self._$(name)_topics.clear()
 .    endif
 .  endif
 .
 .  if !defined(socket.class)
 
-    def socket_worker(self, context, uri):
+    def _socket_worker(self, context, uri):
         poll = zmq.Poller()
         socket = context.socket(zmq.$(TYPE))
         socket.setsockopt(zmq.LINGER, 0)
@@ -274,18 +274,18 @@ class $(class.name:lower,Pascal)(object):
 .
 .    if (type = "SUB")
         # subscribe is always connected to socket creation
-        for topic in self.$(name)_topics:
+        for topic in self._$(name)_topics:
             socket.setsockopt(zmq.SUBSCRIBE, topic)
 .    elsif (type = "XPUB")
         socket.setsockopt(zmq.XPUB_VERBOSE, 1)  # enable verbose subscription messages
 .    endif
 
         shutdown = context.socket(zmq.PULL)
-        shutdown.connect(self.shutdown_uri)
+        shutdown.connect(self._shutdown_uri)
         poll.register(shutdown, zmq.POLLIN)
 .    if (count(outgoing) > 0)
         pipe = context.socket(zmq.PULL)
-        pipe.connect(self.pipe_uri)
+        pipe.connect(self._pipe_uri)
         poll.register(pipe, zmq.POLLIN)
 .    endif
 
@@ -309,14 +309,14 @@ class $(class.name:lower,Pascal)(object):
 .    endif
 
     def start_socket(self):
-        self.thread = threading.Thread(target=self.socket_worker,
-                                       args=(self.context, self.$(name)_uri,))
-        self.thread.start()
+        self._thread = threading.Thread(target=self._socket_worker,
+                                       args=(self._context, self.$(name)_uri,))
+        self._thread.start()
 
     def stop_socket(self):
-        self.shutdown.send('')  # trigger socket thread shutdown
-        self.thread.join()
-        self.thread = None
+        self._shutdown.send('')  # trigger socket thread shutdown
+        self._thread.join()
+        self._thread = None
 .    if (nature = "server")
         self._$(name)_port_event.clear()  # clear sync for port
 .    endif
@@ -327,28 +327,28 @@ class $(class.name:lower,Pascal)(object):
 .for socket where (defined(socket.class))
 
     def start_$(name)_channel(self):
-        self.$(name)_channel.start()
+        self._$(name)_channel.start()
 
     def stop_$(name)_channel(self):
-        self.$(name)_channel.stop()
+        self._$(name)_channel.stop()
 .endfor
 .
 .for timer
 
-    def $(name)_timer_tick(self):
-        with self.$(name)_lock:
-            self.$(name)_timer = None  # timer is dead on tick
+    def _$(name)_timer_tick(self):
+        with self._$(name)_lock:
+            self._$(name)_timer = None  # timer is dead on tick
 
         if self.debuglevel > 0:
             print('[%s] $(name) timer tick' % self.debugname)
 
 .  if (defined(liveness))
-        self.$(name)_liveness -= 1
-        if self.$(name)_liveness == 0:
+        self._$(name)_liveness -= 1
+        if self._$(name)_liveness == 0:
 .    for timeout
 .      for event
-            if self.fsm.isstate('$(when:c)'):
-                self.fsm.$(name:c)()
+            if self._fsm.isstate('$(when:c)'):
+                self._fsm.$(name:c)()
 .      endfor
 .    endfor
             return
@@ -356,44 +356,44 @@ class $(class.name:lower,Pascal)(object):
 .
 .  for tick
 .    for event
-        if self.fsm.isstate('$(when:c)'):
-            self.fsm.$(name:c)()
+        if self._fsm.isstate('$(when:c)'):
+            self._fsm.$(name:c)()
 .    endfor
 .  endfor
 
 .  if (defined(liveness))
     def reset_$(name)_liveness(self):
-        self.$(name)_liveness = self.$(name)_reset_liveness
+        self._$(name)_liveness = self._$(name)_reset_liveness
 .  endif
 
     def reset_$(name)_timer(self):
-        if not self.$(name)_active:
+        if not self._$(name)_active:
             return
 
-        self.$(name)_lock.acquire()
-        if self.$(name)_timer:
-            self.$(name)_timer.cancel()
-            self.$(name)_timer = None
+        self._$(name)_lock.acquire()
+        if self._$(name)_timer:
+            self._$(name)_timer.cancel()
+            self._$(name)_timer = None
 
-        if self.$(name)_interval > 0:
-            self.$(name)_timer = threading.Timer(self.$(name)_interval / 1000.0,
-                                                 self.$(name)_timer_tick)
-            self.$(name)_timer.start()
-        self.$(name)_lock.release()
+        if self._$(name)_interval > 0:
+            self._$(name)_timer = threading.Timer(self._$(name)_interval / 1000.0,
+                                                 self._$(name)_timer_tick)
+            self._$(name)_timer.start()
+        self._$(name)_lock.release()
         if self.debuglevel > 0:
             print('[%s] $(name) timer reset' % self.debugname)
 
     def start_$(name)_timer(self):
-        self.$(name)_active = True
+        self._$(name)_active = True
         self.reset_$(name)_timer()
 
     def stop_$(name)_timer(self):
-        self.$(name)_active = False
-        self.$(name)_lock.acquire()
-        if self.$(name)_timer:
-            self.$(name)_timer.cancel()
-            self.$(name)_timer = None
-        self.$(name)_lock.release()
+        self._$(name)_active = False
+        self._$(name)_lock.acquire()
+        if self._$(name)_timer:
+            self._$(name)_timer.cancel()
+            self._$(name)_timer = None
+        self._$(name)_lock.release()
 .endfor
 .
 .for socket where (count(incoming) > 0)
@@ -420,7 +420,7 @@ class $(class.name:lower,Pascal)(object):
 .    if (type <> "XPUB")
 
         try:
-            self.$(name)_rx.ParseFromString(msg)
+            self._$(name)_rx.ParseFromString(msg)
         except DecodeError as e:
             note = 'Protobuf Decode Error: ' + str(e)
             print(note)  # TODO: decode error
@@ -430,7 +430,7 @@ class $(class.name:lower,Pascal)(object):
             print('[%s] received message' % self.debugname)
             if self.debuglevel > 1:
                 print(self.$(name)_rx)
-        rx = self.$(name)_rx
+        rx = self._$(name)_rx
 .    else
         rx = msg
 .    endif
@@ -455,7 +455,7 @@ class $(class.name:lower,Pascal)(object):
 .      for pparams
         $(ws)if rx.HasField('pparams'):
             $(ws)interval = rx.pparams.keepalive_timer
-            $(ws)self.timer_interval = interval
+            $(ws)self._heartbeat_interval = interval
 .      endfor
 .
 .      for note
@@ -466,8 +466,8 @@ class $(class.name:lower,Pascal)(object):
 .      endfor
 .
 .      for event
-        $(ws)if self.fsm.isstate('$(when:c)'):
-            $(ws)self.fsm.$(name:c)()
+        $(ws)if self._fsm.isstate('$(when:c)'):
+            $(ws)self._fsm.$(name:c)()
 .      endfor
 .
 .      if (defined(public) & public = "true")
@@ -513,12 +513,12 @@ class $(class.name:lower,Pascal)(object):
 .  endif
 .  if defined(socket.class)
 .    if ((type = "XPUB") | (type = "ROUTER"))
-        self.$(name)_channel.send_socket_message(identity, msg_type, tx)
+        self._$(name)_channel.send_socket_message(identity, msg_type, tx)
 .    else
-        self.$(name)_channel.send_socket_message(msg_type, tx)
+        self._$(name)_channel.send_socket_message(msg_type, tx)
 .    endif
 .  else
-        with self.tx_lock:
+        with self._tx_lock:
             tx.type = msg_type
             if self.debuglevel > 0:
                 print('[%s] sending message: %s' % (self.debugname, msg_type))
@@ -526,11 +526,11 @@ class $(class.name:lower,Pascal)(object):
                     print(str(tx))
 
 .    if (type = "XPUB")
-            self.pipe.send_multipart([identity, tx.SerializeToString()])
+            self._pipe.send_multipart([identity, tx.SerializeToString()])
 .    elsif (type = "ROUTER")
-            self.pipe.send_multipart(identity + [tx.SerializeToString()])
+            self._pipe.send_multipart(identity + [tx.SerializeToString()])
 .    else
-            self.pipe.send(tx.SerializeToString())
+            self._pipe.send(tx.SerializeToString())
 .    endif
             tx.Clear()
 .  endif
@@ -544,8 +544,8 @@ class $(class.name:lower,Pascal)(object):
 .    endif
 .
 .    for event
-        $(ws)if self.fsm.isstate('$(when:c)'):
-            $(ws)self.fsm.$(name:c)()
+        $(ws)if self._fsm.isstate('$(when:c)'):
+            $(ws)self._fsm.$(name:c)()
 .    endfor
 .  endfor
 .endfor
@@ -560,13 +560,13 @@ class $(class.name:lower,Pascal)(object):
         ids = [identity]
 .      else
     def send_$(name:c)(self):
-        tx = self.$(socket.name)_tx
-        ids = self.$(socket.name)_topics
+        tx = self._$(socket.name)_tx
+        ids = self._$(socket.name)_topics
 .      endif
 .-     add protocol parameters
 .      for pparams
         pparams = tx.pparams
-        pparams.keepalive_timer = self.heartbeat_interval
+        pparams.keepalive_timer = self._heartbeat_interval
 .      endfor
         for receiver in ids:
             self.send_$(socket.name)_message(receiver, pb.$(class.msg_prefix + " " + name:upper,c), tx)
@@ -575,7 +575,7 @@ class $(class.name:lower,Pascal)(object):
     def send_$(name:c)(self, tx):
 .      else
     def send_$(name:c)(self):
-        tx = self.$(socket.name)_tx
+        tx = self._$(socket.name)_tx
 .      endif
         self.send_$(socket.name)_message(pb.$(class.msg_prefix + " " + name:upper,c), tx)
 .    endif
@@ -590,8 +590,8 @@ class $(class.name:lower,Pascal)(object):
 
         if (state == '$(name:c)'):
 .     for event
-            if self.fsm.isstate('$(when:c)'):
-                self.fsm.$(name:c)()
+            if self._fsm.isstate('$(when:c)'):
+                self._fsm.$(name:c)()
 .     endfor
 .  endfor
 .endfor
