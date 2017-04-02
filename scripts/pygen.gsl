@@ -11,7 +11,7 @@ import threading
 import uuid
 from fysom import Fysom
 .for socket where (defined(socket.class))
-from $(module:Pascal,lower).$(socket.class:Pascal,lower) import $(socket.class:lower,Pascal)
+from ..$(module:Pascal,lower).$(socket.class:Pascal,lower) import $(socket.class:lower,Pascal)
 .endfor
 
 import $(class.project:c).protobuf.types_pb2 as pb
