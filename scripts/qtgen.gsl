@@ -28,7 +28,7 @@
 #include <nzmqt/nzmqt.hpp>
 #include <$(project:c)/protobuf/message.pb.h>
 .for socket where (defined(socket.class))
-#include <$(socket.module:Pascal,lower)/$(socket.class:Pascal,lower).h>
+#include "../$(socket.module:Pascal,lower)/$(socket.class:Pascal,lower).h"
 .endfor
 
 namespace $(class.project:Pascal,lower) { namespace $(class.module:Pascal,lower) {
