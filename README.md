@@ -45,16 +45,31 @@
    `gsl-mode`.
 
 ```emacs-lisp
-  (define-minor-mode gsl-mode
-  "Highlight two successive newlines."
+(defface hi-gsl-com
+  '((((background dark)) (:background "gray21" :foreground "gray48"))
+    (t (:weight medium :background "gray21")))
+  "Face for gsl-minor-mode."
+  :group 'hi-lock-faces)
+
+(defface hi-gsl-code
+  '((((background dark)) (:background "gray21" :foreground "green"))
+    (t (:weight medium :background "gray21")))
+  "Face for gsl-minor-mode."
+  :group 'hi-lock-faces)
+
+(define-minor-mode gsl-minor-mode
+  "Highlight imatix/GSL code."
   :global t
   :lighter " gsl"
-  (if gsl-mode
-      (highlight-regexp "\\(^\\..*\\)\n" 'hi-green-b)
+  (if gsl-minor-mode
+      (highlight-regexp "\\(^\\..*\\)\n" 'hi-gsl-code)
     (unhighlight-regexp "\\(^\\..*\\)\n"))
-  (if gsl-mode
+  (if gsl-minor-mode
       (highlight-regexp "\\(\\$(.*?)\\)" 'hi-red-b)
-    (unhighlight-regexp "\\(\\$(.*?)\\)")))
+    (unhighlight-regexp "\\(\\$(.*?)\\)"))
+  (if gsl-minor-mode
+      (highlight-regexp "\\(^\\.-.*\\)\n" 'hi-gsl-com)
+    (unhighlight-regexp "\\(^\\.-.*\\)\n")))
 ```
 
 I found the electric indent mode very annoying when editing gsl files.
