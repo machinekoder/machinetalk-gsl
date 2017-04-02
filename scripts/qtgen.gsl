@@ -14,13 +14,13 @@
 ** Any changes in this file will be lost.
 **
 ****************************************************************************/
-#ifndef $(class.NAME:c)_H
-#define $(class.NAME:c)_H
 .endmacro
 .
 .path = "generated/qt/$(project:c)/$(class.module:Pascal,lower)"
 .output path + "/$(class.name:Pascal,lower).h"
 .writeHeader()
+#ifndef $(class.MODULE:c)_$(class.NAME:c)_H
+#define $(class.MODULE:c)_$(class.NAME:c)_H
 #include <QObject>
 .if defined(class->socket.class)
 #include <QQmlParserStatus>
@@ -405,7 +405,7 @@ signals:
 };
 
 } } // namespace $(class.project:Pascal,lower)::$(class.module:Pascal,lower)
-#endif //$(class.NAME:c)_H
+#endif // $(class.MODULE:c)_$(class.NAME:c)_H
 .endtemplate
 .
 .############################################################################
