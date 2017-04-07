@@ -47,7 +47,7 @@ class $(class.name:lower,Pascal)(object):
 
         # $(Name)
 .  if defined(socket.class)
-        self._$(name)_channel = $(socket.class:lower,Pascal)()
+        self._$(name)_channel = $(socket.class:lower,Pascal)(debuglevel=debuglevel)
         self._$(name)_channel.debugname = '%s - %s' % (self.debugname, '$(name:)')
 .    if (count(state) > 0)
         self._$(name)_channel.state_changed_cb = self.$(name)_channel_state_changed
@@ -127,8 +127,7 @@ class $(class.name:lower,Pascal)(object):
 .  endfor
 .  for state
 
-    def _on_fsm_$(name:c)(self, e):
-        del e
+    def _on_fsm_$(name:c)(self, _):
         if self.debuglevel > 0:
             print('[%s]: state $(NAME)' % self.debugname)
         if self.state_changed_cb:
@@ -139,8 +138,7 @@ class $(class.name:lower,Pascal)(object):
 .      if (!defined(fsm_on_$(name:c)))
 .        fsm_on_$(name:c) = 1
 
-    def _on_fsm_$(name:c)(self, e):
-        del e
+    def _on_fsm_$(name:c)(self, _):
         if self.debuglevel > 0:
             print('[%s]: event $(NAME)' % self.debugname)
 .      for action
@@ -152,8 +150,7 @@ class $(class.name:lower,Pascal)(object):
 .-   entry and exit
 .    for entry
 
-    def _on_fsm_$(state.name:c)_entry(self, e):
-        del e
+    def _on_fsm_$(state.name:c)_entry(self, _):
         if self.debuglevel > 0:
             print('[%s]: state $(state.NAME) entry' % self.debugname)
 .      for action
@@ -163,8 +160,7 @@ class $(class.name:lower,Pascal)(object):
 .    endfor
 .    for exit
 
-    def _on_fsm_$(state.name:c)_exit(self, e):
-        del e
+    def _on_fsm_$(state.name:c)_exit(self, _):
         if self.debuglevel > 0:
             print('[%s]: state $(state.NAME) exit' % self.debugname)
 .      for action
@@ -314,7 +310,7 @@ class $(class.name:lower,Pascal)(object):
         self._thread.start()
 
     def stop_socket(self):
-        self._shutdown.send('')  # trigger socket thread shutdown
+        self._shutdown.send(' ')  # trigger socket thread shutdown
         self._thread.join()
         self._thread = None
 .    if (nature = "server")
