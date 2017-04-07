@@ -215,9 +215,11 @@ class $(class.name:lower,Pascal)(object):
 .for trigger
 
     def $(name:c)(self):
+.  ifprefix = ""
 .  for event
-        if self._fsm.isstate('$(when:c)'):
+        $(ifprefix)if self._fsm.isstate('$(when:c)'):
             self._fsm.$(name:c)()
+.    ifprefix = "el"
 .  endfor
 .endfor
 .
@@ -337,23 +339,28 @@ class $(class.name:lower,Pascal)(object):
 
         if self.debuglevel > 0:
             print('[%s] $(name) timer tick' % self.debugname)
-
+.
 .  if (defined(liveness))
+
         self._$(name)_liveness -= 1
         if self._$(name)_liveness == 0:
 .    for timeout
+.      ifprefix = ""
 .      for event
-            if self._fsm.isstate('$(when:c)'):
+            $(ifprefix)if self._fsm.isstate('$(when:c)'):
                 self._fsm.$(name:c)()
+.        ifprefix = "el"
 .      endfor
 .    endfor
             return
 .  endif
-.
+
 .  for tick
+.    ifprefix = ""
 .    for event
-        if self._fsm.isstate('$(when:c)'):
+        $(ifprefix)if self._fsm.isstate('$(when:c)'):
             self._fsm.$(name:c)()
+.      ifprefix = "el"
 .    endfor
 .  endfor
 
@@ -432,13 +439,15 @@ class $(class.name:lower,Pascal)(object):
 .    endif
 .  endif
 .
+.  ifprefix = ""
 .  for incoming
 .    if (defined(ignore) | (count(event) > 0) | defined(public))
 
 .      if (name <> "*")
 .        ws = "    "
         # react to $(name) message
-        if rx.type == pb.$(class.msg_prefix + " " + name:upper,c):
+        $(ifprefix)if rx.type == pb.$(class.msg_prefix + " " + name:upper,c):
+.        ifprefix = "el"
 .      else
 .        ws = ""
         # react to any incoming message
@@ -461,9 +470,11 @@ class $(class.name:lower,Pascal)(object):
             $(ws)self.error_string += note + '\\n'
 .      endfor
 .
+.      ifprefix2 = ""
 .      for event
-        $(ws)if self._fsm.isstate('$(when:c)'):
+        $(ws)$(ifprefix2)if self._fsm.isstate('$(when:c)'):
             $(ws)self._fsm.$(name:c)()
+.        ifprefix2 = "el"
 .      endfor
 .
 .      if (defined(public) & public = "true")
@@ -531,18 +542,23 @@ class $(class.name:lower,Pascal)(object):
             tx.Clear()
 .  endif
 .
+.  ifprefix = ""
 .  for outgoing where ((count(event) > 0))
+
 .    if (name <> "*")
 .      ws = "    "
-        if msg_type == pb.$(class.msg_prefix + " " + name:upper,c):
+        $(ifprefix)if msg_type == pb.$(class.msg_prefix + " " + name:upper,c):
 .    else
 .      ws = ""
 .    endif
 .
+.    ifprefix2 = ""
 .    for event
-        $(ws)if self._fsm.isstate('$(when:c)'):
+        $(ws)$(ifprefix2)if self._fsm.isstate('$(when:c)'):
             $(ws)self._fsm.$(name:c)()
+.      ifprefix2 = "el"
 .    endfor
+.    ifprefix = "el"
 .  endfor
 .endfor
 .
@@ -582,13 +598,17 @@ class $(class.name:lower,Pascal)(object):
 .for socket where (defined(socket.class) & (count(state) > 0))
 
     def $(name)_channel_state_changed(self, state):
+.  ifprefix = ""
 .  for state where (count(event) > 0)
 
-        if (state == '$(name:c)'):
+        $(ifprefix)if (state == '$(name:c)'):
+.     ifprefix2 = ""
 .     for event
-            if self._fsm.isstate('$(when:c)'):
+            $(ifprefix2)if self._fsm.isstate('$(when:c)'):
                 self._fsm.$(name:c)()
+.       ifprefix2 = "el"
 .     endfor
+.    ifprefix = "el"
 .  endfor
 .endfor
 .
