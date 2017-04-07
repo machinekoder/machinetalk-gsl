@@ -673,11 +673,13 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
     if (m_$(name)Liveness == 0)
     {
 .    for timeout
+.      ifprefix = ""
 .      for event
-         if (m_state == $(when:Pascal))
+         $(ifprefix)if (m_state == $(when:Pascal))
          {
              emit fsm$(when:Pascal)$(name:Pascal)(QPrivateSignal());
          }
+.        ifprefix = "else "
 .      endfor
 .    endfor
          return;
@@ -685,11 +687,13 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
 .  endif
 .
 .  for tick
+.    ifprefix = ""
 .    for event
-    if (m_state == $(when:Pascal))
+    $(ifprefix)if (m_state == $(when:Pascal))
     {
         emit fsm$(when:Pascal)$(name:Pascal)(QPrivateSignal());
     }
+.      ifprefix = "else "
 .    endfor
 .  endfor
 }
@@ -731,14 +735,16 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 #endif
 .  endif
 .
+.  ifprefix = ""
 .  for incoming
 .    if (defined(ignore) | (count(event) > 0) | defined(public))
 
 .      if (name <> "*")
 .        ws = "    "
     // react to $(name) message
-    if (rx.type() == $(class.msg_prefix + " " + name:upper,c))
+    $(ifprefix)if (rx.type() == $(class.msg_prefix + " " + name:upper,c))
     {
+.        ifprefix = "else "
 .      else
 .        ws = ""
     // react to any incoming message
@@ -767,12 +773,14 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
     $(ws)emit errorStringChanged(m_errorString);
 .      endfor
 .
+.      ifprefix2 = ""
 .      for event
 
-    $(ws)if (m_state == $(when:Pascal))
+    $(ws)$(ifprefix2)if (m_state == $(when:Pascal))
     $(ws){
         $(ws)emit fsm$(when:Pascal)$(name:Pascal)(QPrivateSignal());
     $(ws)}
+.        ifprefix2 = "else "
 .      endfor
 .
 .      if (defined(public) & public = "true")
@@ -847,25 +855,29 @@ void $(class.name:lower,Pascal)::send$(Name)Message(ContainerType type, Containe
     tx.Clear();
 .  endif
 .
+.  ifprefix = ""
 .  for outgoing where ((count(event) > 0))
 .    if (name <> "*")
 .      ws = "    "
-    if (type == $(class.msg_prefix + " " + name:upper,c))
+    $(ifprefix)if (type == $(class.msg_prefix + " " + name:upper,c))
     {
 .    else
 .      ws = ""
 .    endif
 .
+.    ifprefix2 = ""
 .    for event
 
-    $(ws)if (m_state == $(when:Pascal))
+    $(ws)$(ifprefix2)if (m_state == $(when:Pascal))
     $(ws){
         $(ws)emit fsm$(when:Pascal)$(Name:Pascal)(QPrivateSignal());
     $(ws)}
+.      ifprefix2 = "else "
 .    endfor
 .    if (name <> "*")
     }
 .    endif
+.    ifprefix = "else "
 .  endfor
 }
 .endfor
@@ -965,17 +977,21 @@ void $(class.name:lower,Pascal)::fsm$(state.Name)$(Name:Pascal)Event()
 
 void $(class.name:lower,Pascal)::$(name)ChannelStateChanged($(socket.module:Pascal,lower)::$(socket.class:lower,Pascal)::State state)
 {
+.  ifprefix = ""
 .  for state where (count(event) > 0)
 
-    if (state == $(socket.module:Pascal,lower)::$(socket.class:lower,Pascal)::$(name:Pascal))
+    $(ifprefix)if (state == $(socket.module:Pascal,lower)::$(socket.class:lower,Pascal)::$(name:Pascal))
     {
+.     ifprefix2 = ""
 .     for event
-        if (m_state == $(when:Pascal))
+        $(ifprefix2)if (m_state == $(when:Pascal))
         {
             emit fsm$(when:Pascal)$(name:Pascal)(QPrivateSignal());
         }
+.       ifprefix2 = "else "
 .     endfor
     }
+.    ifprefix = "else "
 .  endfor
 }
 .endfor
@@ -985,10 +1001,12 @@ void $(class.name:lower,Pascal)::$(name)ChannelStateChanged($(socket.module:Pasc
 /** $(name:) trigger function */
 void $(class.name:lower,Pascal)::$(name:Camel)()
 {
+.  ifprefix = ""
 .  for event
-    if (m_state == $(when:Pascal)) {
+    $(ifprefix)if (m_state == $(when:Pascal)) {
         emit fsm$(when:Pascal)$(name:Pascal)(QPrivateSignal());
     }
+.    ifprefix = "else "
 .  endfor
 }
 .endfor

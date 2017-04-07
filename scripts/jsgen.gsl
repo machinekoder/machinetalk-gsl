@@ -163,10 +163,12 @@ $(class.name:lower,Pascal).prototype.$(name:Camel) = function() {
 .for trigger
 
 $(class.name:lower,Pascal).prototype.$(name:Camel) = function() {
+.  ifprefix = ""
 .  for event
-    if (this.fsm.current == '$(when:c)') {
+    $(ifprefix)if (this.fsm.current == '$(when:c)') {
         this.fsm.$(name:c)();
     }
+.    ifprefix = "else "
 .  endfor
 }
 .endfor
@@ -250,10 +252,12 @@ $(class.name:lower,Pascal).prototype.$(name)TimerTick = function() {
     this.$(name)Liveness -= 1;
     if (this.$(name)Liveness == 0) {
 .    for timeout
+.      ifprefix = ""
 .      for event
-        if (this.fsm.current == '$(when:c)') {
+        $(ifprefix)if (this.fsm.current == '$(when:c)') {
             this.fsm.$(name:c)();
         }
+.        ifprefix = "else "
 .      endfor
 .    endfor
         return;
@@ -261,10 +265,12 @@ $(class.name:lower,Pascal).prototype.$(name)TimerTick = function() {
 .  endif
 .
 .  for tick
+.    ifprefix = ""
 .    for event
-    if (this.fsm.current == '$(when:c)') {
+    $(ifprefix)if (this.fsm.current == '$(when:c)') {
         this.fsm.$(name:c)();
     }
+.      ifprefix = "else "
 .    endfor
 .  endfor
 };
@@ -326,13 +332,15 @@ $(class.name:lower,Pascal).prototype._$(name)MessageReceived = function(rx) {
     }
 .  endif
 .
+.  ifprefix = ""
 .  for incoming
 .    if (defined(ignore) | (count(event) > 0) | defined(public))
 
 .      if (name <> "*")
 .        ws = "    "
     // react to $(name) message
-    if (rx.type == ContainerType.$(class.msg_prefix + " " + name:upper,c)) {
+    $(ifprefix)if (rx.type == ContainerType.$(class.msg_prefix + " " + name:upper,c)) {
+.        ifprefix = "else "
 .      else
 .        ws = ""
     // react to any incoming message
@@ -357,9 +365,11 @@ $(class.name:lower,Pascal).prototype._$(name)MessageReceived = function(rx) {
     $(ws)}
 .      endfor
 .
+.      ifprefix2 = ""
 .      for event
-    $(ws)if (this.fsm.current == '$(when:c)')
+    $(ws)$(ifprefix2)if (this.fsm.current == '$(when:c)')
         $(ws)this.fsm.$(name:c)();
+.        ifprefix2 = "else "
 .      endfor
 .
 .      if (defined(public) & public = "true")
@@ -432,22 +442,27 @@ $(class.name:lower,Pascal).prototype.send$(name:Pascal)Message = function(type, 
     tx = new Container();
 .  endif
 .
+.  ifprefix = ""
 .  for outgoing where ((count(event) > 0))
 .    if (name <> "*")
 .      ws = "    "
-    if (type == ContainerType.$(class.msg_prefix + " " + name:upper,c))
+    $(ifprefix)if (type == ContainerType.$(class.msg_prefix + " " + name:upper,c))
     {
 .    else
 .      ws = ""
 .    endif
 .
+.    ifprefix2 = ""
 .    for event
-    $(ws)if (this.fsm.current == '$(when:c)')
+    $(ws)$(ifprefix2)if (this.fsm.current == '$(when:c)') {
         $(ws)this.fsm.$(name:c)();
+    $(ws)}
+.      ifprefix2 = "else "
 .    endfor
 .    if (name <> "*")
     }
 .    endif
+.    ifprefix = "else "
 .  endfor
 };
 .endfor
@@ -480,14 +495,19 @@ $(class.name:lower,Pascal).prototype.send$(name:Pascal) = function() {
 .for socket where (defined(socket.class) & (count(state) > 0))
 
 $(class.name:lower,Pascal).prototype.$(name)ChannelStateChanged = function(state) {
+.  ifprefix = ""
 .  for state where (count(event) > 0)
 
-    if (state == '$(name:c)') {
+    $(ifprefix)if (state == '$(name:c)') {
+.     ifprefix2 = ""
 .     for event
-        if (this.fsm.current == '$(when:c)')
+        $(ifprefix2)if (this.fsm.current == '$(when:c)') {
             this.fsm.$(name:c)();
+        }
+.       ifprefix2 = "else "
 .     endfor
     }
+.    ifprefix = "else "
 .  endfor
 };
 .endfor
