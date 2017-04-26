@@ -313,7 +313,6 @@ class $(class.name:lower,Pascal)(object):
 
     def stop_socket(self):
         self._shutdown.send(' ')  # trigger socket thread shutdown
-        self._thread.join()
         self._thread = None
 .    if (nature = "server")
         self._$(name)_port_event.clear()  # clear sync for port
