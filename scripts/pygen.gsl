@@ -308,7 +308,7 @@ class $(class.name:lower,Pascal)(object):
 
     def start_socket(self):
         self._thread = threading.Thread(target=self._socket_worker,
-                                       args=(self._context, self.$(name)_uri,))
+                                        args=(self._context, self.$(name)_uri,))
         self._thread.start()
 
     def stop_socket(self):
