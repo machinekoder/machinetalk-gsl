@@ -22,7 +22,8 @@ class $(class.name:lower,Pascal)(object):
     def __init__(self, debuglevel=0, debugname='$(class.name:)'):
         self.debuglevel = debuglevel
         self.debugname = debugname
-        self.error_string = ''
+        self._error_string = ''
+        self.on_error_string_changed = []
 .
 .for socket where (!defined(socket.class))
         # ZeroMQ
@@ -171,6 +172,18 @@ class $(class.name:lower,Pascal)(object):
 .  endfor
 .endfor
 .
+
+    @property
+    def error_string(self):
+        return self._error_string
+
+    @error_string.setter
+    def error_string(self, string):
+        if self._error_string is string:
+            return
+        self._error_string = string
+        for cb in self.on_error_string_changed:
+            cb(string)
 .for socket where (!defined(socket.class) & (nature = "server"))
 
     @property
