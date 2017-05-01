@@ -50,10 +50,10 @@ class $(class.name:lower,Pascal)(object):
         self._$(name)_channel = $(socket.class:lower,Pascal)(debuglevel=debuglevel)
         self._$(name)_channel.debugname = '%s - %s' % (self.debugname, '$(name:)')
 .    if (count(state) > 0)
-        self._$(name)_channel.state_changed_cb = self.$(name)_channel_state_changed
+        self._$(name)_channel.on_state_changed.append(self._$(name)_channel_state_changed)
 .    endif
 .    if (count(incoming) > 0)
-        self._$(name)_channel.socket_message_received_cb = self.$(name)_channel_message_received
+        self._$(name)_channel.on_socket_message_received.append(self._$(name)_channel_message_received)
 .    endif
 .  else
         self.$(name)_uri = ''
@@ -92,10 +92,10 @@ class $(class.name:lower,Pascal)(object):
         # callbacks
 .for socket
 .  if (count(incoming) > 0)
-        self.$(name)_message_received_cb = None
+        self.on_$(name)_message_received = []
 .  endif
 .endfor
-        self.state_changed_cb = None
+        self.on_state_changed = []
 
 .for fsm
         # fsm
@@ -130,8 +130,8 @@ class $(class.name:lower,Pascal)(object):
     def _on_fsm_$(name:c)(self, _):
         if self.debuglevel > 0:
             print('[%s]: state $(NAME)' % self.debugname)
-        if self.state_changed_cb:
-            self.state_changed_cb('$(name:c)')
+        for cb in self.on_state_changed:
+            cb('$(name:c)')
         return True
 .    for event
 .-     make sure we assign only once
@@ -303,7 +303,7 @@ class $(class.name:lower,Pascal)(object):
 .
 .    if (count(incoming) > 0)
             if socket in s:
-                self.socket_message_received(socket)
+                self._socket_message_received(socket)
 .    endif
 
     def start_socket(self):
@@ -403,12 +403,12 @@ class $(class.name:lower,Pascal)(object):
     # process all messages received on $(name:)
 .  if defined(socket.class)
 .    if ((type = "SUB") | (type = "ROUTER"))
-    def $(name)_channel_message_received(self, identity, rx):
+    def _$(name)_channel_message_received(self, identity, rx):
 .    else
-    def $(name)_channel_message_received(self, rx):
+    def _$(name)_channel_message_received(self, rx):
 .    endif
 .  else
-    def socket_message_received(self, socket):
+    def _socket_message_received(self, socket):
 .    if (type = "SUB")
         (identity, msg) = socket.recv_multipart()  # identity is topic
 .    elsif (type = "ROUTER")
@@ -490,11 +490,11 @@ class $(class.name:lower,Pascal)(object):
 .    endif
 .  endfor
 
-        if self.$(name)_message_received_cb:
+        for cb in self.on_$(name)_message_received:
 .  if ((type = "SUB") | (type = "ROUTER"))
-            self.$(name)_message_received_cb(identity, rx)
+            cb(identity, rx)
 .  else
-            self.$(name)_message_received_cb(rx)
+            cb(rx)
 .  endif
 .
 .
@@ -596,7 +596,7 @@ class $(class.name:lower,Pascal)(object):
 .- react on channel state changes
 .for socket where (defined(socket.class) & (count(state) > 0))
 
-    def $(name)_channel_state_changed(self, state):
+    def _$(name)_channel_state_changed(self, state):
 .  ifprefix = ""
 .  for state where (count(event) > 0)
 
