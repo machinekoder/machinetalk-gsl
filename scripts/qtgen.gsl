@@ -22,8 +22,12 @@
 #ifndef $(class.MODULE:c)_$(class.NAME:c)_H
 #define $(class.MODULE:c)_$(class.NAME:c)_H
 #include <QObject>
+#include <QSet>
 .if defined(class->socket.class)
 #include <QQmlParserStatus>
+.endif
+.if count(timer) > 0
+#include <QTimer>
 .endif
 #include <nzmqt/nzmqt.hpp>
 #include <$(project:c)/protobuf/message.pb.h>
