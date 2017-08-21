@@ -732,7 +732,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
     topic = messageList.at(0);
     rx.ParseFromArray(messageList.at(1).data(), messageList.at(1).size());
 .    else
-    rx.ParseFromArray(messageList.at(0).data(), messageList.at(0).size());
+    rx.ParseFromArray(messageList.last().data(), messageList.last().size());
 .    endif
 
 #ifdef QT_DEBUG
