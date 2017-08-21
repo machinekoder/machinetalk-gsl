@@ -584,7 +584,11 @@ bool $(class.name:lower,Pascal)::startSocket()
     m_socket->setLinger(0);
 
     try {
+.    if (nature = "client")
         m_socket->connectTo(m_socketUri);
+.    else
+        m_socket->bindTo(m_socketUri);
+.    endif
     }
     catch (const zmq::error_t &e) {
         QString errorString;
