@@ -593,7 +593,8 @@ bool $(class.name:lower,Pascal)::startSocket()
     catch (const zmq::error_t &e) {
         QString errorString;
         errorString = QString("Error %1: ").arg(e.num()) + QString(e.what());
-        //updateState(SocketError, errorString); TODO
+.-      TODO: updateState(SocketError, errorString);
+        qCritical() << m_debugName << ":" << errorString;
         return false;
     }
 .    if (count(incoming) > 0)
