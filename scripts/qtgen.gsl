@@ -221,7 +221,7 @@ public slots:
 .for socket
 .  if (count(outgoing) > 0)
 
-.    if (type = "PUB")
+.    if ((type = "XPUB") | (type = "ROUTER"))
     void send$(Name)Message(const QByteArray &topic, ContainerType type, Container &tx);
 .    else
     void send$(Name)Message(ContainerType type, Container &tx);
@@ -229,7 +229,7 @@ public slots:
 .  endif
 .
 .  for outgoing where ((name <> "*") & (defined(public)))
-.    if (socket.type = "PUB")
+.    if ((socket.type = "XPUB") | (socket.type = "ROUTER"))
     void send$(name:Pascal)(const QByteArray &topic, Container &tx);
 .    else
     void send$(name:Pascal)(Container &tx);
@@ -315,7 +315,7 @@ private slots:
     void $(name)ChannelStateChanged($(socket.module:Pascal,lower)::$(socket.class:lower,Pascal)::State state);
 .    endif
 .    if (count(incoming) > 0)
-.      if (type = "SUB")
+.      if ((type = "SUB") | (type = "ROUTER"))
     void process$(Name)ChannelMessage(const QByteArray &topic, const Container &rx);
 .      else
     void process$(Name)ChannelMessage(const Container &rx);
@@ -333,7 +333,7 @@ private slots:
 .  endif
 .
 .  for outgoing where ((name <> "*") & (!defined(public)))
-.    if (socket.type = "PUB")
+.    if ((socket.type = "XPUB") | (socket.type = "ROUTER"))
     void send$(name:Pascal)(const QByteArray &topic);
 .    else
     void send$(name:Pascal)();
@@ -359,7 +359,7 @@ private slots:
 
 .for socket
 .  for incoming where (defined(public) & (public = "true"))
-.    if (socket.type = "SUB")
+.    if ((socket.type = "SUB") | (socket.type = "ROUTER"))
     virtual void $(name:Camel)Received(const QByteArray &topic, const Container &rx) = 0;
 .    else
     virtual void $(name:Camel)Received(const Container &rx) = 0;
@@ -379,7 +379,7 @@ signals:
 .
 .for socket
 .  if (count(incoming) > 0)
-.    if (type = "SUB")
+.    if ((type = "SUB") | (type = "ROUTER"))
     void $(name)MessageReceived(const QByteArray &topic, const Container &rx);
 .    else
     void $(name)MessageReceived(const Container &rx);
@@ -715,7 +715,7 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
 
 /** Processes all message received on $(name:) */
 .  if defined(socket.class)
-.    if (type = "SUB")
+.    if ((type = "SUB") | (type = "ROUTER"))
 void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(const QByteArray &topic, const Container &rx)
 .    else
 void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(const Container &rx)
@@ -725,7 +725,7 @@ void $(class.name:lower,Pascal)::process$(Name)ChannelMessage(const Container &r
 void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &messageList)
 {
     Container &rx = m_$(name)Rx;
-.    if (type = "SUB")
+.    if ((type = "SUB") | (type = "ROUTER"))
     QByteArray topic;
 
     if (messageList.length() < 2)  // in case we received insufficient data
@@ -734,11 +734,10 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
     }
 
     // we only handle the first two messges
-    topic = messageList.at(0);
-    rx.ParseFromArray(messageList.at(1).data(), messageList.at(1).size());
-.    else
-    rx.ParseFromArray(messageList.last().data(), messageList.last().size());
+    topic = messageList.first();
+.-  TODO: handle multiple addresses here
 .    endif
+    rx.ParseFromArray(messageList.last().data(), messageList.last().size());
 
 #ifdef QT_DEBUG
     std::string s;
@@ -796,7 +795,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .      endfor
 .
 .      if (defined(public) & public = "true")
-.        if (socket.type = "SUB")
+.        if ((socket.type = "SUB") | (socket.type = "ROUTER"))
     $(ws)$(name:Camel)Received(topic, rx);
 .        else
     $(ws)$(name:Camel)Received(rx);
@@ -813,7 +812,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .  endfor
 .
 
-.  if (type = "SUB")
+.  if ((type = "SUB") | (type = "ROUTER"))
     emit $(name)MessageReceived(topic, rx);
 .  else
     emit $(name)MessageReceived(rx);
@@ -823,7 +822,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .
 .for socket where (count(outgoing) > 0)
 
-.  if (type = "PUB")
+.  if ((type = "XPUB") | (type = "ROUTER"))
 void $(class.name:lower,Pascal)::send$(Name)Message(const QByteArray &topic, ContainerType type, Container &tx)
 .  else
 void $(class.name:lower,Pascal)::send$(Name)Message(ContainerType type, Container &tx)
@@ -836,7 +835,7 @@ void $(class.name:lower,Pascal)::send$(Name)Message(ContainerType type, Containe
 
 .  endif
 .  if defined(socket.class)
-.    if (type = "PUB")
+.    if ((type = "XPUB") | (type = "ROUTER"))
     m_$(name)Channel->sendSocketMessage(topic, type, tx);
 .    else
     m_$(name)Channel->sendSocketMessage(type, tx);
@@ -849,7 +848,7 @@ void $(class.name:lower,Pascal)::send$(Name)Message(ContainerType type, Containe
     DEBUG_TAG(3, m_debugName, "sent message" << QString::fromStdString(s));
 #endif
     try {
-.    if (type = "PUB")
+.    if ((type = "XPUB") | (type = "ROUTER"))
         QList<QByteArray> message;
         message.append(topic);
         message.append(QByteArray(tx.SerializeAsString().c_str(), tx.ByteSize()));
@@ -897,7 +896,7 @@ void $(class.name:lower,Pascal)::send$(Name)Message(ContainerType type, Containe
 .for socket
 .  for outgoing where (name <> "*")
 
-.    if (socket.type = "PUB")
+.    if ((socket.type = "XPUB") | (socket.type = "ROUTER"))
 .      if defined(public)
 void $(class.name:lower,Pascal)::send$(name:Pascal)(const QByteArray &topic, Container &tx)
 {
