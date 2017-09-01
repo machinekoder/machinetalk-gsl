@@ -277,7 +277,7 @@ private:
 .
 .for timer
 
-    QTimer     *m_$(name)Timer;
+    QTimer      m_$(name)Timer;
     int         m_$(name)Interval;
 .  if (defined(liveness))
     int         m_$(name)Liveness;
@@ -459,7 +459,6 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent)
     , m_previousState($(class->fsm.Initial))
     , m_errorString("")
 .for timer
-    , m_$(name)Timer(new QTimer(this))
     , m_$(name)Interval($(interval))
 .  if (defined(liveness))
     , m_$(name)Liveness(0)
@@ -485,8 +484,8 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent)
 .
 .for timer
 
-    m_$(name)Timer->setSingleShot(true);
-    connect(m_$(name)Timer, &QTimer::timeout, this, &$(class.name:lower,Pascal)::$(name)TimerTick);
+    m_$(name)Timer.setSingleShot(true);
+    connect(&m_$(name)Timer, &QTimer::timeout, this, &$(class.name:lower,Pascal)::$(name)TimerTick);
 .endfor
 .- timer of channels
 .for socket
@@ -652,15 +651,15 @@ void $(class.name:lower,Pascal)::reset$(Name)Liveness()
 
 void $(class.name:lower,Pascal)::reset$(Name)Timer()
 {
-    if (m_$(name)Timer->isActive())
+    if (m_$(name)Timer.isActive())
     {
-        m_$(name)Timer->stop();
+        m_$(name)Timer.stop();
     }
 
     if (m_$(name)Interval > 0)
     {
-        m_$(name)Timer->setInterval(m_$(name)Interval);
-        m_$(name)Timer->start();
+        m_$(name)Timer.setInterval(m_$(name)Interval);
+        m_$(name)Timer.start();
     }
 }
 
@@ -671,7 +670,7 @@ void $(class.name:lower,Pascal)::start$(Name)Timer()
 
 void $(class.name:lower,Pascal)::stop$(Name)Timer()
 {
-    m_$(name)Timer->stop();
+    m_$(name)Timer.stop();
 }
 
 void $(class.name:lower,Pascal)::$(name)TimerTick()
