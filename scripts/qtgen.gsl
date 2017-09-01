@@ -149,8 +149,9 @@ public slots:
 .  if defined(socket.class)
         m_$(name)Channel->setSocketUri(uri);
 .  else
-        if (m_$(name)Uri == uri)
+        if (m_$(name)Uri == uri) {
             return;
+        }
 
         m_$(name)Uri = uri;
         emit $(name)UriChanged(uri);
@@ -160,8 +161,9 @@ public slots:
 
     void setDebugName(const QString &debugName)
     {
-        if (m_debugName == debugName)
+        if (m_debugName == debugName) {
             return;
+        }
 
         m_debugName = debugName;
         emit debugNameChanged(debugName);
@@ -170,8 +172,9 @@ public slots:
 
     void set$(Name)Interval(int interval)
     {
-        if (m_$(name)Interval == interval)
+        if (m_$(name)Interval == interval) {
             return;
+        }
 
         m_$(name)Interval = interval;
         emit $(name)IntervalChanged(interval);
@@ -190,8 +193,9 @@ public slots:
 
     void setReady(bool ready)
     {
-        if (m_ready == ready)
+        if (m_ready == ready) {
             return;
+        }
 
         m_ready = ready;
         emit readyChanged(ready);
