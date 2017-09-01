@@ -70,7 +70,7 @@ public:
     ~$(class.name:lower,Pascal)();
 
 .for fsm
-    enum State {
+    enum class State {
 .  for state
         $(Name) = $(index(state)-1),
 .  endfor
@@ -455,8 +455,8 @@ $(class.name:lower,Pascal)::$(class.name:lower,Pascal)(QObject *parent)
     , m_socket(nullptr)
 .  endif
 .endfor
-    , m_state($(class->fsm.Initial))
-    , m_previousState($(class->fsm.Initial))
+    , m_state(State::$(class->fsm.Initial))
+    , m_previousState(State::$(class->fsm.Initial))
     , m_errorString("")
 .for timer
     , m_$(name)Interval($(interval))
@@ -682,7 +682,7 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
 .    for timeout
 .      ifprefix = ""
 .      for event
-         $(ifprefix)if (m_state == $(when:Pascal))
+         $(ifprefix)if (m_state == State::$(when:Pascal))
          {
              emit fsm$(when:Pascal)$(name:Pascal)(QPrivateSignal());
          }
@@ -696,7 +696,7 @@ void $(class.name:lower,Pascal)::$(name)TimerTick()
 .  for tick
 .    ifprefix = ""
 .    for event
-    $(ifprefix)if (m_state == $(when:Pascal))
+    $(ifprefix)if (m_state == State::$(when:Pascal))
     {
         emit fsm$(when:Pascal)$(name:Pascal)(QPrivateSignal());
     }
@@ -783,7 +783,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .      ifprefix2 = ""
 .      for event
 
-    $(ws)$(ifprefix2)if (m_state == $(when:Pascal))
+    $(ws)$(ifprefix2)if (m_state == State::$(when:Pascal))
     $(ws){
         $(ws)emit fsm$(when:Pascal)$(name:Pascal)(QPrivateSignal());
     $(ws)}
@@ -875,7 +875,7 @@ void $(class.name:lower,Pascal)::send$(Name)Message(ContainerType type, Containe
 .    ifprefix2 = ""
 .    for event
 
-    $(ws)$(ifprefix2)if (m_state == $(when:Pascal))
+    $(ws)$(ifprefix2)if (m_state == State::$(when:Pascal))
     $(ws){
         $(ws)emit fsm$(when:Pascal)$(Name:Pascal)(QPrivateSignal());
     $(ws)}
@@ -936,7 +936,7 @@ void $(class.name:lower,Pascal)::fsm$(Name)()
 #ifdef QT_DEBUG
     DEBUG_TAG(1, m_debugName, "State $(NAME)");
 #endif
-    m_state = $(name:Pascal);
+    m_state = State::$(name:Pascal);
     emit stateChanged(m_state);
 }
 .    for entry
@@ -959,7 +959,7 @@ void $(class.name:lower,Pascal)::fsm$(Name)Exit()
 
 void $(class.name:lower,Pascal)::fsm$(state.Name)$(Name:Pascal)Event()
 {
-    if (m_state == $(state.name:Pascal))
+    if (m_state == State::$(state.name:Pascal))
     {
 #ifdef QT_DEBUG
         DEBUG_TAG(1, m_debugName, "Event $(NAME)");
@@ -987,11 +987,11 @@ void $(class.name:lower,Pascal)::$(name)ChannelStateChanged($(socket.module:Pasc
 .  ifprefix = ""
 .  for state where (count(event) > 0)
 
-    $(ifprefix)if (state == $(socket.module:Pascal,lower)::$(socket.class:lower,Pascal)::$(name:Pascal))
+    $(ifprefix)if (state == $(socket.module:Pascal,lower)::$(socket.class:lower,Pascal)::State::$(name:Pascal))
     {
 .     ifprefix2 = ""
 .     for event
-        $(ifprefix2)if (m_state == $(when:Pascal))
+        $(ifprefix2)if (m_state == State::$(when:Pascal))
         {
             emit fsm$(when:Pascal)$(name:Pascal)(QPrivateSignal());
         }
@@ -1010,7 +1010,7 @@ void $(class.name:lower,Pascal)::$(name:Camel)()
 {
 .  ifprefix = ""
 .  for event
-    $(ifprefix)if (m_state == $(when:Pascal)) {
+    $(ifprefix)if (m_state == State::$(when:Pascal)) {
         emit fsm$(when:Pascal)$(name:Pascal)(QPrivateSignal());
     }
 .    ifprefix = "else "
