@@ -29,7 +29,7 @@
   <timer
       name = "heartbeat"
       interval = "2500"
-      liveness = "2" >
+      liveness = "5" >
     For monitoring if the connection is alive.
     <tick>
       <event name = "heartbeat tick" when = "up" />
