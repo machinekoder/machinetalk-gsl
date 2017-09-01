@@ -144,7 +144,7 @@ public:
 public slots:
 .for socket
 
-    void set$(Name)Uri(QString uri)
+    void set$(Name)Uri(const QString &uri)
     {
 .  if defined(socket.class)
         m_$(name)Channel->setSocketUri(uri);
@@ -158,7 +158,7 @@ public slots:
     }
 .endfor
 
-    void setDebugName(QString debugName)
+    void setDebugName(const QString &debugName)
     {
         if (m_debugName == debugName)
             return;
@@ -324,7 +324,7 @@ private slots:
 .    if (count(incoming) > 0)
     void processSocketMessage(const QList<QByteArray> &messageList);
 .    endif
-    void socketError(int errorNum, const QString& errorMsg);
+    void socketError(int errorNum, const QString &errorMsg);
 
 .  endif
 .
@@ -370,7 +370,7 @@ private slots:
 
 signals:
 .for socket
-    void $(name)UriChanged(QString uri);
+    void $(name)UriChanged(const QString &uri);
 .endfor
 .
 .for socket
@@ -383,9 +383,9 @@ signals:
 .  endif
 .endfor
 .
-    void debugNameChanged(QString debugName);
+    void debugNameChanged(const QString &debugName);
     void stateChanged($(class.name:lower,Pascal)::State state);
-    void errorStringChanged(QString errorString);
+    void errorStringChanged(const QString &errorString);
 .for timer
     void $(name)IntervalChanged(int interval);
 .endfor
