@@ -39,6 +39,10 @@
       Shutdown Machinekit host.
     </outgoing>
 
+    <outgoing name = "launcher set" public = "true">
+      Set user defined launcher values.
+    </outgoing>
+
     <incoming name = "error" public = "false">
       Error on launchercmd channel.
       <note />

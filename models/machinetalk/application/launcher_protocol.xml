@@ -31,6 +31,8 @@
       </field>
       <field name = "returncode" requirement = "MUST" />
       <field name = "workdir" requirement = "MUST" />
+      <field name = "priority" requirement = "MAY" />
+      <field name = "importance" requirement = "MAY" />
     </field>
 
     <field name = "pparams" message = "ProtcolParameters" requirement = "MAY" quantity = "1">
@@ -69,6 +71,8 @@
       </field>
       <field name = "returncode" requirement = "MAY" />
       <field name = "workdir" requirement = "MAY" />
+      <field name = "priority" requirement = "MAY" />
+      <field name = "importance" requirement = "MAY" />
     </field>
 
     <field name = "serial" requirement = "MAY" />
@@ -121,6 +125,14 @@
   <message name = "launcher shutdown">
     Issues a shutdown request to the Launcher Service.
 
+  </message>
+
+  <message name = "launcher set">
+    Sets user defined fields of a launcher
+
+    <field name = "launcher" message = "Launcher" requirement = "MUST" quantity = "1+">
+      <field name = "importance" requirement = "MUST" />
+    </field>
   </message>
 
   <system name="Launcher">
