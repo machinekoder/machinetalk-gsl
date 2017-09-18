@@ -360,9 +360,9 @@ private slots:
 .for socket
 .  for incoming where (defined(public) & (public = "true"))
 .    if ((socket.type = "SUB") | (socket.type = "ROUTER"))
-    virtual void $(name:Camel)Received(const QByteArray &topic, const Container &rx) = 0;
+    virtual void handle$(name:Pascal)Message(const QByteArray &topic, const Container &rx) = 0;
 .    else
-    virtual void $(name:Camel)Received(const Container &rx) = 0;
+    virtual void handle$(name:Pascal)Message(const Container &rx) = 0;
 .    endif
 .  endfor
 .endfor
@@ -796,9 +796,9 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 .
 .      if (defined(public) & public = "true")
 .        if ((socket.type = "SUB") | (socket.type = "ROUTER"))
-    $(ws)$(name:Camel)Received(topic, rx);
+    $(ws)handle$(name:Pascal)Message(topic, rx);
 .        else
-    $(ws)$(name:Camel)Received(rx);
+    $(ws)handle$(name:Pascal)Message(rx);
 .        endif
 .      endif
 .
