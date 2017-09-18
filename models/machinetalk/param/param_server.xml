@@ -12,7 +12,7 @@
   </socket>
 
   <socket name = "param" class = "Publish" module = "Common">
-    The param channel is used to received status updates from the server.
+    The param channel is used to send status updates from the client.
 
     <outgoing name = "full update" public = "true">
       Full status update from remote end point.
