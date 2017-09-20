@@ -1,0 +1,35 @@
+<?xml version = "1.0" ?>
+<class name = "Log Base" module = "Application" project="Machinetalk" msg_prefix="MT">
+  Application Log Client
+
+  <protocol filename = "log_protocol.xml" />
+
+  <socket name = "log" class = "Simple Subscribe" module = "Common">
+    The log channel is used to receive log messages from the host.
+
+    <state name = "trying">
+    </state>
+
+    <state name = "up">
+      <event name = "log up" when = "trying" />
+    </state>
+
+    <incoming name = "log message" public = "true" />
+
+  </socket>
+
+  <slot name = "update topics" />
+  <slot name = "set connected" />
+  <slot name = "clear connected" />
+
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "trying"/>
+    <event name = "disconnect" when = "up"/>
+  </trigger>
+
+  <scxml filename="logbase_fsm.scxml"/>
+</class>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" xmlns:qt="http://www.qt.io/2015/02/scxml-ext" name="fsm" qt:editorversion="4.2.1" initial="down">
+    <qt:editorinfo initialGeometry="-280;-100;-20;-20;40;40"/>
+    <state id="down">
+        <qt:editorinfo geometry="-159.87;0;-60;-50;120;100" scenegeometry="-159.87;0;-219.87;-50;120;100"/>
+        <transition type="external" event="start" target="up">
+            <qt:editorinfo startTargetFactors="85.83;61.21" movePoint="20.26;0"/>
+            <raise event="start socket"/>
+        </transition>
+    </state>
+    <state id="up">
+        <qt:editorinfo geometry="446.29;-9.16;-175.08;-47.67;205.08;113.67" scenegeometry="446.29;-9.16;271.21;-56.83;205.08;113.67"/>
+        <transition type="external" event="any msg received" target="up">
+        </transition>
+        <transition type="external" event="stop" target="down">
+            <qt:editorinfo movePoint="3.80;6.33"/>
+            <raise event="stop socket"/>
+        </transition>
+    </state>
+</scxml>

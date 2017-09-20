@@ -1,0 +1,23 @@
+<?xml version = "1.0" ?>
+<class name = "Log Service Base" module = "Application" project="Machinetalk" msg_prefix="MT">
+  Log Service Provider
+
+  <socket name = "log" class = "Publish" module = "Common">
+    The log channel is used to send status updates from the client.
+
+    <outgoing name = "log message" public = "true">
+      A log message.
+    </outgoing>
+
+  </socket>
+
+  <trigger name = "start">
+    <event name = "connect" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "disconnect" when = "up"/>
+  </trigger>
+
+  <scxml filename="logservice_fsm.scxml"/>
+</class>

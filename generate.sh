@@ -47,6 +47,7 @@ if [ "$1" = "components" ]; then
 component machinetalk/common rpc_client
 component machinetalk/common rpc_service
 component machinetalk/common subscribe
+component machinetalk/common simple_subscribe
 component machinetalk/common publish
 component machinetalk/common sync_client
 component machinetalk/halremote halrcomp
@@ -61,6 +62,8 @@ component machinetalk/application error_subscribe
 component machinetalk/application command
 component machinetalk/application status
 component machinetalk/application status_subscribe
+component machinetalk/application logbase
+component machinetalk/application logservice
 component machinetalk/pathview previewclient
 component machinetalk/pathview preview_subscribe
 fi
@@ -74,6 +77,7 @@ protocol machinetalk/application launcher_protocol
 protocol machinetalk/application config_protocol
 protocol machinetalk/application command_protocol
 protocol machinetalk/application status_protocol
+protocol machinetalk/application log_protocol
 protocol machinetalk/pathview preview_protocol
 fi
 

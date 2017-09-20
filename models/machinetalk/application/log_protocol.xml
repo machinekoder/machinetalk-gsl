@@ -1,0 +1,24 @@
+<?xml version = "1.0" ?>
+<protocol name = "Log Protocol" module = "Application" project = "Machinetalk">
+  The log protocol is used to retrieve log messages from msgd.
+
+  <message name = "log message">
+    Log message from msgq.
+
+    <field name = "log_message" requirement = "MUST" quantity = "1">
+      <field name = "origin" requirement = "MUST" />
+      <field name = "pid" requirement = "MUST" />
+      <field name = "level" requirement = "MUST" />
+      <field name = "tag" requirement = "MUST" />
+      <field name = "text" requirement = "MUST" />
+    </field>
+
+  </message>
+
+  <system name="Log">
+    Application Log components.
+    <include filename="logbase.xml" />
+    <include filename="logservice.xml" />
+  </system>
+
+</protocol>

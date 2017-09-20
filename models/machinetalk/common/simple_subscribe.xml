@@ -1,0 +1,25 @@
+<?xml version = "1.0" ?>
+<class name = "Simple Subscribe" module = "Common" project="Machinetalk" msg_prefix="MT">
+  Simple subscribe channel without reliabitlity.
+
+  <socket type = "SUB" nature = "client" name = "socket">
+    Alle messages are passed over this socket.
+
+    <incoming name = "*">
+      Any message from publiser.
+      <event name = "any msg received" when = "up"/>
+    </incoming>
+
+  </socket>
+
+  <trigger name = "start">
+    <event name = "start" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "stop" when = "up"/>
+  </trigger>
+
+  <scxml filename="simple_subscribe_fsm.scxml"/>
+
+</class>
