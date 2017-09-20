@@ -238,7 +238,7 @@ public slots:
 .endfor
 .
 .for socket
-.  if (type = "SUB")
+.  if ((type = "SUB") | (type = "XPUB"))
     void add$(Name)Topic(const QByteArray &name);
     void remove$(Name)Topic(const QByteArray &name);
     void clear$(Name)Topics();
@@ -258,7 +258,7 @@ private:
     QString m_debugName;
 
 .for socket
-.  if (type = "SUB")
+.  if ((type = "SUB" | (type = "XPUB")))
     QSet<QByteArray> m_$(name)Topics;  // the topics we are interested in
 .  endif
 .  if defined(socket.class)
@@ -333,11 +333,7 @@ private slots:
 .  endif
 .
 .  for outgoing where ((name <> "*") & (!defined(public)))
-.    if ((socket.type = "XPUB") | (socket.type = "ROUTER"))
-    void send$(name:Pascal)(const QByteArray &topic);
-.    else
     void send$(name:Pascal)();
-.    endif
 .  endfor
 .endfor
 .
@@ -542,7 +538,7 @@ $(class.name:lower,Pascal)::~$(class.name:lower,Pascal)()
 }
 .
 .for socket
-.  if (type = "SUB")
+.  if ((type = "SUB") | (type = "XPUB"))
 
 /** Add a topic that should be subscribed **/
 void $(class.name:lower,Pascal)::add$(Name)Topic(const QByteArray &name)
@@ -899,12 +895,15 @@ void $(class.name:lower,Pascal)::send$(Name)Message(ContainerType type, Containe
 .      if defined(public)
 void $(class.name:lower,Pascal)::send$(name:Pascal)(const QByteArray &topic, Container &tx)
 {
+    send$(socket.Name)Message(topic, $(class.msg_prefix + " " + name:upper,c), tx);
 .      else
-void $(class.name:lower,Pascal)::send$(name:Pascal)(const QByteArray &topic)
+void $(class.name:lower,Pascal)::send$(name:Pascal)()
 {
     Container &tx = m_$(socket.name)Tx;
+    for (const auto &topic: m_$(socket.name)Topics) {
+        send$(socket.Name)Message(topic, $(class.msg_prefix + " " + name:upper,c), tx);
+    }
 .      endif
-    send$(socket.Name)Message(topic, $(class.msg_prefix + " " + name:upper,c), tx);
 }
 .    else
 .      if defined(public)
