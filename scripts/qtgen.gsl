@@ -591,8 +591,7 @@ bool $(class.name:lower,Pascal)::startSocket()
 .    endif
     }
     catch (const zmq::error_t &e) {
-        QString errorString;
-        errorString = QString("Error %1: ").arg(e.num()) + QString(e.what());
+        const QString errorString = QString("Error %1: ").arg(e.num()) + QString(e.what());
 .-      TODO: updateState(SocketError, errorString);
         qCritical() << m_debugName << ":" << errorString;
         return false;
@@ -742,7 +741,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 #ifdef QT_DEBUG
     std::string s;
     gpb::TextFormat::PrintToString(rx, &s);
-    DEBUG_TAG(3, m_debugName, "server message" << QString::fromStdString(s));
+    DEBUG_TAG(3, m_debugName, "received message" << QString::fromStdString(s));
 #endif
 .  endif
 .
@@ -858,8 +857,8 @@ void $(class.name:lower,Pascal)::send$(Name)Message(ContainerType type, Containe
 .    endif
     }
     catch (const zmq::error_t &e) {
-        QString errorString;
-        errorString = QString("Error %1: ").arg(e.num()) + QString(e.what());
+        const QString errorString = QString("Error %1: ").arg(e.num()) + QString(e.what());
+        qCritical() << errorString;
 .-      TODO: updateState(SocketError, errorString);  TODO
         return;
     }
@@ -925,8 +924,8 @@ void $(class.name:lower,Pascal)::send$(name:Pascal)()
 
 void $(class.name:lower,Pascal)::socketError(int errorNum, const QString &errorMsg)
 {
-    QString errorString;
-    errorString = QString("Error %1: ").arg(errorNum) + errorMsg;
+    const QString errorString = QString("Error %1: ").arg(errorNum) + errorMsg;
+    qCritical() << errorString;
 .-  TODO: updateState(SocketError, errorString);  TODO
 }
 .  endif
