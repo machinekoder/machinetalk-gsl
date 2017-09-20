@@ -721,7 +721,6 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
 {
     Container &rx = m_$(name)Rx;
 .    if ((type = "SUB") | (type = "ROUTER"))
-    QByteArray topic;
 
     if (messageList.length() < 2)  // in case we received insufficient data
     {
@@ -729,7 +728,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
     }
 
     // we only handle the first two messges
-    topic = messageList.first();
+    const auto &topic = messageList.first();
 .-  TODO: handle multiple addresses here
 .    endif
     rx.ParseFromArray(messageList.last().data(), messageList.last().size());
