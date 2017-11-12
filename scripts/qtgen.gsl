@@ -23,6 +23,7 @@
 #define $(class.MODULE:c)_$(class.NAME:c)_H
 #include <QObject>
 #include <QSet>
+#include <QDebug>
 .if defined(class->socket.class)
 #include <QQmlParserStatus>
 .endif
