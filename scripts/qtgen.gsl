@@ -64,7 +64,6 @@ class $(class.name:lower,Pascal)
     Q_PROPERTY(int $(socket.name:lower,Camel)$(Name)Interval READ $(socket.name:lower,Camel)$(Name)Interval WRITE set$(socket.name:lower,Pascal)$(Name)Interval NOTIFY $(socket.name:lower,Camel)$(Name)IntervalChanged)
 .  endfor
 .endfor
-    Q_ENUMS(State)
 
 public:
     explicit $(class.name:lower,Pascal)(QObject *parent = nullptr);
@@ -76,6 +75,7 @@ public:
         $(Name) = $(index(state)-1),
 .  endfor
     };
+    Q_ENUM(State)
 .endfor
 .
 .if defined(class->socket.class)
