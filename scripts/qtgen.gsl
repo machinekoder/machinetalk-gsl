@@ -732,6 +732,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
     const auto &topic = messageList.first();
 .-  TODO: handle multiple addresses here
 .    endif
+.    if (type <> "XPUB")
     rx.ParseFromArray(messageList.last().data(), messageList.last().size());
 
 #ifdef QT_DEBUG
@@ -739,6 +740,7 @@ void $(class.name:lower,Pascal)::processSocketMessage(const QList<QByteArray> &m
     gpb::TextFormat::PrintToString(rx, &s);
     DEBUG_TAG(3, m_debugName, "received message" << QString::fromStdString(s));
 #endif
+.    endif
 .  endif
 .
 .  ifprefix = ""
