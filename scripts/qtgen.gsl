@@ -848,10 +848,10 @@ void $(class.name:lower,Pascal)::send$(Name)Message(ContainerType type, Containe
 .    if ((type = "XPUB") | (type = "ROUTER"))
         QList<QByteArray> message;
         message.append(topic);
-        message.append(QByteArray::fromRawData(tx.SerializeAsString().c_str(), tx.ByteSize()));
+        message.append(QByteArray(tx.SerializeAsString().c_str(), tx.ByteSize()));
         m_socket->sendMessage(message);
 .    else
-        m_socket->sendMessage(QByteArray::fromRawData(tx.SerializeAsString().c_str(), tx.ByteSize()));
+        m_socket->sendMessage(QByteArray(tx.SerializeAsString().c_str(), tx.ByteSize()));
 .    endif
     }
     catch (const zmq::error_t &e) {
