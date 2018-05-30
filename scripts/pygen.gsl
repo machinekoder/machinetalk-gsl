@@ -6,9 +6,16 @@
 .gsl from "scripts/prepare_socket.gsl"
 .path = "generated/python/$(project:c)/$(class.module:Pascal,lower)"
 .output path + "/$(class.name:Pascal,lower).py"
+# coding=utf-8
+.for socket where (!defined(socket.class))
+.  if !defined(imported)
 import zmq
 import threading
 import uuid
+from google.protobuf.message import DecodeError
+.  endif
+.  imported = 1
+.endfor
 from fysom import Fysom
 .for socket where (defined(socket.class))
 from ..$(module:Pascal,lower).$(socket.class:Pascal,lower) import $(socket.class:lower,Pascal)
@@ -100,14 +107,16 @@ class $(class.name:lower,Pascal)(object):
 
 .for fsm
         # fsm
-        self._fsm = Fysom({'initial': '$(initial:c)',
-                          'events': [
+        self._fsm = Fysom(
+            {'initial': '$(initial:c)',
+             'events': [
 .  for state
 .    for event
-                            {'name': '$(name:c)', 'src': '$(state.name:c)', 'dst': '$(next:c)'},
+                 {'name': '$(name:c)', 'src': '$(state.name:c)', 'dst': '$(next:c)'},
 .    endfor
 .  endfor
-                          ]})
+             ]}
+        )
 
 .  for state
         self._fsm.on$(name:c) = self._on_fsm_$(name:c)
@@ -270,7 +279,7 @@ class $(class.name:lower,Pascal)(object):
 .    if (nature = "client")
         socket.connect(uri)
 .    else
-        if (('ipc://' in uri) or ('inproc://' in uri)):
+        if ('ipc://' in uri) or ('inproc://' in uri):
             socket.bind(uri)
         else:
             self._$(name)_port = socket.bind_to_random_port(uri)
@@ -391,8 +400,10 @@ class $(class.name:lower,Pascal)(object):
             self._$(name)_timer = None
 
         if self._$(name)_interval > 0:
-            self._$(name)_timer = threading.Timer(self._$(name)_interval / 1000.0,
-                                                 self._$(name)_timer_tick)
+            self._$(name)_timer = threading.Timer(
+                self._$(name)_interval / 1000.0,
+                self._$(name)_timer_tick
+            )
             self._$(name)_timer.start()
         self._$(name)_lock.release()
         if self.debuglevel > 0:
@@ -444,7 +455,7 @@ class $(class.name:lower,Pascal)(object):
         if self.debuglevel > 0:
             print('[%s] received message' % self.debugname)
             if self.debuglevel > 1:
-                print(self.$(name)_rx)
+                print(self._$(name)_rx)
         rx = self._$(name)_rx
 .    else
         rx = msg
@@ -613,7 +624,7 @@ class $(class.name:lower,Pascal)(object):
 .  ifprefix = ""
 .  for state where (count(event) > 0)
 
-        $(ifprefix)if (state == '$(name:c)'):
+        $(ifprefix)if state == '$(name:c)':
 .     ifprefix2 = ""
 .     for event
             $(ifprefix2)if self._fsm.isstate('$(when:c)'):
