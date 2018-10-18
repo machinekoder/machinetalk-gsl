@@ -127,10 +127,7 @@ class $(class.name:lower,Pascal)(object):
         self._fsm.onafter$(name:c) = self._on_fsm_$(name:c)
 .      endif
 .    endfor
-.-   entry and exit
-.    for entry
-        self._fsm.onenter$(state.name:c) = self._on_fsm_$(state.name:c)_entry
-.    endfor
+.-   exit
 .    for exit
         self._fsm.onleave$(state.name:c) = self._on_fsm_$(state.name:c)_exit
 .    endfor
@@ -138,6 +135,14 @@ class $(class.name:lower,Pascal)(object):
 .  for state
 
     def _on_fsm_$(name:c)(self, _):
+.-   entry
+.    for entry
+        if self.debuglevel > 0:
+            print('[%s]: state $(state.NAME) entry' % self.debugname)
+.      for action
+        self.$(name:c)()
+.      endfor
+.    endfor
         if self.debuglevel > 0:
             print('[%s]: state $(NAME)' % self.debugname)
         for cb in self.on_state_changed:
@@ -157,17 +162,7 @@ class $(class.name:lower,Pascal)(object):
         return True
 .      endif
 .    endfor
-.-   entry and exit
-.    for entry
-
-    def _on_fsm_$(state.name:c)_entry(self, _):
-        if self.debuglevel > 0:
-            print('[%s]: state $(state.NAME) entry' % self.debugname)
-.      for action
-        self.$(name:c)()
-.      endfor
-        return True
-.    endfor
+.-   exit
 .    for exit
 
     def _on_fsm_$(state.name:c)_exit(self, _):
