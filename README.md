@@ -1,5 +1,5 @@
 # Machinetalk code generator
-  This code generator is based on [imatix/gsl](https://github.com/imatix/gsl) and generates code for
+  This code generator is based on [zeromq/gsl](https://github.com/zeromq/gsl) and generates code for
   Machinetalk protocol bindings. The idea is that protocol description
   resides in a single model from which documentation and different
   language bindings can be generated.
@@ -19,7 +19,7 @@
    - generate.sh: fires up the code generator
 
 ## Getting started
-   - First install gsl by following these [instructions](https://github.com/imatix/gsl#toc3-32).
+   - First install gsl by following these [instructions](https://github.com/zeromq/gsl#toc3-32).
    - Then install graphviz `sudo apt install graphviz`
    - Fire up `sh generate.sh`
 
@@ -37,7 +37,7 @@
 
 ## Working with the code generators
    The code generators are written in the GSL language. For more
-   information follow the tutorials at [GitHub:imatix/gsl](https://github.com/imatix/gsl#starting-with-gsl)
+   information follow the tutorials at [GitHub:zeromq/gsl](https://github.com/zeromq/gsl#starting-with-gsl)
 
    I found it most useful to use GNU Emacs to edit the gsl
    files. Put the editor into the major-mode for the corresponding language
@@ -58,7 +58,7 @@
   :group 'hi-lock-faces)
 
 (define-minor-mode gsl-minor-mode
-  "Highlight imatix/GSL code."
+  "Highlight zeromq/GSL code."
   :global t
   :lighter " gsl"
   (if gsl-minor-mode
