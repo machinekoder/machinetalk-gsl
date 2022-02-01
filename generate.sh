@@ -42,6 +42,7 @@ mk_dirs machinetalk/halremote
 mk_dirs machinetalk/param
 mk_dirs machinetalk/application
 mk_dirs machinetalk/pathview
+mk_dirs machinetalk/remotefile
 
 if [ "$1" = "components" ]; then
 component machinetalk/common rpc_client
@@ -66,6 +67,9 @@ component machinetalk/application logbase
 component machinetalk/application logservice
 component machinetalk/pathview previewclient
 component machinetalk/pathview preview_subscribe
+component machinetalk/remotefile file
+component machinetalk/remotefile file_service
+
 fi
 
 if [ "$1" = "protocols" ]; then
@@ -79,6 +83,8 @@ protocol machinetalk/application command_protocol
 protocol machinetalk/application status_protocol
 protocol machinetalk/application log_protocol
 protocol machinetalk/pathview preview_protocol
+protocol machinetalk/remotefile file_protocol
+
 fi
 
 if [ "$1" = "clean" ]; then
@@ -87,4 +93,5 @@ clean_dirs machinetalk/application
 clean_dirs machinetalk/halremote
 clean_dirs machinetalk/param
 clean_dirs machinetalk/pathview
+clean_dirs machinetalk/remotefile
 fi

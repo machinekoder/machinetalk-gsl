@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" version="1.0" binding="early" xmlns:qt="http://www.qt.io/2015/02/scxml-ext" name="fsm" qt:editorversion="4.1.82" initial="down">
+    <qt:editorinfo initialGeometry="-190;-100;-20;-20;40;40"/>
+    <state id="down">
+        <qt:editorinfo geometry="-80;0;-60;-50;120;100" scenegeometry="-80;0;-140;-50;120;100"/>
+        <transition type="external" event="connect" target="trying">
+            <qt:editorinfo movePoint="39.01;-1.18"/>
+            <raise event="start file2 channel"/>
+        </transition>
+        <onentry>
+            <raise event="clear connected"/>
+        </onentry>
+    </state>
+    <state id="trying">
+        <qt:editorinfo geometry="196.23;541.02;-60;-50;120;100" scenegeometry="196.23;541.02;136.23;491.02;120;100"/>
+        <transition type="external" event="file2 up" target="up">
+            <qt:editorinfo movePoint="-9.46;-7.09"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <qt:editorinfo movePoint="-53.02;-16.66" localGeometry="-240.94;-232.04"/>
+            <raise event="stop file2 channel"/>
+        </transition>
+    </state>
+    <state id="up">
+        <qt:editorinfo geometry="896.20;57.92;-60;-50;120;100" scenegeometry="896.20;57.92;836.20;7.92;120;100"/>
+        <transition type="external" event="file2 trying" target="trying">
+            <qt:editorinfo movePoint="-125.30;-2.36" localGeometry="-446.81;173.16"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <qt:editorinfo movePoint="-24.82;10.64"/>
+            <raise event="stop file2 channel"/>
+        </transition>
+        <onentry>
+            <raise event="set connected"/>
+        </onentry>
+        <transition type="external" event="get msg sent" target="get">
+            <qt:editorinfo movePoint="-28.61;-5.72"/>
+            <raise event="get cmd started"/>
+        </transition>
+        <transition type="external" event="put msg sent" target="put">
+            <qt:editorinfo movePoint="-55.78;11.44"/>
+            <raise event="put cmd started"/>
+        </transition>
+        <transition type="external" event="ls msg sent" target="ls">
+            <raise event="ls cmd started"/>
+        </transition>
+        <transition type="external" event="mkdir msg sent" target="mkdir">
+            <qt:editorinfo movePoint="-151.62;92.97"/>
+            <raise event="mkdir cmd started"/>
+        </transition>
+        <transition type="external" event="delete msg sent" target="delete">
+            <qt:editorinfo movePoint="-145.90;203.11" localGeometry="0;421.25"/>
+            <raise event="delete cmd started"/>
+        </transition>
+    </state>
+    <state id="get">
+        <qt:editorinfo geometry="1200.06;-224.57;-60;-50;120;100" scenegeometry="1200.06;-224.57;1140.06;-274.57;120;100"/>
+        <transition type="external" event="get successful" target="up">
+            <qt:editorinfo movePoint="-94.40;62.94" localGeometry="-72.94;197.39"/>
+            <raise event="get cmd succeded"/>
+        </transition>
+        <transition type="external" event="get failed" target="up">
+            <qt:editorinfo movePoint="-61.51;90.11" endTargetFactors="80.96;65.42" localGeometry="-17.16;240.30"/>
+            <raise event="get cmd failed"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <qt:editorinfo movePoint="58.64;-15.73" endTargetFactors="77.27;21.64" localGeometry="-782.40;-72.94"/>
+            <raise event="stop file2 channel"/>
+        </transition>
+    </state>
+    <state id="put">
+        <qt:editorinfo geometry="459.14;-194.53;-60;-50;120;100" scenegeometry="459.14;-194.53;399.14;-244.53;120;100"/>
+        <transition type="external" event="put successful" target="up">
+            <qt:editorinfo movePoint="48.63;0" endTargetFactors="30.48;18.56" localGeometry="306.10;98.70"/>
+            <raise event="put cmd succeded"/>
+        </transition>
+        <transition type="external" event="put failed" target="up">
+            <qt:editorinfo endTargetFactors="49.41;18.56" localGeometry="323.26;-20.02"/>
+            <raise event="put cmd failed"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <qt:editorinfo movePoint="50.07;5.72" endTargetFactors="79.38;35.20"/>
+            <raise event="stop file2 channel"/>
+        </transition>
+    </state>
+    <state id="ls">
+        <qt:editorinfo geometry="1411.76;213.12;-60;-50;120;100" scenegeometry="1411.76;213.12;1351.76;163.12;120;100"/>
+        <transition type="external" event="ls successful" target="up">
+            <qt:editorinfo movePoint="-32.90;-22.89" endTargetFactors="57.83;76.52" localGeometry="-288.93;-1.64"/>
+            <raise event="ls cmd succeded"/>
+        </transition>
+        <transition type="external" event="ls failed" target="up">
+            <qt:editorinfo movePoint="-70.09;-12.87" endTargetFactors="51.52;80.22" localGeometry="-336.14;60.08"/>
+            <raise event="ls cmd failed"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <qt:editorinfo movePoint="57.21;-21.46" endTargetFactors="54.13;29.04" localGeometry="-137.32;-526.37;-1055.60;-569.28"/>
+            <raise event="stop file2 channel"/>
+        </transition>
+    </state>
+    <state id="mkdir">
+        <qt:editorinfo geometry="570.70;416.24;-60;-50;120;100" scenegeometry="570.70;416.24;510.70;366.24;120;100"/>
+        <transition type="external" event="mkdir successful" target="up">
+            <qt:editorinfo movePoint="25.75;-18.59" endTargetFactors="29.43;83.92" localGeometry="223.15;-80.11"/>
+            <raise event="mkdir cmd succeded"/>
+        </transition>
+        <transition type="external" event="mkdir failed" target="up">
+            <qt:editorinfo movePoint="47.20;1.43" endTargetFactors="36.79;78.98" localGeometry="265.65;-27.48"/>
+            <raise event="mkdir cmd failed"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <qt:editorinfo movePoint="60.07;-12.87" endTargetFactors="34.15;80.83" localGeometry="-399.06;237.43;-693.71;-28.61"/>
+            <raise event="stop file2 channel"/>
+        </transition>
+    </state>
+    <state id="delete">
+        <qt:editorinfo geometry="556.41;676.56;-60;-50;120;100" scenegeometry="556.41;676.56;496.41;626.56;120;100"/>
+        <transition type="external" event="delete successful" target="up">
+            <qt:editorinfo movePoint="110.14;-44.34" endTargetFactors="52.57;81.45" localGeometry="416.23;-137.32"/>
+            <raise event="delete cmd succeded"/>
+        </transition>
+        <transition type="external" event="delete failed" target="up">
+            <qt:editorinfo movePoint="161.63;-35.76" localGeometry="489.18;-102.99"/>
+            <raise event="delete cmd failed"/>
+        </transition>
+        <transition type="external" event="disconnect" target="down">
+            <qt:editorinfo movePoint="-11.44;14.31" endTargetFactors="20.48;83.29" localGeometry="-449.13;35.76;-723.76;-281.78"/>
+            <raise event="stop file2 channel"/>
+        </transition>
+    </state>
+</scxml>

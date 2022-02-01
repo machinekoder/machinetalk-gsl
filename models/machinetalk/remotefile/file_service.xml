@@ -1,0 +1,61 @@
+<?xml version = "1.0" ?>
+<class name="File Service Base" module="Remote File" project="Machinetalk" msg_prefix="MT">
+  File Service
+
+  <protocol filename="file_protocol.xml"/>
+
+  <socket name="file2" class="RPC Service" module="Common">
+    The file2 channel is used distributed files from and to the file2 service.
+
+    <state name="up">
+      <event name="file2 up" when="trying"/>
+    </state>
+
+    <outgoing name = "ping acknowledge" public="true">
+      Ping acknowledge to client.
+    </outgoing>
+
+    <incoming name = "ping" public="true">
+      Ping from client.
+    </incoming>
+
+    <incoming name="get" public="true"/>
+    <incoming name="put" public="true"/>
+    <incoming name="ls" public="true"/>
+    <incoming name="mkdir" public="true"/>
+    <incoming name="delete" public="true"/>
+
+    <outgoing name="file data" public="true"/>
+    <outgoing name="listing" public="true"/>
+    <outgoing name="cmd complete" public="true"/>
+    <outgoing name="error" public="true"/>
+  </socket>
+
+  <trigger name = "start">
+    <event name = "start" when = "down"/>
+  </trigger>
+
+  <trigger name = "stop">
+    <event name = "stop" when = "up"/>
+  </trigger>
+
+  <fsm name = "fsm" initial = "down">
+    <state name = "down">
+        <event name = "start" next = "trying">
+          <action name = "start file2 channel" />
+        </event>
+    </state>
+
+    <state name = "trying">
+        <event name = "file2 up" next = "up">
+        </event>
+    </state>
+
+    <state name = "up">
+      <event name = "stop" next = "down">
+        <action name = "stop file2 channel" />
+      </event>
+    </state>
+  </fsm>
+
+</class>

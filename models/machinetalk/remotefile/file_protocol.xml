@@ -1,0 +1,118 @@
+<?xml version="1.0" ?>
+<protocol name="File Protocol" module="Remote File" project="Machinetalk">
+  The file protocol can be used to transfer file from and to a server.
+
+  <message name="get">
+    Request one file from the service.
+
+    <field name="file_service_data" message="FileServiceData" requirement="MUST">
+      <field name="files" message="File" requirement="MUST" quantity="1">
+        <field name="name" requirement="MUST"/>
+      </field>
+    </field>
+
+    <response name="file data"/>
+    <response name="error"/>
+  </message>
+
+  <message name="file data">
+    File data result from the service.
+
+    <field name="file_service_data" message="FileServiceData" requirement="MUST">
+      <field name="files" message="File" requirement="MUST" quantity="1">
+        <field name="name" requirement="MUST"/>
+        <field name="blob" requirement="MUST"/>
+        <field name="encoding" requirement="MUST"/>
+      </field>
+    </field>
+
+    <response name="file data"/>
+    <response name="error"/>
+  </message>
+
+  <message name="put">
+    Send one file to the service.
+
+    <field name="file_service_data" message="FileServiceData" requirement="MUST">
+      <field name="files" message="File" requirement="MUST" quantity="1">
+        <field name="name" requirement="MUST"/>
+        <field name="blob" requirement="MUST"/>
+        <field name="encoding" requirement="MUST"/>
+      </field>
+    </field>
+
+    <response name="cmd complete"/>
+    <response name="error"/>
+  </message>
+
+  <message name="ls">
+    Request one file from the service.
+
+    <field name="file_service_data" message="FileServiceData" requirement="MUST">
+      <field name="files" message="File" requirement="MUST" quantity="1">
+        <field name="name" requirement="MUST" />
+      </field>
+    </field>
+
+    <response name="listing"/>
+    <response name="error"/>
+  </message>
+
+  <message name="listing">
+    Directory listing returned by the file service.
+
+    Each item of the directory listing MAY contain a the size field if the entry is a file.
+
+    <field name="file_service_data" message="FileServiceData" requirement="MUST">
+      <field name="files" message="File" requirement="MUST" quantity="0+">
+        <field name="name" requirement="MUST"/>
+        <field name="is_dir" requirement="MUST"/>
+        <field name="size" requirement="MAY"/>
+      </field>
+    </field>
+  </message>
+
+  <message name="mkdir">
+    Create a single directory on the service file system.
+
+    <field name="file_service_data" message="FileServiceData" requirement="MUST">
+      <field name="files" message="File" requirement="MUST" quantity="1">
+        <field name="name" requirement="MUST" />
+      </field>
+    </field>
+
+    <response name="cmd complete"/>
+    <response name="error"/>
+  </message>
+
+  <message name="delete">
+    Removes a single file or directory on the service file system.
+
+    <field name="file_service_data" message="FileServiceData" requirement="MUST">
+      <field name="files" message="File" requirement="MUST" quantity="1">
+        <field name="name" requirement="MUST" />
+      </field>
+    </field>
+
+    <response name="cmd complete"/>
+    <response name="error"/>
+  </message>
+
+  <message name="cmd complete">
+    Indicates that a command has been completed.
+  </message>
+
+  <message name="error">
+    Response from server when the command parameters are wrong or the command failed.
+
+    <field name="note" requirement="MUST" quantity="1+" />
+  </message>
+
+  <system name="File">
+    File components.
+
+    <include filename="file.xml" />
+    <include filename="file_service.xml" />
+  </system>
+
+</protocol>

@@ -1,0 +1,91 @@
+<?xml version = "1.0" ?>
+<class name="File Base" module="Remote File" project="Machinetalk" msg_prefix="MT">
+  File Client
+
+  <protocol filename="file_protocol.xml"/>
+
+  <socket name="file2" class="RPC Client" module="Common">
+    The file2 channel is used distributed files from and to the file2 service.
+
+    <state name="trying">
+      <event name="file2 trying" when="up"/>
+    </state>
+    <state name="up">
+      <event name="file2 up" when="trying"/>
+    </state>
+
+    <outgoing name="get" public="true">
+      <event name="get msg sent" when="up"/>
+    </outgoing>
+    <outgoing name="put" public="true">
+      <event name="put msg sent" when="up"/>
+    </outgoing>
+    <outgoing name="ls" public="true">
+      <event name="ls msg sent" when="up"/>
+    </outgoing>
+    <outgoing name="mkdir" public="true">
+      <event name="mkdir msg sent" when="up"/>
+    </outgoing>
+    <outgoing name="delete" public="true">
+      <event name="delete msg sent" when="up"/>
+    </outgoing>
+
+    <incoming name="listing" public="true">
+      <event name="ls successful" when="ls"/>
+    </incoming>
+
+    <incoming name="file data" public="true">
+      <event name="get successful" when="get"/>
+    </incoming>
+
+    <incoming name="cmd complete" public="false">
+      <event name="mkdir successful" when="mkdir"/>
+      <event name="delete successful" when="delete"/>
+      <event name="put successful" when="put"/>
+    </incoming>
+
+    <incoming name="error" public="false">
+      <event name="mkdir failed" when="mkdir"/>
+      <event name="delete failed" when="delete"/>
+      <event name="put failed" when="put"/>
+      <event name="get failed" when="get"/>
+      <event name="ls failed" when="ls"/>
+      <note />
+    </incoming>
+  </socket>
+
+  <slot name="set connected"/>
+  <slot name="clear connected"/>
+  <slot name="get cmd started"/>
+  <slot name="get cmd succeded"/>
+  <slot name="get cmd failed"/>
+  <slot name="put cmd started"/>
+  <slot name="put cmd succeded"/>
+  <slot name="put cmd failed"/>
+  <slot name="ls cmd started"/>
+  <slot name="ls cmd succeded"/>
+  <slot name="ls cmd failed"/>
+  <slot name="mkdir cmd started"/>
+  <slot name="mkdir cmd succeded"/>
+  <slot name="mkdir cmd failed"/>
+  <slot name="delete cmd started"/>
+  <slot name="delete cmd succeded"/>
+  <slot name="delete cmd failed"/>
+
+  <trigger name="start">
+    <event name="connect" when="down"/>
+  </trigger>
+
+  <trigger name="stop">
+    <event name="disconnect" when="trying"/>
+    <event name="disconnect" when="up"/>
+    <event name="disconnect" when="get"/>
+    <event name="disconnect" when="put"/>
+    <event name="disconnect" when="ls"/>
+    <event name="disconnect" when="mkdir"/>
+    <event name="disconnect" when="delete"/>
+  </trigger>
+
+  <scxml filename="filebase_fsm.scxml"/>
+
+</class>
