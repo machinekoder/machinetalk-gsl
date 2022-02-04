@@ -14,23 +14,23 @@
       <event name="file2 up" when="trying"/>
     </state>
 
-    <outgoing name="get" public="true">
+    <outgoing name="file get" public="true">
       <event name="get msg sent" when="up"/>
     </outgoing>
-    <outgoing name="put" public="true">
+    <outgoing name="file put" public="true">
       <event name="put msg sent" when="up"/>
     </outgoing>
-    <outgoing name="ls" public="true">
+    <outgoing name="file ls" public="true">
       <event name="ls msg sent" when="up"/>
     </outgoing>
-    <outgoing name="mkdir" public="true">
-      <event name="mkdir msg sent" when="up"/>
+    <outgoing name="file mkdir" public="true">
+      <event name=" mkdir msg sent" when="up"/>
     </outgoing>
-    <outgoing name="delete" public="true">
+    <outgoing name="file delete" public="true">
       <event name="delete msg sent" when="up"/>
     </outgoing>
 
-    <incoming name="listing" public="true">
+    <incoming name="file listing" public="true">
       <event name="ls successful" when="ls"/>
     </incoming>
 

@@ -2,7 +2,7 @@
 <protocol name="File Protocol" module="Remote File" project="Machinetalk">
   The file protocol can be used to transfer file from and to a server.
 
-  <message name="get">
+  <message name="file get">
     Request one file from the service.
 
     <field name="file_service_data" message="FileServiceData" requirement="MUST">
@@ -30,7 +30,7 @@
     <response name="error"/>
   </message>
 
-  <message name="put">
+  <message name="file put">
     Send one file to the service.
 
     <field name="file_service_data" message="FileServiceData" requirement="MUST">
@@ -45,7 +45,7 @@
     <response name="error"/>
   </message>
 
-  <message name="ls">
+  <message name="file ls">
     Request one file from the service.
 
     <field name="file_service_data" message="FileServiceData" requirement="MUST">
@@ -58,7 +58,7 @@
     <response name="error"/>
   </message>
 
-  <message name="listing">
+  <message name="file listing">
     Directory listing returned by the file service.
 
     Each item of the directory listing MAY contain a the size field if the entry is a file.
@@ -72,7 +72,7 @@
     </field>
   </message>
 
-  <message name="mkdir">
+  <message name="file mkdir">
     Create a single directory on the service file system.
 
     <field name="file_service_data" message="FileServiceData" requirement="MUST">
@@ -85,7 +85,7 @@
     <response name="error"/>
   </message>
 
-  <message name="delete">
+  <message name="file delete">
     Removes a single file or directory on the service file system.
 
     <field name="file_service_data" message="FileServiceData" requirement="MUST">

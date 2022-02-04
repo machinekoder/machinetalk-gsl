@@ -19,14 +19,14 @@
       Ping from client.
     </incoming>
 
-    <incoming name="get" public="true"/>
-    <incoming name="put" public="true"/>
-    <incoming name="ls" public="true"/>
-    <incoming name="mkdir" public="true"/>
-    <incoming name="delete" public="true"/>
+    <incoming name="file get" public="true"/>
+    <incoming name="file put" public="true"/>
+    <incoming name="file ls" public="true"/>
+    <incoming name="file mkdir" public="true"/>
+    <incoming name="file delete" public="true"/>
 
     <outgoing name="file data" public="true"/>
-    <outgoing name="listing" public="true"/>
+    <outgoing name="file listing" public="true"/>
     <outgoing name="cmd complete" public="true"/>
     <outgoing name="error" public="true"/>
   </socket>
@@ -39,23 +39,6 @@
     <event name = "stop" when = "up"/>
   </trigger>
 
-  <fsm name = "fsm" initial = "down">
-    <state name = "down">
-        <event name = "start" next = "trying">
-          <action name = "start file2 channel" />
-        </event>
-    </state>
-
-    <state name = "trying">
-        <event name = "file2 up" next = "up">
-        </event>
-    </state>
-
-    <state name = "up">
-      <event name = "stop" next = "down">
-        <action name = "stop file2 channel" />
-      </event>
-    </state>
-  </fsm>
+  <scxml filename="fileservicebase_fsm.scxml"/>
 
 </class>
