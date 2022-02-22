@@ -11,14 +11,6 @@
       <event name="file2 up" when="trying"/>
     </state>
 
-    <outgoing name = "ping acknowledge" public="true">
-      Ping acknowledge to client.
-    </outgoing>
-
-    <incoming name = "ping" public="true">
-      Ping from client.
-    </incoming>
-
     <incoming name="file get" public="true"/>
     <incoming name="file put" public="true"/>
     <incoming name="file ls" public="true"/>
