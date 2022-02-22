@@ -73,6 +73,8 @@ class $(class.name:lower,Pascal)(object):
 .    endif
 .    if ((type = "SUB") | (type = "XPUB"))
         self._$(name)_topics = set()
+.    elsif (type = "ROUTER")
+        self._last_$(name)_identity = ''
 .    endif
 .  endif
         # more efficient to reuse protobuf messages
@@ -434,6 +436,7 @@ class $(class.name:lower,Pascal)(object):
         frames = socket.recv_multipart()
         identity = frames[:-1]
         msg = frames[-1]
+        self._last_$(name)_identity = identity
 .    else
         msg = socket.recv()
 .    endif
@@ -591,7 +594,11 @@ class $(class.name:lower,Pascal)(object):
 .      else
     def send_$(name:c)(self):
         tx = self._$(socket.name)_tx
+.        if (type = "ROUTER")
+        ids = [self._last_$(socket.name)_identity]
+.        else
         ids = self._$(socket.name)_topics
+.        endif
 .      endif
 .-     add protocol parameters
 .      for pparams
