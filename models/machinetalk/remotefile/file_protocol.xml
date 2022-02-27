@@ -8,6 +8,7 @@
     <field name="file_service_data" message="FileServiceData" requirement="MUST">
       <field name="files" message="File" requirement="MUST" quantity="1">
         <field name="name" requirement="MUST"/>
+        <field name="encoding" requirement="MAY"/>
       </field>
     </field>
 
@@ -46,7 +47,7 @@
   </message>
 
   <message name="file ls">
-    Request one file from the service.
+    Request a directory listing from the service.
 
     <field name="file_service_data" message="FileServiceData" requirement="MUST">
       <field name="files" message="File" requirement="MUST" quantity="1">
